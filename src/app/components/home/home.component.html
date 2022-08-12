@@ -1,0 +1,6 @@
+<div *ngIf="(afAuth.user | async)">User is logged in
+    <br>
+    <button mat-raised-button color="primary" (click)="logout()">Log out</button>
+</div>
+
+<div *ngIf="!(afAuth.user | async)"><app-sign-in></app-sign-in></div>

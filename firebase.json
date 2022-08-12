@@ -1,7 +1,7 @@
 {
   "hosting": {
-	"site": "spesedc",
-    "public": "./src",
+	  "site": "spesedc",
+    "public": "build",
     "ignore": [
       "firebase.json",
       "**/.*",
