@@ -3,4 +3,5 @@
     <button mat-raised-button color="primary" (click)="logout()">Log out</button>
 </div>
 
-<div *ngIf="!(afAuth.user | async)"><app-sign-in></app-sign-in></div>
+<div *ngIf="!(afAuth.user | async)"><app-sign-in></app-sign-in>
+</div>

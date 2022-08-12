@@ -1,7 +1,7 @@
 {
   "hosting": {
 	  "site": "spesedc",
-    "public": "build",
+    "public": "dist/spese-webapp",
     "ignore": [
       "firebase.json",
       "**/.*",
