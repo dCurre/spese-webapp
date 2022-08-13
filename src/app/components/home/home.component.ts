@@ -5,6 +5,7 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { UserService } from '../../shared/services/firestore/user/user.service';
 import { User } from '../../shared/services/firestore/user/user';
 import { Observable } from 'rxjs';
+import { UserFieldsEnum } from 'src/app/shared/enums/userFieldsEnum';
 
 @Component({
   selector: 'app-home',
@@ -13,8 +14,8 @@ import { Observable } from 'rxjs';
 })
 export class HomeComponent implements OnInit {
 
-  users$: Observable<User[]>;
-  user$: Observable<User>;
+  protected userList$: Observable<User[]>;
+  protected loggedUser$: Observable<User>;
 
   constructor(
     public afAuth: AngularFireAuth,
@@ -22,7 +23,7 @@ export class HomeComponent implements OnInit {
     ) { }
 
   ngOnInit(): void {
-    this.getUsers();
+    this.getLoggedUser()
   }
 
   logout(): void {
@@ -30,9 +31,20 @@ export class HomeComponent implements OnInit {
 }
 
   async getUsers() {
-    this.users$ = this.userService.getAllUsers();
+    this.userList$ = this.userService.getAllUsers();
   }
 
-  async getUserById(id: string) {
+  async getUserById(field: string, id: string) {
+    this.loggedUser$ = this.userService.getUserByField(field, id);
+  }
+
+  async getLoggedUser() {
+    this.afAuth.authState.subscribe(user => {
+      try{
+        this.loggedUser$ = this.userService.getUserByField(UserFieldsEnum.ID, user!!.uid);
+      } catch (e){
+          console.error("HomeComponent.getLoggedUser: ", e)
+      }
+    });
   }
 }

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
-import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { SignInComponent } from './components/sign-in/sign-in.component';
 import { HomeComponent } from './components/home/home.component';
 
@@ -9,10 +8,8 @@ import { HomeComponent } from './components/home/home.component';
 import { AuthGuard } from './shared/guard/auth.guard';
 
 const routes: Routes = [
-  { path: '', redirectTo: 'home', pathMatch: 'full' },
-  { path: 'home', component: HomeComponent },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
-  { path: 'signin', component: SignInComponent },
+  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
+  { path: 'signin', component: SignInComponent},
   //{ path: 'signup', component: SignupComponent },
   { path: '**', component: HomeComponent },// catch-all in case no other path matched
 ];
