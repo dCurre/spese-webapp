@@ -4,8 +4,9 @@
 </div>
 
 <!-- IF LOGGED IN -->
-<div *ngIf="(afAuth.user | async)">User is logged in
+<div *ngIf="(afAuth.user | async)">
     <div *ngIf="loggedUser$ | async as user">
+        <app-toolbar></app-toolbar>
         SINGOLI<br>
         {{user.id}} {{user.hidePaidLists}}
     </div>

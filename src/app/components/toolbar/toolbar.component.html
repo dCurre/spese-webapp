@@ -1,23 +1,23 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="#">Spese</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
+<nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-spese">
+  <a class="navbar-brand" href="">Spese</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav mr-auto"></ul>
+    <ul class="navbar-nav ">
+      <li class="nav-item">
+        <div *ngIf="loggedUser$ | async as user">
+          <a class="nav-link" href="">
+            <img class='user_image'[src]="user.profileImage"/> {{user.fullname}}
+          </a>
+        </div>
+      </li>
+    </ul>
+    <button class="btn my-2 my-sm-0 logout_btn" (click)="logout()">
+      <img class='user_image' src="https://firebasestorage.googleapis.com/v0/b/spese-curreli-bullita.appspot.com/o/ic_logo_purple.png?alt=media&token=4b6b2a65-3feb-4061-b9b6-e4872ba756fd">
+       Logout
     </button>
-  
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="#">Link</a>
-        </li>
-      </ul>
-    </div>
-  </nav>
+  </div>
+</nav>
