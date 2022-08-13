@@ -6,7 +6,7 @@
     width: 350px;
     margin-top: auto;
     margin-bottom: auto;
-    background: #c0392b;
+    background: white;
     position: relative;
     display: flex;
     justify-content: center;
@@ -23,7 +23,7 @@
     width: 170px;
     top: -75px;
     border-radius: 50%;
-    background: #ffffff;
+    background: #f8f9fa !important;
     padding: 10px;
     text-align: center;
 }
@@ -31,7 +31,7 @@
     height: 150px;
     width: 150px;
     border-radius: 50%;
-    border: 2px solid white;
+    border: 2px solid #f8f9fa !important;
 }
 .form_container {
     margin-top: 100px;
@@ -41,14 +41,15 @@
     background: #7C4DFF !important;
     color: white !important;
 }
+.login_btn:focus {
+    box-shadow: none !important;
+    outline: 0px !important;
+}
 .btn-google {
     width: 100%;
     color: #545454;
     background-color: #ffffff;
-}
-.login_btn:focus {
-    box-shadow: none !important;
-    outline: 0px !important;
+    box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.1), 0 1px 10px 0 rgba(0, 0, 0, 0.20);
 }
 .input-group-text {
     background: #7C4DFF !important;

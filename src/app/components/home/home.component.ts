@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-
 import { UserService } from '../../shared/services/firestore/user/user.service';
 import { User } from '../../shared/services/firestore/user/user';
 import { Observable } from 'rxjs';
@@ -28,7 +27,7 @@ export class HomeComponent implements OnInit {
 
   logout(): void {
     this.afAuth.signOut();
-}
+  }
 
   async getUsers() {
     this.userList$ = this.userService.getAllUsers();
