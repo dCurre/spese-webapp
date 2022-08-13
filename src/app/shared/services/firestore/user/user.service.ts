@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 
 import { AngularFirestore } from '@angular/fire/compat/firestore';
-import { map, Observable } from 'rxjs';
+import { map } from 'rxjs';
 import { User } from './user';
+import { TablesEnum } from 'src/app/shared/enums/tablesEnum';
 
 @Injectable({
  providedIn: 'root'
@@ -10,7 +11,7 @@ import { User } from './user';
 
 export class UserService {
 
-    private collection = this.db.collection<User>('User');
+    private collection = this.db.collection<User>(TablesEnum.USER);
 
     constructor(private db: AngularFirestore) { }
 
@@ -23,11 +24,17 @@ export class UserService {
             }));
     }
 
-    getUserById(id: string) {
-        return this.collection.doc(id).valueChanges().pipe(user => {
-                console.log(user)
-                return user;
-            });
+    getUserByField(field: string, value: string) {
+        return this.db.collection<User>(
+            TablesEnum.USER,
+            ref => ref.where(field, '==', value)
+        ).valueChanges().pipe(
+            map(users => {
+              const user = users[0];
+              console.log(user);
+              return user;
+            })
+          );
     };
     
 }

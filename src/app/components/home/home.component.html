@@ -1,10 +1,27 @@
-<div *ngIf="!(afAuth.user | async)"><app-sign-in></app-sign-in>
+<!-- IF NOT LOGGED IN -->
+<div *ngIf="!(afAuth.user | async)">
+    <app-sign-in></app-sign-in>
 </div>
 
+<!-- IF LOGGED IN -->
 <div *ngIf="(afAuth.user | async)">User is logged in
-    <br>
-    <div *ngFor="let user of users$ | async">
-    {{user.id}} {{user.fullname}}
+    <div *ngIf="loggedUser$ | async as user">
+        SINGOLI<br>
+        {{user.id}} {{user.hidePaidLists}}
     </div>
     <button mat-raised-button color="primary" (click)="logout()">Log out</button>
 </div>
+
+
+
+<!--
+    <div *ngFor="let user of userList$ | async">
+        LISTE <br>
+        {{user.id}} {{user.fullname}}
+    </div>
+
+    <div *ngIf="user_s$ | async as user">
+        SINGOLI<br>
+        {{user.id}} {{user.fullname}}
+    </div>
+-->
