@@ -25,7 +25,7 @@ export class ExpensesListService {
             }));
     }
 
-    getExpensesListByUserId(field: string, value: string) {
+    getExpensesListsByUserId(field: string, value: string) {
         return this.db.collection<ExpensesList>(
             TablesEnum.EXPENSES_LIST,
             ref => (
