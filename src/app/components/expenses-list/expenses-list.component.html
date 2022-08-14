@@ -18,8 +18,8 @@
                                 </div>
                                 <div class="flex">
                                     <a  [routerLink]="['/list', expensesList.id]" class="item-author text-color" data-abc="true">{{expensesList.name}}</a>
-                                    <div class="item-except text-muted text-sm h-1x">
-                                        Proprietario:
+                                    <div *ngIf="listOwner$ | async as listOwner" class="item-except text-muted text-sm h-1x">
+                                        Proprietario: {{listOwner.fullname}}
                                     </div>
                                 </div>
                                 <!-- SCRITTA FIGA SULLA DESTRA
@@ -40,9 +40,9 @@
                                         </svg>
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-right bg-black" role="menu">
-                                        <a [routerLink]="['/list', expensesList.id]" class="dropdown-item edit" data-abc="true">Apri</a>
+                                        <a [routerLink]="['/list', expensesList.id]" class="dropdown-item" data-abc="true">Apri</a>
                                         <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item trash" data-abc="true">Abbandona</a>
+                                        <a href="" class="dropdown-item edit" data-abc="true">Abbandona</a>
                                     </div>
                                 </div>
                             </div>
