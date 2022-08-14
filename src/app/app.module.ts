@@ -26,6 +26,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { ExpensesListComponent } from './components/expenses-list/expenses-list.component';
+import { ExpenseListDetailsComponent } from './components/expense-list-details/expense-list-details.component';
 
 
 @NgModule({
@@ -34,7 +35,8 @@ import { ExpensesListComponent } from './components/expenses-list/expenses-list.
     ToolbarComponent,
     SignInComponent,
     HomeComponent,
-    ExpensesListComponent
+    ExpensesListComponent,
+    ExpenseListDetailsComponent
   ],
   imports: [
     BrowserModule,

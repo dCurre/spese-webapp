@@ -5,7 +5,7 @@
     <ng-container *ngFor="let expensesList of expensesLists$ | async">
         <div class="d-flex justify-content-center">
             <a class="expense-list-href d-flex justify-content-center align-items-center"
-                [ngClass]="expensesList.paid ? 'bg-success' : 'bg-danger'" href="/list/{{expensesList.id}}">
+                [ngClass]="expensesList.paid ? 'bg-success' : 'bg-danger'" [routerLink]="['/list', expensesList.id]" >
                 <b>{{expensesList.name}}</b>
             </a>
         </div>

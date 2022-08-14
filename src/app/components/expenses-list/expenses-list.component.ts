@@ -19,13 +19,13 @@ export class ExpensesListComponent implements OnInit {
     private expensesListService: ExpensesListService) { }
 
   ngOnInit(): void {
-    this.getExpensesListByLoggedUser()
+    this.getExpensesListsByLoggedUser()
   }
 
-  async getExpensesListByLoggedUser() {
+  async getExpensesListsByLoggedUser() {
     this.afAuth.authState.subscribe(user => {
       try{
-        this.expensesLists$ = this.expensesListService.getExpensesListByUserId(ExpensesListFieldsEnum.PARTECIPANTS, user!!.uid);
+        this.expensesLists$ = this.expensesListService.getExpensesListsByUserId(ExpensesListFieldsEnum.PARTECIPANTS, user!!.uid);
       } catch (e){
           console.error("HomeComponent.getLoggedUser: ", e)
       }
