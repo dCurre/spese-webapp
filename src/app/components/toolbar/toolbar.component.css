@@ -1,3 +1,5 @@
+@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
+
 .bg-spese{
     background: #7C4DFF !important;
 }
@@ -5,8 +7,6 @@
 a{
     color: white !important;
 }
-
-@import url("//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 
 .navbar-icon-top .navbar-nav .nav-link > .fa {
   position: relative;
