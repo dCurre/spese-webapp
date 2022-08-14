@@ -25,6 +25,7 @@ import { AuthService } from "./shared/services/auth.service";
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
+import { ExpensesListComponent } from './components/expenses-list/expenses-list.component';
 
 
 @NgModule({
@@ -32,7 +33,8 @@ import { MatInputModule } from '@angular/material/input';
     AppComponent,
     ToolbarComponent,
     SignInComponent,
-    HomeComponent
+    HomeComponent,
+    ExpensesListComponent
   ],
   imports: [
     BrowserModule,
