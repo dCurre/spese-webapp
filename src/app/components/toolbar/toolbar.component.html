@@ -10,13 +10,14 @@
       <li class="nav-item">
         <div *ngIf="loggedUser$ | async as user">
           <a class="nav-link" href="">
-            <img class='user_image'[src]="user.profileImage"/> {{user.fullname}}
+            <img class='user_image' referrerpolicy="no-referrer" [src]="user.profileImage"/> {{user.fullname}}
           </a>
         </div>
       </li>
     </ul>
     <button class="btn my-2 my-sm-0 logout_btn" (click)="logout()">
-      <img class='user_image' src="https://firebasestorage.googleapis.com/v0/b/spese-curreli-bullita.appspot.com/o/ic_logo_purple.png?alt=media&token=4b6b2a65-3feb-4061-b9b6-e4872ba756fd">
+      <img class='user_image' referrerpolicy="no-referrer"
+      src="https://firebasestorage.googleapis.com/v0/b/spese-curreli-bullita.appspot.com/o/ic_logo_purple.png?alt=media&token=4b6b2a65-3feb-4061-b9b6-e4872ba756fd">
        Logout
     </button>
   </div>

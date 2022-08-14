@@ -5,12 +5,8 @@
 
 <!-- IF LOGGED IN -->
 <div *ngIf="(afAuth.user | async)">
-    <div *ngIf="loggedUser$ | async as user">
-        <app-toolbar></app-toolbar>
-        SINGOLI<br>
-        {{user.id}} {{user.hidePaidLists}}
-    </div>
-    <button mat-raised-button color="primary" (click)="logout()">Log out</button>
+    <app-toolbar></app-toolbar>
+    <app-expenses-list></app-expenses-list>
 </div>
 
 

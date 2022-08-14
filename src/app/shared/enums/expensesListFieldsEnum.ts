@@ -1,4 +1,4 @@
-export enum ExpensesListFields {
+export enum ExpensesListFieldsEnum {
     ID = "id",
     NAME = "name",
     OWNER = "owner",

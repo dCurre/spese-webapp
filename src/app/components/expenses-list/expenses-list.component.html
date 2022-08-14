@@ -1,0 +1,13 @@
+<div class="grid">
+    <h3 class="d-flex justify-content-center">
+        Le tue liste
+    </h3>
+    <ng-container *ngFor="let expensesList of expensesLists$ | async">
+        <div class="d-flex justify-content-center">
+            <a class="expense-list-href d-flex justify-content-center align-items-center"
+                [ngClass]="expensesList.paid ? 'bg-success' : 'bg-danger'" href="/list/{{expensesList.id}}">
+                <b>{{expensesList.name}}</b>
+            </a>
+        </div>
+    </ng-container>
+</div>
