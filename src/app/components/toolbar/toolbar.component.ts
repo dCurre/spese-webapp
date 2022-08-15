@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { UserService } from '../../shared/services/firestore/user/user.service';
-import { User } from '../../shared/services/firestore/user/user';
+import { UserService } from '../../services/firestore/user/user.service';
+import { User } from '../../services/firestore/user/user';
 import { Observable } from 'rxjs';
-import { UserFieldsEnum } from 'src/app/shared/enums/userFieldsEnum';
+import { UserFieldsEnum } from 'src/app/enums/userFieldsEnum';
 
 @Component({
   selector: 'app-toolbar',

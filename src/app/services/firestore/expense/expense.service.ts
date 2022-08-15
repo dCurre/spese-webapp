@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { map } from 'rxjs';
 import { Expense } from './expense';
-import { TablesEnum } from 'src/app/shared/enums/tablesEnum';
-import { ExpenseFieldsEnum } from 'src/app/shared/enums/expenseFieldsEnum';
+import { TablesEnum } from 'src/app/enums/tablesEnum';
+import { ExpenseFieldsEnum } from 'src/app/enums/expenseFieldsEnum';
 
 @Injectable({
     providedIn: 'root'

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { map } from 'rxjs';
 import { User } from './user';
-import { TablesEnum } from 'src/app/shared/enums/tablesEnum';
+import { TablesEnum } from 'src/app/enums/tablesEnum';
 
 @Injectable({
  providedIn: 'root'

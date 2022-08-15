@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { ExpensesListService } from '../../shared/services/firestore/expensesList/expenses-list.service';
-import { ExpensesList } from '../../shared/services/firestore/expensesList/expenses-list';
+import { ExpensesListService } from '../../services/firestore/expensesList/expenses-list.service';
+import { ExpensesList } from '../../services/firestore/expensesList/expenses-list';
 import { map, Observable } from 'rxjs';
-import { UserService } from 'src/app/shared/services/firestore/user/user.service';
-import { UserFieldsEnum } from 'src/app/shared/enums/userFieldsEnum';
-import { User } from 'src/app/shared/services/firestore/user/user';
+import { UserService } from 'src/app/services/firestore/user/user.service';
+import { UserFieldsEnum } from 'src/app/enums/userFieldsEnum';
+import { User } from 'src/app/services/firestore/user/user';
 import DateUtils from 'src/app/utils/date-utils';
 import { DialogComponent } from '../dialog/dialog.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
