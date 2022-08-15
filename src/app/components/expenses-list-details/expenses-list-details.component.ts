@@ -1,16 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { ExpenseService } from '../../shared/services/firestore/expense/expense.service';
-import { Expense } from '../../shared/services/firestore/expense/expense';
-import { ExpensesList } from '../../shared/services/firestore/expensesList/expenses-list';
+import { ExpenseService } from '../../services/firestore/expense/expense.service';
+import { Expense } from '../../services/firestore/expense/expense';
+import { ExpensesList } from '../../services/firestore/expensesList/expenses-list';
 import { Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { ExpensesListService } from 'src/app/shared/services/firestore/expensesList/expenses-list.service';
+import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
 
 @Component({
-  selector: 'app-expense-list-details',
-  templateUrl: './expense-list-details.component.html',
-  styleUrls: ['./expense-list-details.component.css']
+  selector: 'app-expenses-list-details',
+  templateUrl: './expenses-list-details.component.html',
+  styleUrls: ['./expenses-list-details.component.css']
 })
 export class ExpenseListDetailsComponent implements OnInit {
 

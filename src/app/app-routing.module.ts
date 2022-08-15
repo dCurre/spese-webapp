@@ -5,8 +5,8 @@ import { SignInComponent } from './components/sign-in/sign-in.component';
 import { HomeComponent } from './components/home/home.component';
 
 // route guard
-import { AuthGuard } from './shared/guard/auth.guard';
-import { ExpenseListDetailsComponent } from './components/expense-list-details/expense-list-details.component';
+import { AuthGuard } from './guard/auth.guard';
+import { ExpenseListDetailsComponent } from './components/expenses-list-details/expenses-list-details.component';
 
 const routes: Routes = [
   { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },

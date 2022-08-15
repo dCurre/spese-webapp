@@ -3,8 +3,8 @@ import { Injectable } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/compat/firestore';
 import { map } from 'rxjs';
 import { ExpensesList } from './expenses-list';
-import { TablesEnum } from 'src/app/shared/enums/tablesEnum';
-import { ExpensesListFieldsEnum } from 'src/app/shared/enums/expensesListFieldsEnum';
+import { TablesEnum } from 'src/app/enums/tablesEnum';
+import { ExpensesListFieldsEnum } from 'src/app/enums/expensesListFieldsEnum';
 import { ExpenseService } from '../expense/expense.service';
 import { Expense } from '../expense/expense';
 

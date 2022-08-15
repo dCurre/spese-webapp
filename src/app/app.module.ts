@@ -19,14 +19,14 @@ import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { environment } from '../environments/environment';
 
 // Auth service
-import { AuthService } from "./shared/services/auth.service";
+import { AuthService } from 'src/app/services/auth/auth.service'
 
 // Material
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { ExpensesListComponent } from './components/expenses-list/expenses-list.component';
-import { ExpenseListDetailsComponent } from './components/expense-list-details/expense-list-details.component';
+import { ExpenseListDetailsComponent } from './components/expenses-list-details/expenses-list-details.component';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
