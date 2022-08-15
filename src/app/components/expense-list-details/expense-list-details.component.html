@@ -1,6 +1,6 @@
 <app-toolbar></app-toolbar>
-<h3 class="d-flex justify-content-center">
-    Le tue spese
+<h3 *ngIf="expensesList$ | async as expensesList" class="d-flex justify-content-center">
+    {{expensesList.name}}
 </h3>
 <ng-container *ngFor="let expense of expenses$ | async">
     <div class="d-flex justify-content-center">
