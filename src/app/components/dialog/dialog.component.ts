@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { DialogFields } from './DialogFields';
+
 
 @Component({
   selector: 'app-dialog',
@@ -7,9 +10,10 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DialogComponent implements OnInit {
 
-  constructor() { }
+  @Input() dialogFields: DialogFields;
+
+  constructor(public modalService: NgbActiveModal) { }
 
   ngOnInit(): void {
   }
-
 }

@@ -29,6 +29,7 @@ import { ExpensesListComponent } from './components/expenses-list/expenses-list.
 import { ExpenseListDetailsComponent } from './components/expense-list-details/expense-list-details.component';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 
 @NgModule({
@@ -58,6 +59,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 
     FormsModule,
     ReactiveFormsModule,
+    NgbModule,
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

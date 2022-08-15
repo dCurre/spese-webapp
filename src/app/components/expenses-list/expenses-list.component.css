@@ -150,11 +150,20 @@
     padding-right: .625rem
 }
 
-a:focus,
-a:hover {
+a{
     text-decoration: none
 }
 
-.list-item {
-    background: white
+a:focus,
+a:hover {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.list-item:hover{
+    background: #f3f0ff !important;
+}
+
+#btn-add{
+    margin-bottom: 4px;
 }

@@ -29,7 +29,7 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   async getExpensesByListId(id: string) {
     try{
-      this.expenses$ = this.expenseService.getExpenseByListID(id);
+      this.expenses$ = this.expenseService.getExpensesByListID(id);
     } catch (e){
         console.error("HomeComponent.getLoggedUser: ", e)
     }
