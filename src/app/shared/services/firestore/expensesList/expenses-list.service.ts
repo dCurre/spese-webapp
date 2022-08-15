@@ -16,28 +16,40 @@ export class ExpensesListService {
 
     constructor(private db: AngularFirestore) { }
 
-    getAllExpensesLists() {
+    getAll() {
         return this.collection.valueChanges().pipe(map(coll => {
                 return coll.map(expensesList => {
-                    console.log(expensesList)
+                    //console.log(expensesList)
                     return expensesList;
                 });
             }));
     }
 
-    getExpensesListsByUserId(field: string, value: string) {
+    getByUserId(value: string) {
         return this.db.collection<ExpensesList>(
             TablesEnum.EXPENSES_LIST,
             ref => (
-                ref.where(field, 'array-contains', value)
+                ref.where(ExpensesListFieldsEnum.PARTECIPANTS, 'array-contains', value)
                 .orderBy(ExpensesListFieldsEnum.PAID, 'asc')
                 .orderBy(ExpensesListFieldsEnum.TIMESTAMP_INS, 'desc')
                 ) 
             ).valueChanges().pipe(map(coll => {
             return coll.map(expensesList => {
-                console.log(expensesList)
+                //console.log(expensesList)
                 return expensesList;
             });
+        }));
+    };
+
+    getById(value: string) {
+        return this.db.collection<ExpensesList>(
+            TablesEnum.EXPENSES_LIST,
+            ref => (
+                ref.where(ExpensesListFieldsEnum.ID, '==', value)
+                ) 
+            ).valueChanges().pipe(map(expensesList => {
+                //console.log(expensesList[0])
+                return expensesList[0];
         }));
     };
 }

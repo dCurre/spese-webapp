@@ -27,6 +27,8 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { ExpensesListComponent } from './components/expenses-list/expenses-list.component';
 import { ExpenseListDetailsComponent } from './components/expense-list-details/expense-list-details.component';
+import { DialogComponent } from './components/dialog/dialog.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 @NgModule({
@@ -36,7 +38,8 @@ import { ExpenseListDetailsComponent } from './components/expense-list-details/e
     SignInComponent,
     HomeComponent,
     ExpensesListComponent,
-    ExpenseListDetailsComponent
+    ExpenseListDetailsComponent,
+    DialogComponent
   ],
   imports: [
     BrowserModule,
@@ -51,6 +54,7 @@ import { ExpenseListDetailsComponent } from './components/expense-list-details/e
     MatButtonModule,
     MatCardModule,
     MatInputModule,
+    MatDialogModule,
 
     FormsModule,
     ReactiveFormsModule,
