@@ -25,7 +25,7 @@ export class ExpenseService {
         }));
     }
 
-    getExpenseByListID(id: string) {
+    getExpensesByListID(id: string) {
         return this.db.collection<Expense>(
             TablesEnum.EXPENSE,
             ref => ref.where(ExpenseFieldsEnum.EXPENSE_LIST_ID, '==', id)
@@ -36,6 +36,36 @@ export class ExpenseService {
                 return expensesList;
             });
         }));
+    }
+
+    delete(id: string) {
+        try{
+            this.collection.doc(id).delete();
+            return true;
+        } catch (e){
+            console.error("Impossibile cancellare lista, ", e)
+            return false;
+        }
+    };
+
+    update(expense: Expense) {
+        try{
+            this.collection.doc(expense.id).update(expense)
+            return expense;
+        } catch (e){
+            console.error("Impossibile cancellare lista, ", e)
+            return null;
+        }
+    };
+
+    insert(id: string, expense: Expense) {
+        try{
+            this.collection.doc(id).set(expense)
+            return expense;
+        } catch (e){
+            console.error("Impossibile cancellare lista, ", e)
+            return null;
+        }
     }
 
 }

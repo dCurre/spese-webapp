@@ -1,51 +1,51 @@
 <br>
 <h3 class="d-flex justify-content-center">Le tue liste</h3>
 <br>
-<div class="page-content page-container" id="page-content">
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="container">
-                <div class="list list-row card">
-                    <div class="row d-flex justify-content-center">
-                        <div class="col-md-8">
-                            <div *ngFor="let expensesList of expensesLists$ | async" class="list-item">
-                                <div>
-                                    <a [routerLink]="['/list', expensesList.id]" data-abc="true">
-                                        <span class="w-40 avatar" [ngClass]="expensesList.paid ? 'gd-saldato' : ' gd-non-saldato'">
-                                            {{expensesList.name[0]}}
-                                        </span>
-                                    </a>
-                                </div>
-                                <div class="flex">
-                                    <a  [routerLink]="['/list', expensesList.id]" class="item-author text-color" data-abc="true">{{expensesList.name}}</a>
-                                    <div *ngIf="listOwner$ | async as listOwner" class="item-except text-muted text-sm h-1x">
-                                        Creata il {{timestampToDate(expensesList.timestampIns)}}
-                                    </div>
-                                </div>
-                                <!-- SCRITTA FIGA SULLA DESTRA
+<div class="container">
+    <div class="d-flex justify-content-end">
+        <button id="btn-add" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i>Nuova
+            lista</button>
+    </div>
+    <div class="list list-row card">
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-8">
+                <div *ngFor="let expensesList of expensesLists$ | async" class="list-item">
+                    <div>
+                        <a [routerLink]="['/list', expensesList.id]" data-abc="true">
+                            <span class="w-40 avatar" [ngClass]="expensesList.paid ? 'gd-saldato' : ' gd-non-saldato'">
+                                {{expensesList.name[0]}}
+                            </span>
+                        </a>
+                    </div>
+                    <div class="flex">
+                        <a [routerLink]="['/list', expensesList.id]" class="item-author text-color"
+                            data-abc="true">{{expensesList.name}}</a>
+                        <div *ngIf="listOwner$ | async as listOwner" class="item-except text-muted text-sm h-1x">
+                            Creata il {{timestampToDate(expensesList.timestampIns)}}
+                        </div>
+                    </div>
+                    <!-- SCRITTA FIGA SULLA DESTRA
                                 <div class="no-wrap">
                                     <div class="item-date text-muted text-sm d-none d-xs-block d-sm-block d-md-block">
                                         15 weeks ago
                                     </div>
                                 </div>
                                 -->
-                                <div class="item-action dropdown">
-                                    <a href="#" data-toggle="dropdown" class="text-muted" data-abc="true">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" class="feather feather-more-vertical">
-                                            <circle cx="12" cy="12" r="1"></circle>
-                                            <circle cx="12" cy="5" r="1"></circle>
-                                            <circle cx="12" cy="19" r="1"></circle>
-                                        </svg>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right bg-black" role="menu">
-                                        <a [routerLink]="['/list', expensesList.id]" class="dropdown-item" data-abc="true">Apri</a>
-                                        <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item" mat-button (click)="leaveDialog()">Abbandona</button>
-                                    </div>
-                                </div>
-                            </div>
+                    <div class="item-action dropdown">
+                        <a href="#" data-toggle="dropdown" class="text-muted" data-abc="true">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="feather feather-more-vertical">
+                                <circle cx="12" cy="12" r="1"></circle>
+                                <circle cx="12" cy="5" r="1"></circle>
+                                <circle cx="12" cy="19" r="1"></circle>
+                            </svg>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right" role="menu">
+                            <a [routerLink]="['/list', expensesList.id]" class="dropdown-item" data-abc="true">Apri</a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" *ngIf="listOwner$ | async as listOwner"
+                                (click)="leave(expensesList)">Abbandona</button>
                         </div>
                     </div>
                 </div>
