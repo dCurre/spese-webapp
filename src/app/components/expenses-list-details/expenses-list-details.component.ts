@@ -9,6 +9,8 @@ import { ExpensesListService } from 'src/app/services/firestore/expensesList/exp
 import DateUtils from 'src/app/utils/date-utils';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expense-dialog.component';
+import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 
 @Component({
   selector: 'app-expenses-list-details',
@@ -55,9 +57,6 @@ export class ExpenseListDetailsComponent implements OnInit {
       if (response == null) {
         return
       }
-
-      console.debug(response)
-
       this.expenseService.insert(response, this.route.snapshot.paramMap.get('id')!!);
     });
   }
@@ -67,7 +66,18 @@ export class ExpenseListDetailsComponent implements OnInit {
   }
 
   delete(expense: Expense){
-    
+    const modalDelete = this.modalService.open(DialogComponent, { centered: true });
+    modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
+      'Elimina',
+      "Vuoi veramente eliminare la spesa:  " + expense.expense);
+
+    modalDelete.result.then((response) => {
+      if (!response) {
+        return
+      }
+
+      this.expenseService.delete(expense.id);
+    });
   }
 
   timestampToDate(timestamp: number) {

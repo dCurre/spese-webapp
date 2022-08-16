@@ -1,4 +1,4 @@
-<!-- username & password icons-->
+<!-- icons-->
 <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
     integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
 
@@ -12,53 +12,48 @@
     <form #newListForm="ngForm">
         <div class="input-group mb-2">
             <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-list-ul"></i></span>
+                <span class="input-group-text"><i class="fas fa-shopping-cart"></i></span>
             </div>
-            <input type="text" name='expense' [(ngModel)]="expense.expense" class="form-control input_pass" value=""
-                placeholder="Nome nuova spesa">
+            <input type="text" name='expense' [(ngModel)]="expense.expense" class="form-control input_pass" required
+            [ngClass]="isValidExpense(expense.expense) ? 'is-valid' : 'is-invalid'" placeholder="Nome nuova spesa">
+            <div class="invalid-feedback">Deve contenere 1-14 caratteri</div>
         </div>
         <div class="input-group mb-2">
             <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-list-ul"></i></span>
+                <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
             </div>
-            <input type="text" name='amount' [(ngModel)]="expense.amount" class="form-control input_pass" value=""
-                placeholder="Importo">
+            <input type="number" name='amount' [(ngModel)]="expense.amount" class="form-control input_pass" required
+            [ngClass]="isValidAmount(expense.amount) ? 'is-valid' : 'is-invalid'" placeholder="Importo">
+            <div class="invalid-feedback">Deve essere maggiore di 0</div>
         </div>
         <div class="input-group mb-2">
             <div class="input-group-append">
-                <span (click)="d.toggle()" class="input-group-text"><i class="fas fa-list-ul"></i></span>
+                <span (click)="d.toggle()" class="input-group-text"><i class="fas fa-clock"></i></span>
             </div>
             <input class="form-control" name="date" [(ngModel)]="model" ngbDatepicker [footerTemplate]="footerTemplate"
-                #d="ngbDatepicker">
-            <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button"><i
-                    class="fas fa-list-ul"></i></button>
+            #d="ngbDatepicker" required readonly="readonly">
+            <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button">
+                <i class="fas fa-calendar"></i></button>
         </div>
         <div class="input-group mb-2">
             <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-list-ul"></i></span>
+                <span class="input-group-text"><i class="fas fa-user"></i></span>
             </div>
-            <input type="text" name='buyer' [(ngModel)]="expense.buyer" class="form-control input_pass" value=""
-                placeholder="Pagatore">
+            <input type="text" name='buyer' [(ngModel)]="expense.buyer" class="form-control input_pass" required
+            [ngClass]="isValidBuyer(expense.buyer) ? 'is-valid' : 'is-invalid'" placeholder="Pagatore">
+            <div class="invalid-feedback">Deve essere popolato</div>
         </div>
     </form>
 </div>
 <div class="modal-footer">
     <button type="button" (click)="modalService.close(null)" class="btn btn-danger"
         data-dismiss="modal">Annulla</button>
-    <button type="button" class="btn btn-success" [disabled]="isValid(expense)"
-        (click)="close()">Crea</button>
+    <button type="button" class="btn btn-success" [disabled]="!isValid(expense)" (click)="close()">Crea</button>
 </div>
 
-
+<!-- Bottoni per calendario -->
 <ng-template #footerTemplate>
     <hr class="my-0">
     <button class="btn btn-primary btn-sm m-2 float-start" (click)="selectToday(); d.close()">Today</button>
     <button class="btn btn-secondary btn-sm m-2 float-end" (click)="d.close()">Close</button>
 </ng-template>
-
-
-<form class="row row-cols-sm-auto">
-    <div class="col-12">
-
-    </div>
-</form>

@@ -14,14 +14,15 @@
             <div class="input-group-append">
                 <span class="input-group-text"><i class="fas fa-list-ul"></i></span>
             </div>
-            <input type="text" name='name' [(ngModel)]="newListForm.name" class="form-control input_pass" value=""
-                placeholder="Nome nuova lista">
+            <input type="text" name='listName' [(ngModel)]="expensesList.name" class="form-control input_pass" required
+            [ngClass]="isValidListName(expensesList.name) ? 'is-valid' : 'is-invalid'" placeholder="Nome nuova lista">
+            <div class="invalid-feedback">Deve contenere 1-14 caratteri</div>
         </div>
     </form>
 </div>
 <div class="modal-footer">
     <button type="button" (click)="modalService.close(null)" class="btn btn-danger"
         data-dismiss="modal">Annulla</button>
-    <button type="button" [disabled]="newListForm.name == null" 
-            (click)="modalService.close(newListForm.name)" class="btn btn-success">Crea</button>
+    <button type="button" [disabled]="!isValidListName(expensesList.name)" 
+            (click)="modalService.close(expensesList.name)" class="btn btn-success">Crea</button>
 </div>
