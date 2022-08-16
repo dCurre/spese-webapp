@@ -13,9 +13,6 @@ import { SignInComponent } from './components/sign-in/sign-in.component';
 // Firebase
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
-//import { AngularFireStorageModule } from '@angular/fire/compat/storage';
-//import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
-//import { AngularFireDatabaseModule } from '@angular/fire/compat/database';
 import { environment } from '../environments/environment';
 
 // Auth service
@@ -27,9 +24,10 @@ import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
 import { ExpensesListComponent } from './components/expenses-list/expenses-list.component';
 import { ExpenseListDetailsComponent } from './components/expenses-list-details/expenses-list-details.component';
-import { DialogComponent } from './components/dialog/dialog.component';
+import { DialogComponent } from 'src/app/components/dialog/confirm-dialog/confirm-dialog.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { NewListDialogComponent } from './components/dialog/new-list-dialog/new-list-dialog.component';
 
 
 @NgModule({
@@ -40,7 +38,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     HomeComponent,
     ExpensesListComponent,
     ExpenseListDetailsComponent,
-    DialogComponent
+    DialogComponent,
+    NewListDialogComponent
   ],
   imports: [
     BrowserModule,
@@ -48,9 +47,6 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
     BrowserAnimationsModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
-    //ngularFirestoreModule,
-    //AngularFireStorageModule,
-    //AngularFireDatabaseModule,
 
     MatButtonModule,
     MatCardModule,

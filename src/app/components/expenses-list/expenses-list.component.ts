@@ -7,9 +7,11 @@ import { UserService } from 'src/app/services/firestore/user/user.service';
 import { UserFieldsEnum } from 'src/app/enums/userFieldsEnum';
 import { User } from 'src/app/services/firestore/user/user';
 import DateUtils from 'src/app/utils/date-utils';
-import { DialogComponent } from '../dialog/dialog.component';
+import { DialogComponent } from 'src/app/components/dialog/confirm-dialog/confirm-dialog.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DialogFields } from '../dialog/DialogFields';
+import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
+import { Router } from '@angular/router';
+import { NewListDialogComponent } from '../dialog/new-list-dialog/new-list-dialog.component';
 
 @Component({
   selector: 'app-expenses-list',
@@ -27,7 +29,8 @@ export class ExpensesListComponent implements OnInit {
     public afAuth: AngularFireAuth,
     private expensesListService: ExpensesListService,
     private userService: UserService,
-    private modalService: NgbModal) { }
+    private modalService: NgbModal,
+    public router: Router) { }
 
   ngOnInit(): void {
     this.getExpensesListsByLoggedUser()
@@ -55,13 +58,17 @@ export class ExpensesListComponent implements OnInit {
     })
   }
 
-  timestampToDate(timestamp: string) {
+  timestampToDate(timestamp: number) {
     return DateUtils.timestampToDate(timestamp);
+  }
+
+  timestampToHour(timestamp: number) {
+    return DateUtils.timestampToHour(timestamp);
   }
 
   leave(expensesList: ExpensesList) {
     const modalLeave = this.modalService.open(DialogComponent, { centered: true });
-    modalLeave.componentInstance.dialogFields = new DialogFields(
+    modalLeave.componentInstance.dialogFields = new ConfirmDialogFields(
       'Abbandona',
       'Vuoi veramente abbandonare ' + expensesList.name + '?');
 
@@ -87,7 +94,7 @@ export class ExpensesListComponent implements OnInit {
 
   delete(expensesList: ExpensesList) {
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
-    modalDelete.componentInstance.dialogFields = new DialogFields(
+    modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
       "Sei l'unico componente di " + expensesList.name + ".\nVuoi veramente cancellarla?");
 
@@ -97,6 +104,20 @@ export class ExpensesListComponent implements OnInit {
       }
 
       this.expensesListService.delete(expensesList.id);
+    });
+  }
+
+  newList() {
+    const modalDelete = this.modalService.open(NewListDialogComponent, { centered: true });
+
+    modalDelete.result.then((response) => {
+      if (response == null) {
+        return
+      }
+
+      this.afAuth.authState.subscribe(user => {
+        this.expensesListService.insert(response, user!!.uid);
+      })
     });
   }
 }

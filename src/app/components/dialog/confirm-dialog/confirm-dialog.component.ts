@@ -1,16 +1,16 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { DialogFields } from './DialogFields';
+import { ConfirmDialogFields } from './confirm-dialog-fields';
 
 
 @Component({
   selector: 'app-dialog',
-  templateUrl: './dialog.component.html',
-  styleUrls: ['./dialog.component.css']
+  templateUrl: './confirm-dialog.component.html',
+  styleUrls: ['./confirm-dialog.component.css']
 })
 export class DialogComponent implements OnInit {
 
-  @Input() dialogFields: DialogFields;
+  @Input() dialogFields: ConfirmDialogFields;
 
   constructor(public modalService: NgbActiveModal) { }
 

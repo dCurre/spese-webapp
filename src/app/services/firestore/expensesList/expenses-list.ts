@@ -4,5 +4,5 @@ export class ExpensesList {
     owner: string;
     paid: boolean;
     partecipants: string[];
-    timestampIns: string;
+    timestampIns: number;
 }

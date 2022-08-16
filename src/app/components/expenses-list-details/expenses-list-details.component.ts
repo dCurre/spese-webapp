@@ -31,7 +31,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     try{
       this.expenses$ = this.expenseService.getExpensesByListID(id);
     } catch (e){
-        console.error("HomeComponent.getLoggedUser: ", e)
+        console.error("ExpenseListDetailsComponent.getExpensesByListId: ", e)
     }
   }
 
@@ -39,7 +39,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     try{
       this.expensesList$ = this.expensesListService.getById(id);
     } catch (e){
-        console.error("HomeComponent.getLoggedUser: ", e)
+        console.error("ExpenseListDetailsComponent.getExpensesListDetails: ", e)
     }
   }
 }
