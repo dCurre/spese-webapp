@@ -28,6 +28,7 @@ import { DialogComponent } from 'src/app/components/dialog/confirm-dialog/confir
 import { MatDialogModule } from '@angular/material/dialog';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NewListDialogComponent } from './components/dialog/new-list-dialog/new-list-dialog.component';
+import { NewExpenseDialogComponent } from './components/dialog/new-expense-dialog/new-expense-dialog.component';
 
 
 @NgModule({
@@ -39,7 +40,8 @@ import { NewListDialogComponent } from './components/dialog/new-list-dialog/new-
     ExpensesListComponent,
     ExpenseListDetailsComponent,
     DialogComponent,
-    NewListDialogComponent
+    NewListDialogComponent,
+    NewExpenseDialogComponent,
   ],
   imports: [
     BrowserModule,

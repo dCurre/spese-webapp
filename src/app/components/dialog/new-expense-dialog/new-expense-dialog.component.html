@@ -1,0 +1,64 @@
+<!-- username & password icons-->
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
+    integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+
+<div class="modal-header">
+    <h5 class="modal-title">Crea una nuova lista</h5>
+    <button type="button" (click)="modalService.close(null)" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body">
+    <form #newListForm="ngForm">
+        <div class="input-group mb-2">
+            <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-list-ul"></i></span>
+            </div>
+            <input type="text" name='expense' [(ngModel)]="expense.expense" class="form-control input_pass" value=""
+                placeholder="Nome nuova spesa">
+        </div>
+        <div class="input-group mb-2">
+            <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-list-ul"></i></span>
+            </div>
+            <input type="text" name='amount' [(ngModel)]="expense.amount" class="form-control input_pass" value=""
+                placeholder="Importo">
+        </div>
+        <div class="input-group mb-2">
+            <div class="input-group-append">
+                <span (click)="d.toggle()" class="input-group-text"><i class="fas fa-list-ul"></i></span>
+            </div>
+            <input class="form-control" name="date" [(ngModel)]="model" ngbDatepicker [footerTemplate]="footerTemplate"
+                #d="ngbDatepicker">
+            <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button"><i
+                    class="fas fa-list-ul"></i></button>
+        </div>
+        <div class="input-group mb-2">
+            <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-list-ul"></i></span>
+            </div>
+            <input type="text" name='buyer' [(ngModel)]="expense.buyer" class="form-control input_pass" value=""
+                placeholder="Pagatore">
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button type="button" (click)="modalService.close(null)" class="btn btn-danger"
+        data-dismiss="modal">Annulla</button>
+    <button type="button" class="btn btn-success" [disabled]="isValid(expense)"
+        (click)="close()">Crea</button>
+</div>
+
+
+<ng-template #footerTemplate>
+    <hr class="my-0">
+    <button class="btn btn-primary btn-sm m-2 float-start" (click)="selectToday(); d.close()">Today</button>
+    <button class="btn btn-secondary btn-sm m-2 float-end" (click)="d.close()">Close</button>
+</ng-template>
+
+
+<form class="row row-cols-sm-auto">
+    <div class="col-12">
+
+    </div>
+</form>
