@@ -61,10 +61,9 @@ export class ExpenseService {
 
     insert(expense: Expense, listID: string) {
         try {
-            console.log(expense.expenseDate);
-            console.log(DateUtils.ddmmyyyyToDate(expense.expenseDate));
-            console.log(DateUtils.dateToTimestamp(DateUtils.ddmmyyyyToDate(expense.expenseDate)));
             expense.id = this.collection.doc().ref.id
+            expense.expense = expense.expense.trim()
+            expense.buyer = expense.buyer.trim()
             expense.expenseDateTimestamp = DateUtils.dateToTimestamp(DateUtils.ddmmyyyyToDate(expense.expenseDate));
             expense.expenseListID = listID;
             this.collection.doc(expense.id).set(Object.assign({}, expense))

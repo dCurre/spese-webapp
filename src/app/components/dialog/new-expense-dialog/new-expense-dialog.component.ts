@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { stringLength } from '@firebase/util';
 import { NgbActiveModal, NgbCalendar, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Expense } from 'src/app/services/firestore/expense/expense';
 import DateUtils from 'src/app/utils/date-utils';
@@ -18,24 +19,52 @@ export class NewExpenseDialogComponent implements OnInit {
     private calendar: NgbCalendar) { }
 
   ngOnInit(): void {
-    this.model = this.calendar.getToday();
     this.expense = new Expense();
-    this.expense.expenseDate = DateUtils.dateToString(new Date());
+    this.model = this.calendar.getToday();
+    this.expense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
   }
 
   selectToday() {
     this.model = this.calendar.getToday();
-    this.expense.expenseDate = DateUtils.dateToString(new Date());
+    this.expense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
   }
 
   isValid(expense: Expense) {
-    return expense.expense == null
-     || expense.amount == null
-     || expense.expenseDate == null
-     || expense.buyer == null;
+    return this.isValidExpense(expense.expense)
+      && this.isValidAmount(expense.amount)
+      && this.isValidDate(expense.expenseDate)
+      && this.isValidBuyer(expense.buyer);
   }
 
-  close(){
+  isValidAmount(amount: number) {
+    if (amount !== undefined && amount > 0)
+      return true;
+
+    return false;
+  }
+
+  isValidExpense(expense: string) {
+    if(expense !== undefined && expense.trim().length <= 14 && expense.trim().length > 0)
+      return true;
+
+    return false;
+  }
+
+  isValidBuyer(buyer: string) {
+    if(buyer !== undefined && buyer.trim().length > 0)
+      return true;
+
+    return false;
+  }
+
+  isValidDate(date: string) {
+    if(date !== undefined && date.trim().length > 0)
+      return true;
+
+    return false;
+  }
+
+  close() {
     this.expense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
     this.modalService.close(this.expense);
   }
