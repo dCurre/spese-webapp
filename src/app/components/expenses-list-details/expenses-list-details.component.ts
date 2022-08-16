@@ -70,7 +70,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
     modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
-      "Vuoi veramente eliminare la spesa:  " + expense.expense);
+      "Vuoi veramente eliminare la spesa " + expense.expense);
 
     modalDelete.result.then((response) => {
       if (!response) {
