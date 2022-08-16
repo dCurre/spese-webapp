@@ -59,6 +59,7 @@ export class ExpensesListService {
 
     leave(userID: string, expensesList: ExpensesList) {
         expensesList.partecipants.splice(expensesList.partecipants.indexOf(userID), 1);
+        //Se l'utente che abbandona è l'owner, passa l'ownership al primo disponibile in lista
         if(expensesList.owner == userID){
             expensesList.owner = expensesList.partecipants[0]
         }

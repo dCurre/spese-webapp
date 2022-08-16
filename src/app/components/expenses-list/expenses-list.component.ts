@@ -89,7 +89,7 @@ export class ExpensesListComponent implements OnInit {
           this.expensesListService.leave(user!!.uid, expensesList);
         })
       }
-    })
+    }).catch((res) => {})
   }
 
   delete(expensesList: ExpensesList) {
@@ -104,7 +104,7 @@ export class ExpensesListComponent implements OnInit {
       }
 
       this.expensesListService.delete(expensesList.id);
-    });
+    }).catch((res) => {});
   }
 
   newList() {
@@ -118,6 +118,6 @@ export class ExpensesListComponent implements OnInit {
       this.afAuth.authState.subscribe(user => {
         this.expensesListService.insert(response, user!!.uid);
       })
-    });
+    }).catch((res) => {});
   }
 }

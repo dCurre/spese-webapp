@@ -13,7 +13,7 @@
             <input type="text" name='expense' [(ngModel)]="expense.expense" class="form-control input_pass" required
                 list="expensesList" [ngClass]="isValidExpense(expense.expense) ? 'is-valid' : 'is-invalid'"
                 placeholder="Nome nuova spesa">
-            <div class="invalid-feedback">Deve contenere 1-14 caratteri</div>
+            <div class="invalid-feedback">Deve contenere 1-{{maxInputText}} caratteri</div>
         </div>
         <datalist id="expensesList">
             <option *ngFor="let temp of expenses$ | async">{{temp.expense}}</option>

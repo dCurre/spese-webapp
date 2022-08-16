@@ -15,8 +15,14 @@
         </div>	
       </li>
     </ul>
-    <button class="btn logout_btn" (click)="logout()">
-      <span><i class="fas fa-sign-out-alt"></i></span> Logout
-    </button>
+    <ul class="navbar-nav ">
+      <li class="nav-item">
+        <div *ngIf="loggedUser$ | async as user">
+          <a class="nav-link" (click)="logout()" role="button">
+            <img class='user_image fas fa-sign-out-alt' referrerpolicy="no-referrer"/> Logout
+          </a>
+        </div>	
+      </li>
+    </ul>
   </div>
 </nav>
