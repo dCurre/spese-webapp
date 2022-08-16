@@ -1,9 +1,58 @@
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css"
+    integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
+
 <app-toolbar></app-toolbar>
+<br>
 <h3 *ngIf="expensesList$ | async as expensesList" class="d-flex justify-content-center">
     {{expensesList.name}}
 </h3>
-<ng-container *ngFor="let expense of expenses$ | async">
-    <div class="d-flex justify-content-center">
-        {{expense.expense}}
+<br>
+
+
+<div class="container col-lg-6">
+    <div class="d-flex justify-content-end">
+        <button id="btn-add" (click)="newExpense()" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i> Nuova spesa</button>
     </div>
-</ng-container>
+    <div class="d-flex justify-content-center">
+        <div class="list list-row card col-lg-12">
+            <div class="row">
+                <div class="col-md-12">
+                    <div *ngFor="let expense of expenses$ | async" class="list-item">
+                        <div class="flex">
+                            <a data-abc="true">{{expense.expense}}</a>
+                            <div class="item-except text-muted text-sm h-1x">
+                                {{expense.amount}}€
+                            </div>
+                            <div class="item-except text-muted text-sm h-1x">
+                                Creata il {{timestampToDate(expense.expenseDateTimestamp)}}
+                            </div>
+                        </div>
+                        <!-- SCRITTA FIGA SULLA DESTRA
+                                <div class="no-wrap">
+                                    <div class="item-date text-muted text-sm d-none d-xs-block d-sm-block d-md-block">
+                                        15 weeks ago
+                                    </div>
+                                </div>
+                                -->
+                        <div class="item-action dropdown">
+                            <a href="#" data-toggle="dropdown" class="text-muted" data-abc="true">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                    class="feather feather-more-vertical">
+                                    <circle cx="12" cy="12" r="1"></circle>
+                                    <circle cx="12" cy="5" r="1"></circle>
+                                    <circle cx="12" cy="19" r="1"></circle>
+                                </svg>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-right" role="menu">
+                                <button class="dropdown-item" (click)="edit(expense)">Modifica</button>
+                                <div class="dropdown-divider"></div>
+                                <button class="dropdown-item" (click)="delete(expense)">Cancella</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

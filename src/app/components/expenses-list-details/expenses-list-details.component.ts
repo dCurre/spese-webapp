@@ -6,6 +6,9 @@ import { ExpensesList } from '../../services/firestore/expensesList/expenses-lis
 import { Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
+import DateUtils from 'src/app/utils/date-utils';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expense-dialog.component';
 
 @Component({
   selector: 'app-expenses-list-details',
@@ -18,8 +21,10 @@ export class ExpenseListDetailsComponent implements OnInit {
   protected expensesList$: Observable<ExpensesList>;
 
   constructor(
+    public afAuth: AngularFireAuth,
     private expenseService: ExpenseService,
     protected expensesListService: ExpensesListService,
+    private modalService: NgbModal,
     private route: ActivatedRoute) { }
 
   ngOnInit(): void {
@@ -41,5 +46,35 @@ export class ExpenseListDetailsComponent implements OnInit {
     } catch (e){
         console.error("ExpenseListDetailsComponent.getExpensesListDetails: ", e)
     }
+  }
+
+  newExpense(){
+    const modalDelete = this.modalService.open(NewExpenseDialogComponent, { centered: true });
+
+    modalDelete.result.then((response) => {
+      if (response == null) {
+        return
+      }
+
+      console.debug(response)
+
+      this.expenseService.insert(response, this.route.snapshot.paramMap.get('id')!!);
+    });
+  }
+
+  edit(expense: Expense){
+
+  }
+
+  delete(expense: Expense){
+    
+  }
+
+  timestampToDate(timestamp: number) {
+    return DateUtils.timestampToDate(timestamp);
+  }
+
+  timestampToHour(timestamp: number) {
+    return DateUtils.timestampToHour(timestamp);
   }
 }

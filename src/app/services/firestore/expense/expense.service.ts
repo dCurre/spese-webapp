@@ -5,6 +5,7 @@ import { map } from 'rxjs';
 import { Expense } from './expense';
 import { TablesEnum } from 'src/app/enums/tablesEnum';
 import { ExpenseFieldsEnum } from 'src/app/enums/expenseFieldsEnum';
+import DateUtils from 'src/app/utils/date-utils';
 
 @Injectable({
     providedIn: 'root'
@@ -39,30 +40,36 @@ export class ExpenseService {
     }
 
     delete(id: string) {
-        try{
+        try {
             this.collection.doc(id).delete();
             return true;
-        } catch (e){
+        } catch (e) {
             console.error("Impossibile cancellare lista, ", e)
             return false;
         }
     };
 
     update(expense: Expense) {
-        try{
+        try {
             this.collection.doc(expense.id).update(expense)
             return expense;
-        } catch (e){
+        } catch (e) {
             console.error("Impossibile cancellare lista, ", e)
             return null;
         }
     };
 
-    insert(id: string, expense: Expense) {
-        try{
-            this.collection.doc(id).set(expense)
+    insert(expense: Expense, listID: string) {
+        try {
+            console.log(expense.expenseDate);
+            console.log(DateUtils.ddmmyyyyToDate(expense.expenseDate));
+            console.log(DateUtils.dateToTimestamp(DateUtils.ddmmyyyyToDate(expense.expenseDate)));
+            expense.id = this.collection.doc().ref.id
+            expense.expenseDateTimestamp = DateUtils.dateToTimestamp(DateUtils.ddmmyyyyToDate(expense.expenseDate));
+            expense.expenseListID = listID;
+            this.collection.doc(expense.id).set(Object.assign({}, expense))
             return expense;
-        } catch (e){
+        } catch (e) {
             console.error("Impossibile cancellare lista, ", e)
             return null;
         }

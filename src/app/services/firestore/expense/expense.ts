@@ -2,9 +2,8 @@ export class Expense {
     id: string;
     expense: string;
     amount: number;
-    amountAsEur: string;
-    expenseDate: Date;
-    expenseDateTimestamp: string;
+    expenseDate: string;
+    expenseDateTimestamp: number;
     buyer : string;
     expenseListID: string;
 }
