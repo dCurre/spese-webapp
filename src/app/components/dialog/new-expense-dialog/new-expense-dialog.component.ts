@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal, NgbCalendar, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
+import Constants from 'src/app/constants/constants';
 import { Expense } from 'src/app/services/firestore/expense/expense';
 import { ExpenseService } from 'src/app/services/firestore/expense/expense.service';
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
@@ -18,6 +19,7 @@ export class NewExpenseDialogComponent implements OnInit {
   protected partecipantsIdList: string[] = [];
   protected partecipants: string[] = [];
   protected expenses$: Observable<Expense[]>;
+  protected maxInputText = Constants.maxInputText;
   listID: string;
   model: NgbDateStruct;
   today = this.calendar.getToday();
@@ -56,7 +58,7 @@ export class NewExpenseDialogComponent implements OnInit {
   }
 
   isValidExpense(expense: string) {
-    if (expense !== undefined && expense.trim().length <= 14 && expense.trim().length > 0)
+    if (expense !== undefined && expense.trim().length <= this.maxInputText && expense.trim().length > 0)
       return true;
 
     return false;

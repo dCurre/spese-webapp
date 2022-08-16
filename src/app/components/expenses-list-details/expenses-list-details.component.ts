@@ -59,7 +59,7 @@ export class ExpenseListDetailsComponent implements OnInit {
         return
       }
       this.expenseService.insert(response, this.route.snapshot.paramMap.get('id')!!);
-    });
+    }).catch((res) => {});
   }
 
   edit(expense: Expense){
@@ -78,7 +78,7 @@ export class ExpenseListDetailsComponent implements OnInit {
       }
 
       this.expenseService.delete(expense.id);
-    });
+    }).catch((res) => {});
   }
 
   timestampToDate(timestamp: number) {

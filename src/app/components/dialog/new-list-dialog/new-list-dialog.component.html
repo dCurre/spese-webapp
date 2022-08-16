@@ -12,7 +12,7 @@
             </div>
             <input type="text" name='listName' [(ngModel)]="expensesList.name" class="form-control input_pass" required
             [ngClass]="isValidListName(expensesList.name) ? 'is-valid' : 'is-invalid'" placeholder="Nome nuova lista">
-            <div class="invalid-feedback">Deve contenere 1-14 caratteri</div>
+            <div class="invalid-feedback">Deve contenere 1-{{maxInputText}} caratteri</div>
         </div>
     </form>
 </div>
