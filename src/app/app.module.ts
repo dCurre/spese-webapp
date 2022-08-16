@@ -29,6 +29,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NewListDialogComponent } from './components/dialog/new-list-dialog/new-list-dialog.component';
 import { NewExpenseDialogComponent } from './components/dialog/new-expense-dialog/new-expense-dialog.component';
+import { MatAutocompleteModule } from '@angular/material/autocomplete'; 
 
 
 @NgModule({
@@ -54,6 +55,7 @@ import { NewExpenseDialogComponent } from './components/dialog/new-expense-dialo
     MatCardModule,
     MatInputModule,
     MatDialogModule,
+    MatAutocompleteModule,
 
     FormsModule,
     ReactiveFormsModule,
