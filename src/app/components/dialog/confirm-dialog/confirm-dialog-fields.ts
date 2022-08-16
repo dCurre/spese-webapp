@@ -1,4 +1,4 @@
-export class DialogFields{
+export class ConfirmDialogFields{
     title: string;
     body: string;
 

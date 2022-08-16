@@ -3,8 +3,7 @@
 <br>
 <div class="container">
     <div class="d-flex justify-content-end">
-        <button id="btn-add" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i>Nuova
-            lista</button>
+        <button id="btn-add" (click)="newList()" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i> Nuova lista</button>
     </div>
     <div class="list list-row card">
         <div class="row d-flex justify-content-center">
@@ -13,7 +12,7 @@
                     <div>
                         <a [routerLink]="['/list', expensesList.id]" data-abc="true">
                             <span class="w-40 avatar" [ngClass]="expensesList.paid ? 'gd-saldato' : ' gd-non-saldato'">
-                                {{expensesList.name[0]}}
+                                {{expensesList.name[0].toUpperCase()}}
                             </span>
                         </a>
                     </div>
@@ -21,7 +20,7 @@
                         <a [routerLink]="['/list', expensesList.id]" class="item-author text-color"
                             data-abc="true">{{expensesList.name}}</a>
                         <div *ngIf="listOwner$ | async as listOwner" class="item-except text-muted text-sm h-1x">
-                            Creata il {{timestampToDate(expensesList.timestampIns)}}
+                            Creata il {{timestampToDate(expensesList.timestampIns)}} alle {{timestampToHour(expensesList.timestampIns)}}
                         </div>
                     </div>
                     <!-- SCRITTA FIGA SULLA DESTRA
@@ -44,8 +43,7 @@
                         <div class="dropdown-menu dropdown-menu-right" role="menu">
                             <a [routerLink]="['/list', expensesList.id]" class="dropdown-item" data-abc="true">Apri</a>
                             <div class="dropdown-divider"></div>
-                            <button class="dropdown-item" *ngIf="listOwner$ | async as listOwner"
-                                (click)="leave(expensesList)">Abbandona</button>
+                            <button class="dropdown-item" (click)="leave(expensesList)">Abbandona</button>
                         </div>
                     </div>
                 </div>
