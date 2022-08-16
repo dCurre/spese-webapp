@@ -3,3 +3,13 @@
 .cdk-overlay-container, .cdk-overlay-pane {
     z-index: 9999 !important;
 }
+
+.modal-header{
+    background: #7C4DFF !important;
+    color: white !important;
+    font-weight: bold;
+}
+
+.close{
+    color: white !important;
+}

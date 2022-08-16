@@ -1,10 +1,6 @@
-<!-- username & password icons-->
-
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
 <nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-spese">
-  <a class="navbar-brand" href="">Spese</a>
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <a class="navbar-brand" href=""><h1>Spese</h1></a>
+  <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
@@ -16,11 +12,11 @@
           <a class="nav-link" href="">
             <img class='user_image' referrerpolicy="no-referrer" [src]="user.profileImage"/> {{user.fullname}}
           </a>
-        </div>
+        </div>	
       </li>
     </ul>
-    <button class="btn my-2 my-sm-0 logout_btn" (click)="logout()">
-      <span class=""><i class="material-icons">exit_to_app</i></span> Logout
+    <button class="btn logout_btn" (click)="logout()">
+      <span><i class="fas fa-sign-out-alt"></i></span> Logout
     </button>
   </div>
 </nav>
