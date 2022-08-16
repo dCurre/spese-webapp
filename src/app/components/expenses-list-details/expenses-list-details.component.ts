@@ -51,9 +51,10 @@ export class ExpenseListDetailsComponent implements OnInit {
   }
 
   newExpense(){
-    const modalDelete = this.modalService.open(NewExpenseDialogComponent, { centered: true });
+    const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
+    modalInsert.componentInstance.listID = this.route.snapshot.paramMap.get('id')!!;
 
-    modalDelete.result.then((response) => {
+    modalInsert.result.then((response) => {
       if (response == null) {
         return
       }
