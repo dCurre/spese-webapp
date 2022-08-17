@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal, NgbCalendar, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import Constants from 'src/app/constants/constants';
@@ -13,16 +13,22 @@ import DateUtils from 'src/app/utils/date-utils';
   templateUrl: './new-expense-dialog.component.html',
   styleUrls: ['./new-expense-dialog.component.css']
 })
+
+
 export class NewExpenseDialogComponent implements OnInit {
 
+  @Input() defaultExpense: String;
+  @Input() defaultAmount: String;
+  @Input() defaultDate: String;
+  @Input() defaultBuyer: String;
+  @Input() action: String;
+
   protected expense: Expense;
-  protected partecipantsIdList: string[] = [];
   protected partecipants: string[] = [];
   protected expenses$: Observable<Expense[]>;
   protected maxInputText = Constants.maxInputText;
   listID: string;
   model: NgbDateStruct;
-  today = this.calendar.getToday();
 
   constructor(public modalService: NgbActiveModal,
     private calendar: NgbCalendar,
@@ -32,10 +38,18 @@ export class NewExpenseDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.expense = new Expense();
+    this.model = this.calendar.getToday();
+    
     this.getUserList(this.listID);
     this.getExpensesList(this.listID);
-    this.model = this.calendar.getToday();
-    this.expense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
+    this.setDefaultFields()
+  }
+
+  setDefaultFields() {
+    this.expense.expense = (this.defaultExpense !== undefined) ? this.defaultExpense.toString() : "";
+    this.expense.amount = (this.defaultAmount !== undefined) ? +this.defaultAmount : 0;
+    this.expense.expenseDate = (this.defaultDate !== undefined) ? this.defaultDate.toString() : DateUtils.ngbDateStructToDateString(this.model);
+    this.expense.buyer = (this.defaultBuyer !== undefined) ? this.defaultBuyer.toString() : "";
   }
 
   selectToday() {

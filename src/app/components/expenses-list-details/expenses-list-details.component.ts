@@ -35,38 +35,58 @@ export class ExpenseListDetailsComponent implements OnInit {
   }
 
   async getExpensesByListId(id: string) {
-    try{
+    try {
       this.expenses$ = this.expenseService.getExpensesByListID(id);
-    } catch (e){
-        console.error("ExpenseListDetailsComponent.getExpensesByListId: ", e)
+    } catch (e) {
+      console.error("ExpenseListDetailsComponent.getExpensesByListId: ", e)
     }
   }
 
   async getExpensesListDetails(id: string) {
-    try{
+    try {
       this.expensesList$ = this.expensesListService.getById(id);
-    } catch (e){
-        console.error("ExpenseListDetailsComponent.getExpensesListDetails: ", e)
+    } catch (e) {
+      console.error("ExpenseListDetailsComponent.getExpensesListDetails: ", e)
     }
   }
 
-  newExpense(){
+  newExpense() {
     const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
     modalInsert.componentInstance.listID = this.route.snapshot.paramMap.get('id')!!;
+    modalInsert.componentInstance.action = 'Crea'
 
     modalInsert.result.then((response) => {
       if (response == null) {
         return
       }
       this.expenseService.insert(response, this.route.snapshot.paramMap.get('id')!!);
-    }).catch((res) => {});
+    }).catch((res) => { });
   }
 
-  edit(expense: Expense){
+  edit(expense: Expense) {
+    const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
+    modalInsert.componentInstance.listID = this.route.snapshot.paramMap.get('id')!!;
+    modalInsert.componentInstance.action = 'Modifica'
+    modalInsert.componentInstance.defaultExpense = expense.expense
+    modalInsert.componentInstance.defaultAmount = expense.amount
+    modalInsert.componentInstance.defaultDate = expense.expenseDate
+    modalInsert.componentInstance.defaultBuyer = expense.buyer
 
+    modalInsert.result.then((response) => {
+      if (response == null) {
+        return
+      }
+
+      expense.expense = response.expense
+      expense.amount = response.amount
+      expense.expenseDate = response.expenseDate
+      expense.buyer = response.buyer
+
+      this.expenseService.update(expense);
+    }).catch((res) => { });
   }
 
-  delete(expense: Expense){
+  delete(expense: Expense) {
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
     modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
@@ -78,7 +98,7 @@ export class ExpenseListDetailsComponent implements OnInit {
       }
 
       this.expenseService.delete(expense.id);
-    }).catch((res) => {});
+    }).catch((res) => { });
   }
 
   timestampToDate(timestamp: number) {

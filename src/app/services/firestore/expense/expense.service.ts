@@ -33,7 +33,7 @@ export class ExpenseService {
                 .orderBy(ExpenseFieldsEnum.EXPENSE_DATE_TIMESTAMP, 'asc')
         ).valueChanges().pipe(map(coll => {
             return coll.map(expensesList => {
-                console.log(expensesList)
+                console.log(expensesList.id)
                 return expensesList;
             });
         }));
@@ -51,10 +51,11 @@ export class ExpenseService {
 
     update(expense: Expense) {
         try {
-            this.collection.doc(expense.id).update(expense)
+            expense.expenseDateTimestamp = DateUtils.dateToTimestamp(DateUtils.ddmmyyyyToDate(expense.expenseDate));
+            this.collection.doc(expense.id).update(Object.assign({}, expense))
             return expense;
         } catch (e) {
-            console.error("Impossibile cancellare lista, ", e)
+            console.error("Impossibile aggiornare lista, ", e)
             return null;
         }
     };
@@ -69,7 +70,7 @@ export class ExpenseService {
             this.collection.doc(expense.id).set(Object.assign({}, expense))
             return expense;
         } catch (e) {
-            console.error("Impossibile cancellare lista, ", e)
+            console.error("Impossibile inserire lista, ", e)
             return null;
         }
     }
