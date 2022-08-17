@@ -12,7 +12,7 @@
             </div>
             <input type="text" name='expense' [(ngModel)]="expense.expense" class="form-control input_pass" required
                 list="expensesList" [ngClass]="isValidExpense(expense.expense) ? 'is-valid' : 'is-invalid'"
-                placeholder="Nome nuova spesa">
+                onfocus="this.select();"  placeholder="Nome nuova spesa">
             <div class="invalid-feedback">Deve contenere 1-{{maxInputText}} caratteri</div>
         </div>
         <datalist id="expensesList">
@@ -23,15 +23,15 @@
                 <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
             </div>
             <input type="number" name='amount' [(ngModel)]="expense.amount" class="form-control input_pass" required
-                [ngClass]="isValidAmount(expense.amount) ? 'is-valid' : 'is-invalid'" placeholder="Importo">
+                [ngClass]="isValidAmount(expense.amount) ? 'is-valid' : 'is-invalid'" onfocus="this.select();" placeholder="Importo">
             <div class="invalid-feedback">Deve essere maggiore di 0</div>
         </div>
         <div class="input-group mb-2">
             <div class="input-group-append">
                 <span (click)="d.toggle()" class="input-group-text"><i class="fas fa-clock"></i></span>
             </div>
-            <input class="form-control" name="date" [(ngModel)]="model" ngbDatepicker [footerTemplate]="footerTemplate"
-                #d="ngbDatepicker" required readonly="readonly">
+            <input class="form-control" name="date" [(ngModel)]="model" ngbDatepicker [footerTemplate]="footerTemplate" onfocus="this.select();" 
+            [ngClass]="isValidDate(expense.expenseDate) ? 'is-valid' : 'is-invalid'" #d="ngbDatepicker" required readonly="readonly">
             <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button">
                 <i class="fas fa-calendar"></i></button>
         </div>
@@ -41,7 +41,7 @@
             </div>
             <input type="text" name='buyer' [(ngModel)]="expense.buyer" class="form-control input_pass" required
                 list="partecipantsList" [ngClass]="isValidBuyer(expense.buyer) ? 'is-valid' : 'is-invalid'"
-                placeholder="Pagatore">
+                onfocus="this.select();"  placeholder="Pagatore">
             <datalist id="partecipantsList">
                 <option *ngFor="let partecipantID of partecipants">{{partecipantID}}</option>
             </datalist>
@@ -52,7 +52,7 @@
 <div class="modal-footer">
     <button type="button" (click)="modalService.close(null)" class="btn btn-danger"
         data-dismiss="modal">Annulla</button>
-    <button type="button" class="btn btn-success" [disabled]="!isValid(expense)" (click)="close()">Crea</button>
+    <button type="button" class="btn btn-success" [disabled]="!isValid(expense)" (click)="close()">{{action}}</button>
 </div>
 
 <!-- Bottoni per calendario -->

@@ -108,9 +108,9 @@ export class ExpensesListComponent implements OnInit {
   }
 
   newList() {
-    const modalDelete = this.modalService.open(NewListDialogComponent, { centered: true });
-
-    modalDelete.result.then((response) => {
+    const modalNewList = this.modalService.open(NewListDialogComponent, { centered: true });
+    
+    modalNewList.result.then((response) => {
       if (response == null) {
         return
       }
