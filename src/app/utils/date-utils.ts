@@ -2,11 +2,11 @@ import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import MathUtils from './math-utils'
 
 export default class DateUtils {
-    static timestampToDate(timestamp: number) {
+    static timestampToDateString(timestamp: number) {
         return DateUtils.dateToString(new Date(timestamp * 1000));
     }
 
-    static timestampToHour(timestamp: number) {
+    static timestampToHourString(timestamp: number) {
         var date = new Date(timestamp * 1000);
         return MathUtils.twoDigits(date.getHours()) + ":" + MathUtils.twoDigits(date.getMinutes());
     }
@@ -34,5 +34,9 @@ export default class DateUtils {
 
     static ngbDateStructToDateString(ngbDate: NgbDateStruct){
         return this.dateToString(this.ngbDateStructToDate(ngbDate));
+    }
+
+    static dateTongbDateStruct(date: Date){
+        return { day: date.getDate(), month: date.getMonth() + 1, year: date.getFullYear()};
     }
 }

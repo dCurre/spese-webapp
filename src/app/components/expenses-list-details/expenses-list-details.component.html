@@ -21,7 +21,7 @@
                                 {{expense.amount}}€
                             </div>
                             <div class="item-except text-muted text-sm h-1x">
-                                Da {{expense.buyer}} il {{timestampToDate(expense.expenseDateTimestamp)}} alle {{timestampToHour(expense.expenseDateTimestamp)}}
+                                {{expense.buyer}} il {{timestampToDateString(expense.expenseDateTimestamp)}} {{timestampToHourString(expense.expenseDateTimestamp)}}
                             </div>
                         </div>
                         <!-- SCRITTA FIGA SULLA DESTRA

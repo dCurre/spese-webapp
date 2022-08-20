@@ -69,7 +69,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     modalInsert.componentInstance.action = 'Modifica'
     modalInsert.componentInstance.defaultExpense = expense.expense
     modalInsert.componentInstance.defaultAmount = expense.amount
-    modalInsert.componentInstance.defaultDate = expense.expenseDate
+    modalInsert.componentInstance.defaultDateTimestamp = expense.expenseDateTimestamp
     modalInsert.componentInstance.defaultBuyer = expense.buyer
 
     modalInsert.result.then((response) => {
@@ -101,11 +101,11 @@ export class ExpenseListDetailsComponent implements OnInit {
     }).catch((res) => { });
   }
 
-  timestampToDate(timestamp: number) {
-    return DateUtils.timestampToDate(timestamp);
+  timestampToDateString(timestamp: number) {
+    return DateUtils.timestampToDateString(timestamp);
   }
 
-  timestampToHour(timestamp: number) {
-    return DateUtils.timestampToHour(timestamp);
+  timestampToHourString(timestamp: number) {
+    return DateUtils.timestampToHourString(timestamp);
   }
 }
