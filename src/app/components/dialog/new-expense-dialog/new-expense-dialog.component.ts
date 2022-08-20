@@ -100,6 +100,7 @@ export class NewExpenseDialogComponent implements OnInit {
   async getUserList(id: string) {
     try {
       this.expensesListService.getById(id).subscribe(expensesList => {
+        this.partecipants = []
         expensesList.partecipants.forEach(element => {
           this.userService.getById(element).subscribe(user => {
             this.partecipants.push(user.fullname)
