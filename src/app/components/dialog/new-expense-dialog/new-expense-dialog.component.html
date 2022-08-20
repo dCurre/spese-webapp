@@ -16,7 +16,7 @@
             <div class="invalid-feedback">Deve contenere 1-{{maxInputText}} caratteri.</div>
         </div>
         <datalist id="expensesList">
-            <option *ngFor="let temp of expenses$ | async">{{temp.expense}}</option>
+            <option *ngFor="let expense of expenseTooltip">{{expense}}</option>
         </datalist>
         <div class="input-group mb-2">
             <div class="input-group-append">
@@ -43,7 +43,7 @@
                 list="partecipantsList" [ngClass]="isValidBuyer(expense.buyer) ? 'is-valid' : 'is-invalid'"
                 onfocus="this.select();"  placeholder="Pagato da">
             <datalist id="partecipantsList">
-                <option *ngFor="let partecipantID of partecipants">{{partecipantID}}</option>
+                <option *ngFor="let partecipantID of partecipantsTooltip">{{partecipantID}}</option>
             </datalist>
             <div class="invalid-feedback">Deve essere popolato.</div>
         </div>

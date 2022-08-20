@@ -24,8 +24,8 @@ export class NewExpenseDialogComponent implements OnInit {
   @Input() action: String;
 
   protected expense: Expense;
-  protected partecipants: string[] = [];
-  protected expenses$: Observable<Expense[]>;
+  protected partecipantsTooltip: string[] = [];
+  protected expenseTooltip: string[] = [];
   protected maxInputText = Constants.maxInputText;
   listID: string;
   model: NgbDateStruct;
@@ -39,7 +39,7 @@ export class NewExpenseDialogComponent implements OnInit {
   ngOnInit(): void {
     this.expense = new Expense();
     this.model = this.calendar.getToday();
-    
+
     this.getUserList(this.listID);
     this.getExpensesList(this.listID);
     this.setDefaultFields()
@@ -100,10 +100,12 @@ export class NewExpenseDialogComponent implements OnInit {
   async getUserList(id: string) {
     try {
       this.expensesListService.getById(id).subscribe(expensesList => {
-        this.partecipants = []
+        this.partecipantsTooltip = []
         expensesList.partecipants.forEach(element => {
           this.userService.getById(element).subscribe(user => {
-            this.partecipants.push(user.fullname)
+            if (!this.partecipantsTooltip.includes(user.fullname)) {
+              this.partecipantsTooltip.push(user.fullname)
+            }
           });
         });
       })
@@ -114,7 +116,15 @@ export class NewExpenseDialogComponent implements OnInit {
 
   async getExpensesList(id: string) {
     try {
-      this.expenses$ = this.expenseService.getExpensesByListID(id);
+      this.expenseService.getExpensesByListID(id).subscribe(expensesList => {
+        this.expenseTooltip = []
+        expensesList.forEach(expense => {
+          //Se non è già presente, aggiungo
+          if (!this.expenseTooltip.includes(expense.expense)) {
+            this.expenseTooltip.push(expense.expense)
+          }
+        });
+      })
     } catch (e) {
       console.error("NewExpenseDialogComponent.getExpensesList: ", e)
     }
