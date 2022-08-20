@@ -13,7 +13,7 @@
             <input type="text" name='expense' [(ngModel)]="expense.expense" class="form-control input_pass" required
                 list="expensesList" [ngClass]="isValidExpense(expense.expense) ? 'is-valid' : 'is-invalid'"
                 onfocus="this.select();"  placeholder="Nome nuova spesa">
-            <div class="invalid-feedback">Deve contenere 1-{{maxInputText}} caratteri</div>
+            <div class="invalid-feedback">Deve contenere 1-{{maxInputText}} caratteri.</div>
         </div>
         <datalist id="expensesList">
             <option *ngFor="let temp of expenses$ | async">{{temp.expense}}</option>
@@ -24,7 +24,7 @@
             </div>
             <input type="number" name='amount' [(ngModel)]="expense.amount" class="form-control input_pass" required
                 [ngClass]="isValidAmount(expense.amount) ? 'is-valid' : 'is-invalid'" onfocus="this.select();" placeholder="Importo">
-            <div class="invalid-feedback">Deve essere maggiore di 0</div>
+            <div class="invalid-feedback">Inserire importo maggiore di 0.</div>
         </div>
         <div class="input-group mb-2">
             <div class="input-group-append">
@@ -41,11 +41,11 @@
             </div>
             <input type="text" name='buyer' [(ngModel)]="expense.buyer" class="form-control input_pass" required
                 list="partecipantsList" [ngClass]="isValidBuyer(expense.buyer) ? 'is-valid' : 'is-invalid'"
-                onfocus="this.select();"  placeholder="Pagatore">
+                onfocus="this.select();"  placeholder="Pagato da">
             <datalist id="partecipantsList">
                 <option *ngFor="let partecipantID of partecipants">{{partecipantID}}</option>
             </datalist>
-            <div class="invalid-feedback">Deve essere popolato</div>
+            <div class="invalid-feedback">Deve essere popolato.</div>
         </div>
     </form>
 </div>
