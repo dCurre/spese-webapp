@@ -58,12 +58,12 @@ export class ExpensesListComponent implements OnInit {
     })
   }
 
-  timestampToDate(timestamp: number) {
-    return DateUtils.timestampToDate(timestamp);
+  timestampToDateString(timestamp: number) {
+    return DateUtils.timestampToDateString(timestamp);
   }
 
-  timestampToHour(timestamp: number) {
-    return DateUtils.timestampToHour(timestamp);
+  timestampToHourString(timestamp: number) {
+    return DateUtils.timestampToHourString(timestamp);
   }
 
   leave(expensesList: ExpensesList) {

@@ -18,8 +18,8 @@ import DateUtils from 'src/app/utils/date-utils';
 export class NewExpenseDialogComponent implements OnInit {
 
   @Input() defaultExpense: String;
-  @Input() defaultAmount: String;
-  @Input() defaultDate: String;
+  @Input() defaultAmount: number;
+  @Input() defaultDateTimestamp: number;
   @Input() defaultBuyer: String;
   @Input() action: String;
 
@@ -38,7 +38,6 @@ export class NewExpenseDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.expense = new Expense();
-    this.model = this.calendar.getToday();
 
     this.getUserList(this.listID);
     this.getExpensesList(this.listID);
@@ -46,15 +45,16 @@ export class NewExpenseDialogComponent implements OnInit {
   }
 
   setDefaultFields() {
+    console.log(this.defaultDateTimestamp);
     this.expense.expense = (this.defaultExpense !== undefined) ? this.defaultExpense.toString() : "";
-    this.expense.amount = (this.defaultAmount !== undefined) ? +this.defaultAmount : 0;
-    this.expense.expenseDate = (this.defaultDate !== undefined) ? this.defaultDate.toString() : DateUtils.ngbDateStructToDateString(this.model);
+    this.expense.amount = (this.defaultAmount !== undefined) ? this.defaultAmount : 0;
+    this.model = this.defaultDateTimestamp !== undefined ? DateUtils.dateTongbDateStruct(new Date(this.defaultDateTimestamp * 1000)) : DateUtils.dateTongbDateStruct(new Date());
+    this.expense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
     this.expense.buyer = (this.defaultBuyer !== undefined) ? this.defaultBuyer.toString() : "";
   }
 
   selectToday() {
-    this.model = this.calendar.getToday();
-    this.expense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
+    this.model = DateUtils.dateTongbDateStruct(new Date());
   }
 
   isValid(expense: Expense) {
