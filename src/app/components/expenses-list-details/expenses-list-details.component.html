@@ -6,31 +6,42 @@
 <br>
 
 
+
+
 <div class="container col-lg-6">
     <div class="d-flex justify-content-end">
-        <button id="btn-add" (click)="newExpense()" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i> Nuova spesa</button>
+        <button id="btn-add" (click)="newExpense()" class="btn btn-success ml-1" type="button"><i
+                class="fa fa-plus"></i> Nuova spesa</button>
+    </div>
+    <!-- DETTAGLI SPESA -->
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <button class="accordion-button collapsed bg-spese" type="button" data-toggle="collapse"
+                data-target="#collapseList" aria-expanded="false" aria-controls="collapseList">
+                Dettagli
+            </button>
+        </div>
+    </div>
+    <div class="collapse" id="collapseList">
+        <div class="card card-body">
+            Totale: {{formatAmount(expensesListTotalAmount)}} €
+        </div>
     </div>
     <div class="d-flex justify-content-center mb-1" *ngFor="let expense of expenses$ | async">
         <div class="list list-row card col-lg-12">
             <div class="row">
                 <div class="col-md-12">
-                    <div  class="list-item">
+                    <div class="list-item">
                         <div class="flex">
                             <a data-abc="true">{{expense.expense}}</a>
                             <div class="item-except text-muted text-sm h-1x">
-                                {{expense.amount}}€
-                            </div>
-                            <div class="item-except text-muted text-sm h-1x">
-                                {{expense.buyer}} il {{timestampToDateString(expense.expenseDateTimestamp)}} {{timestampToHourString(expense.expenseDateTimestamp)}}
+                                {{expense.buyer}} il {{timestampToDateString(expense.expenseDateTimestamp)}}
+                                {{timestampToHourString(expense.expenseDateTimestamp)}}
                             </div>
                         </div>
-                        <!-- SCRITTA FIGA SULLA DESTRA
-                                <div class="no-wrap">
-                                    <div class="item-date text-muted text-sm d-none d-xs-block d-sm-block d-md-block">
-                                        15 weeks ago
-                                    </div>
-                                </div>
-                                -->
+                        <div id="amount">
+                            {{formatAmount(expense.amount)}} €
+                        </div>
                         <div class="item-action dropdown">
                             <a href="#" data-toggle="dropdown" class="text-muted" data-abc="true">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"

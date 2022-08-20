@@ -11,6 +11,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expense-dialog.component';
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
+import MathUtils from 'src/app/utils/math-utils';
 
 @Component({
   selector: 'app-expenses-list-details',
@@ -21,17 +22,19 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   protected expenses$: Observable<Expense[]>;
   protected expensesList$: Observable<ExpensesList>;
+  protected expensesListTotalAmount : number = 0;
 
   constructor(
     public afAuth: AngularFireAuth,
     private expenseService: ExpenseService,
     protected expensesListService: ExpensesListService,
     private modalService: NgbModal,
-    private route: ActivatedRoute) { }
+    private route: ActivatedRoute,) { }
 
   ngOnInit(): void {
     this.getExpensesByListId(this.route.snapshot.paramMap.get('id')!!)
     this.getExpensesListDetails(this.route.snapshot.paramMap.get('id')!!)
+    this.getExpensesListTotal(this.route.snapshot.paramMap.get('id')!!)
   }
 
   async getExpensesByListId(id: string) {
@@ -107,5 +110,22 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   timestampToHourString(timestamp: number) {
     return DateUtils.timestampToHourString(timestamp);
+  }
+
+  getExpensesListTotal(id: string){
+    try {
+      this.expenseService.getExpensesByListID(id).subscribe(expenseList => {
+        this.expensesListTotalAmount = 0;
+        expenseList.forEach(expense => {
+          this.expensesListTotalAmount += expense.amount;
+        })
+      });
+    } catch (e) {
+      console.error("ExpenseListDetailsComponent.getExpensesListTotal: ", e)
+    }
+  }
+
+  formatAmount(amount: number){
+    return MathUtils.formatAmount(amount);
   }
 }
