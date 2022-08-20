@@ -1,15 +1,24 @@
 /* You can add global styles to this file, and also import other style files */
 
-.cdk-overlay-container, .cdk-overlay-pane {
+.cdk-overlay-container,
+.cdk-overlay-pane {
     z-index: 9999 !important;
 }
 
-.modal-header{
+.modal-header {
     background: #7C4DFF !important;
     color: white !important;
     font-weight: bold;
 }
 
-.close{
+.close {
+    color: white !important;
+}
+
+.bg-spese {
+    background: #7C4DFF !important;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-weight: bold;
     color: white !important;
 }
