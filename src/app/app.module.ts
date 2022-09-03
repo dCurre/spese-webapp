@@ -29,7 +29,8 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NewListDialogComponent } from './components/dialog/new-list-dialog/new-list-dialog.component';
 import { NewExpenseDialogComponent } from './components/dialog/new-expense-dialog/new-expense-dialog.component';
-import { MatAutocompleteModule } from '@angular/material/autocomplete'; 
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { JoinComponent } from './components/join/join.component'; 
 
 
 @NgModule({
@@ -43,6 +44,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
     DialogComponent,
     NewListDialogComponent,
     NewExpenseDialogComponent,
+    JoinComponent,
   ],
   imports: [
     BrowserModule,
