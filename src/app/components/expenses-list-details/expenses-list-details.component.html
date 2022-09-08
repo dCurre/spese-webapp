@@ -3,8 +3,8 @@
 <h3 *ngIf="expensesList$ | async as expensesList" class="d-flex justify-content-center">
     {{expensesList.name}}
 </h3>
+<button class="btn btn-success" (click)="toast()" ngbTooltip="Will disappear in 3s">Success toast</button>&nbsp;
 <br>
-
 
 
 

@@ -7,6 +7,7 @@ import { ExpenseService } from 'src/app/services/firestore/expense/expense.servi
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
 import { UserService } from 'src/app/services/firestore/user/user.service';
 import DateUtils from 'src/app/utils/date-utils';
+import ListUtils from 'src/app/utils/list-utils';
 
 @Component({
   selector: 'app-new-expense-dialog',
@@ -103,7 +104,7 @@ export class NewExpenseDialogComponent implements OnInit {
         this.partecipantsTooltip = []
         expensesList.partecipants.forEach(element => {
           this.userService.getById(element).subscribe(user => {
-            if (!this.partecipantsTooltip.includes(user.fullname)) {
+            if (!ListUtils.contains(this.partecipantsTooltip, user.fullname)) {
               this.partecipantsTooltip.push(user.fullname)
             }
           });
@@ -120,7 +121,7 @@ export class NewExpenseDialogComponent implements OnInit {
         this.expenseTooltip = []
         expensesList.forEach(expense => {
           //Se non è già presente, aggiungo
-          if (!this.expenseTooltip.includes(expense.expense)) {
+          if (!ListUtils.contains(this.expenseTooltip, expense.expense)) {
             this.expenseTooltip.push(expense.expense)
           }
         });

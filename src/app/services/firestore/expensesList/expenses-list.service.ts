@@ -105,8 +105,5 @@ export class ExpensesListService {
             console.error("Impossibile creare lista, ", e)
             return null;
         }
-
-        
-        
     }
 }

@@ -19,7 +19,7 @@ export class UserService {
     getAllUsers() {
         return this.collection.valueChanges().pipe(map(coll => {
                 return coll.map(user => {
-                    console.log(user)
+                    console.debug(user)
                     return user;
                 });
             }));
@@ -32,7 +32,7 @@ export class UserService {
         ).valueChanges().pipe(
             map(users => {
               const user = users[0];
-              console.log(user);
+              console.debug(user);
               return user;
             })
           );
@@ -45,7 +45,7 @@ export class UserService {
         ).valueChanges().pipe(
             map(users => {
               const user = users[0];
-              console.log(user);
+              console.debug(user);
               return user;
             })
           );
