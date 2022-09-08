@@ -128,4 +128,8 @@ export class ExpenseListDetailsComponent implements OnInit {
   formatAmount(amount: number){
     return MathUtils.formatAmount(amount);
   }
+
+  toast(){
+
+  }
 }

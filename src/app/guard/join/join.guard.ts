@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
+import ListUtils from 'src/app/utils/list-utils';
 
 @Injectable({
     providedIn: 'root'
@@ -11,8 +12,9 @@ import { ExpensesListService } from 'src/app/services/firestore/expensesList/exp
 export class JoinGuard implements CanActivate {
     constructor(
         private router: Router,
-        private expensesListService: ExpensesListService
-        ) { }
+        private expensesListService: ExpensesListService,
+        private afAuth: AngularFireAuth
+    ) { }
 
     canActivate(
         route: ActivatedRouteSnapshot,
@@ -37,7 +39,17 @@ export class JoinGuard implements CanActivate {
                     resolve(false);
                 }
 
-                resolve(true);
+                //Se l'utente fa già parte della lista --> redirect alla lista stessa
+                this.afAuth.onAuthStateChanged((user) => {
+                    if (ListUtils.contains(expensesList.partecipants, user?.uid)) {
+                        this.router.navigate(['/list/'+ expensesList.id]);
+                        resolve(false);
+                    }
+
+                    resolve(true);
+                });
+
+
             })
         });
     }

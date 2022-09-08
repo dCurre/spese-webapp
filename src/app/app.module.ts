@@ -30,7 +30,8 @@ import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { NewListDialogComponent } from './components/dialog/new-list-dialog/new-list-dialog.component';
 import { NewExpenseDialogComponent } from './components/dialog/new-expense-dialog/new-expense-dialog.component';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
-import { JoinComponent } from './components/join/join.component'; 
+import { JoinComponent } from './components/join/join.component';
+import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
 
 
 @NgModule({
@@ -45,6 +46,7 @@ import { JoinComponent } from './components/join/join.component';
     NewListDialogComponent,
     NewExpenseDialogComponent,
     JoinComponent,
+    AccessDeniedComponent
   ],
   imports: [
     BrowserModule,
