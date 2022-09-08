@@ -3,7 +3,7 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ExpenseService } from '../../services/firestore/expense/expense.service';
 import { Expense } from '../../services/firestore/expense/expense';
 import { ExpensesList } from '../../services/firestore/expensesList/expenses-list';
-import { Observable } from 'rxjs';
+import { first, Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
 import DateUtils from 'src/app/utils/date-utils';
@@ -12,6 +12,8 @@ import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expe
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 import MathUtils from 'src/app/utils/math-utils';
+import { Clipboard } from '@angular/cdk/clipboard';
+import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
 
 @Component({
   selector: 'app-expenses-list-details',
@@ -22,19 +24,23 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   protected expenses$: Observable<Expense[]>;
   protected expensesList$: Observable<ExpensesList>;
-  protected expensesListTotalAmount : number = 0;
+  protected expensesListTotalAmount: number = 0;
+  private listID: string;
 
   constructor(
     public afAuth: AngularFireAuth,
     private expenseService: ExpenseService,
     protected expensesListService: ExpensesListService,
+    private constantsService: ConstantsService,
     private modalService: NgbModal,
-    private route: ActivatedRoute,) { }
+    private route: ActivatedRoute,
+    private clipboard: Clipboard,) { }
 
   ngOnInit(): void {
-    this.getExpensesByListId(this.route.snapshot.paramMap.get('id')!!)
-    this.getExpensesListDetails(this.route.snapshot.paramMap.get('id')!!)
-    this.getExpensesListTotal(this.route.snapshot.paramMap.get('id')!!)
+    this.listID = this.route.snapshot.paramMap.get('id')!!
+    this.getExpensesByListId(this.listID)
+    this.getExpensesListDetails(this.listID)
+    this.getExpensesListTotal(this.listID)
   }
 
   async getExpensesByListId(id: string) {
@@ -55,20 +61,20 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   newExpense() {
     const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
-    modalInsert.componentInstance.listID = this.route.snapshot.paramMap.get('id')!!;
+    modalInsert.componentInstance.listID = this.listID;
     modalInsert.componentInstance.action = 'Crea'
 
     modalInsert.result.then((response) => {
       if (response == null) {
         return
       }
-      this.expenseService.insert(response, this.route.snapshot.paramMap.get('id')!!);
+      this.expenseService.insert(response, this.listID);
     }).catch((res) => { });
   }
 
   edit(expense: Expense) {
     const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
-    modalInsert.componentInstance.listID = this.route.snapshot.paramMap.get('id')!!;
+    modalInsert.componentInstance.listID = this.listID;
     modalInsert.componentInstance.action = 'Modifica'
     modalInsert.componentInstance.defaultExpense = expense.expense
     modalInsert.componentInstance.defaultAmount = expense.amount
@@ -112,7 +118,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     return DateUtils.timestampToHourString(timestamp);
   }
 
-  getExpensesListTotal(id: string){
+  getExpensesListTotal(id: string) {
     try {
       this.expenseService.getExpensesByListID(id).subscribe(expenseList => {
         this.expensesListTotalAmount = 0;
@@ -125,11 +131,16 @@ export class ExpenseListDetailsComponent implements OnInit {
     }
   }
 
-  formatAmount(amount: number){
+  formatAmount(amount: number) {
     return MathUtils.formatAmount(amount);
   }
 
-  toast(){
-
+  shareLink() {
+    const listID = this.listID;
+    this.constantsService.getConstants().pipe(first()).subscribe(constants => {
+      const linkToShare = constants.shareLink.replace("{LIST_ID}", listID)
+      this.clipboard.copy(linkToShare);
+      window.alert("Link copiato: " + linkToShare)
+    })
   }
 }

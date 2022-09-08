@@ -3,16 +3,29 @@
 <h3 *ngIf="expensesList$ | async as expensesList" class="d-flex justify-content-center">
     {{expensesList.name}}
 </h3>
-<button class="btn btn-success" (click)="toast()" ngbTooltip="Will disappear in 3s">Success toast</button>&nbsp;
 <br>
 
 
 
 <div class="container col-lg-6">
     <div class="d-flex justify-content-end">
-        <button id="btn-add" (click)="newExpense()" class="btn btn-success ml-1" type="button"><i
-                class="fa fa-plus"></i> Nuova spesa</button>
+        <div>
+            <button id="btn-add" (click)="newExpense()" class="btn btn-success ml-1" type="button"><i
+                    class="fa fa-plus"></i> Nuova spesa</button>
+        </div>
+        <div class="item-action dropdown">
+            <a href="#" data-toggle="dropdown" class="text-muted" data-abc="true">
+                <span class="input-group-text"><i class="fas fa-cog"></i></span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" role="menu">
+                <button class="dropdown-item">Dettagli Lista</button>
+                <button class="dropdown-item" (click)="shareLink()">Condividi</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item">Abbandona</button>
+            </div>
+        </div>
     </div>
+
     <!-- DETTAGLI SPESA -->
     <div class="accordion" id="accordionExample">
         <div class="accordion-item">
@@ -22,6 +35,7 @@
             </button>
         </div>
     </div>
+
     <div class="collapse" id="collapseList">
         <div class="card card-body">
             Totale: {{formatAmount(expensesListTotalAmount)}} €
