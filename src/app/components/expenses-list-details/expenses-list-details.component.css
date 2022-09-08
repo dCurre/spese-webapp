@@ -134,3 +134,8 @@ a:hover {
 #amount{
   padding-top: 2px;
 }
+
+.input-group-text {
+  height: 38px;
+  margin-left: 4px;
+}
