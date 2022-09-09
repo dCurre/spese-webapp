@@ -9,7 +9,7 @@ import ListUtils from 'src/app/utils/list-utils';
 @Injectable({
     providedIn: 'root'
 })
-export class JoinGuard implements CanActivate {
+export class ListGuard implements CanActivate {
     constructor(
         private router: Router,
         private expensesListService: ExpensesListService,
@@ -22,27 +22,27 @@ export class JoinGuard implements CanActivate {
 
         return new Promise((resolve) => {
             //Estraggo id lista
-            const listID = state.url.split("list=")[1] //FA SCHIFO AL CAZZO
+            const listID = state.url.split("list/")[1] //FA SCHIFO AL CAZZO
 
             //Check validità id lista
             if (listID == null || listID == undefined || listID.length == 0) {
                 console.error("Url non valido")
-                this.router.navigate(['/accessdenied']);
+                this.router.navigate(['/']);
                 resolve(false);
             }
 
             //Check esistenza lista
             this.expensesListService.getById(listID).subscribe(expensesList => {
                 if (expensesList == undefined) {
-                    console.error('Join Guard: list not found');
-                    this.router.navigate(['/accessdenied']);
+                    console.error('List Guard: list not found');
+                    this.router.navigate(['/']);
                     resolve(false);
                 }
 
                 //Se l'utente fa già parte della lista --> redirect alla lista stessa
                 this.afAuth.onAuthStateChanged((user) => {
-                    if (ListUtils.contains(expensesList.partecipants, user?.uid)) {
-                        this.router.navigate(['/list/'+ expensesList.id]);
+                    if (!ListUtils.contains(expensesList.partecipants, user?.uid)) {
+                        this.router.navigate(['/']);
                         resolve(false);
                     }
 

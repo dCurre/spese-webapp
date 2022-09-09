@@ -140,7 +140,49 @@ export class ExpenseListDetailsComponent implements OnInit {
     this.constantsService.getConstants().pipe(first()).subscribe(constants => {
       const linkToShare = constants.shareLink.replace("{LIST_ID}", listID)
       this.clipboard.copy(linkToShare);
-      window.alert("Link copiato: " + linkToShare)
+      window.alert("Link copiato")
     })
   }
+
+  leave(expensesList: ExpensesList) {
+    const modalLeave = this.modalService.open(DialogComponent, { centered: true });
+    modalLeave.componentInstance.dialogFields = new ConfirmDialogFields(
+      'Abbandona',
+      'Vuoi veramente abbandonare ' + expensesList.name + '?');
+
+    modalLeave.result.then(response => {
+      console.log(`Modal response: ${response}`)
+
+      if (!response) {
+        return
+      }
+
+      //Controllo che l'utente non sia l'unico della lista
+      //Se il partecipante alla lista è solo 1, allora per abbandonarla deve confermare la cancellazione
+      if (expensesList.partecipants.length == 1) {
+        this.deleteList(expensesList)
+      } else {
+        //Se non è l'unico in lista, il nuovo owner diventa il primo presente nella lista partecipanti (first-in)
+        this.afAuth.authState.subscribe(user => {
+          this.expensesListService.leave(user!!.uid, expensesList);
+        })
+      }
+    }).catch((res) => {})
+  }
+
+  deleteList(expensesList: ExpensesList) {
+    const modalDelete = this.modalService.open(DialogComponent, { centered: true });
+    modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
+      'Elimina',
+      "Sei l'unico componente di " + expensesList.name + ".\nVuoi veramente cancellarla?");
+
+    modalDelete.result.then((response) => {
+      if (!response) {
+        return
+      }
+
+      this.expensesListService.delete(expensesList.id);
+    }).catch((res) => {});
+  }
+
 }

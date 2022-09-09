@@ -82,7 +82,8 @@
   flex-direction: row;
   -ms-flex-align: center;
   align-items: center;
-  padding: .75rem .625rem
+  padding-top: .75rem;
+  padding-bottom: .625rem;
 }
 
 .list-item {
@@ -97,7 +98,6 @@
 
 .list-row .list-item>* {
   padding-left: .625rem;
-  padding-right: .625rem
 }
 
 a{
@@ -132,7 +132,9 @@ a:hover {
 }
 
 #amount{
-  padding-top: 2px;
+  padding-top: 1px;
+  font-size: 1.1rem;
+  color: black !important;
 }
 
 .input-group-text {
