@@ -48,8 +48,6 @@ export class JoinGuard implements CanActivate {
 
                     resolve(true);
                 });
-
-
             })
         });
     }
