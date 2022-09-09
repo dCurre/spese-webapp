@@ -1,0 +1,33 @@
+<div class="modal-header">
+    <h5 class="modal-title">{{dialogFields.title}}</h5>
+    <button type="button" class="close" (click)="modalService.close(false)" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+<div class="modal-body" style="white-space: pre-line">
+
+    <div>
+        Totale: {{formatToEur(expensesListTotalAmount)}}
+    </div>
+    
+    <div class="accordion" id="accordionExample">
+        <div class="accordion-item">
+            <button class="accordion-button collapsed bg-spese" type="button" data-toggle="collapse"
+                data-target="#collapseList" aria-expanded="false" aria-controls="collapseList">
+                Saldo
+            </button>
+        </div>
+    </div>
+    <div class="collapse" id="collapseList">
+        <div class="card card-body">
+            <div *ngFor="let element of mapPagato | keyvalue">
+                <div>
+                    <b>{{element.key}} ha pagato {{formatToEur(element.value)}}</b>
+                </div>
+                <div *ngFor="let balanceDetail of filterByElement(balanceDetails, element.key)">
+                    {{balanceDetail.buyer}} deve a {{balanceDetail.receiver}}: {{formatToEur(balanceDetail.toPay)}}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

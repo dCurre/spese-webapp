@@ -32,6 +32,7 @@ import { NewExpenseDialogComponent } from './components/dialog/new-expense-dialo
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { JoinComponent } from './components/join/join.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
+import { ListDetailsDialogComponent } from './components/dialog/list-details-dialog/list-details-dialog.component';
 
 
 @NgModule({
@@ -46,7 +47,8 @@ import { AccessDeniedComponent } from './components/access-denied/access-denied.
     NewListDialogComponent,
     NewExpenseDialogComponent,
     JoinComponent,
-    AccessDeniedComponent
+    AccessDeniedComponent,
+    ListDetailsDialogComponent
   ],
   imports: [
     BrowserModule,

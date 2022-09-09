@@ -14,6 +14,8 @@ import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fie
 import MathUtils from 'src/app/utils/math-utils';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
+import { ListDetailsDialogComponent } from '../dialog/list-details-dialog/list-details-dialog.component';
+import { ListDetailsDialogFields } from '../dialog/list-details-dialog/list-details-dialog-fields';
 
 @Component({
   selector: 'app-expenses-list-details',
@@ -131,8 +133,8 @@ export class ExpenseListDetailsComponent implements OnInit {
     }
   }
 
-  formatAmount(amount: number) {
-    return MathUtils.formatAmount(amount);
+  formatToEur(amount: number) {
+    return MathUtils.formatToEur(amount);
   }
 
   shareLink() {
@@ -185,4 +187,16 @@ export class ExpenseListDetailsComponent implements OnInit {
     }).catch((res) => {});
   }
 
+  details(expensesList: ExpensesList){
+    const modalDelete = this.modalService.open(ListDetailsDialogComponent, { centered: true });
+    modalDelete.componentInstance.dialogFields = new ListDetailsDialogFields(
+      'Dettagli',
+      expensesList);
+
+    modalDelete.result.then((response) => {
+      if (!response) {
+        return
+      }
+    }).catch((res) => {});
+  }
 }

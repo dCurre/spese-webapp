@@ -5,8 +5,6 @@ export default class ListUtils {
 
         if (value == null || value == undefined)
             return false;
-
-        console.log("INCLUDES: " + list.includes(value))
         return list.includes(value)
     }
 }
