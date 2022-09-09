@@ -20,7 +20,7 @@ export class ExpenseService {
     getAllExpenses() {
         return this.collection.valueChanges().pipe(map(coll => {
             return coll.map(user => {
-                console.log(user)
+                //console.log(user)
                 return user;
             });
         }));
@@ -33,7 +33,7 @@ export class ExpenseService {
                 .orderBy(ExpenseFieldsEnum.EXPENSE_DATE_TIMESTAMP, 'asc')
         ).valueChanges().pipe(map(coll => {
             return coll.map(expensesList => {
-                console.log(expensesList.id)
+                //console.log(expensesList.id)
                 return expensesList;
             });
         }));
