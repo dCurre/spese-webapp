@@ -22,3 +22,7 @@
     font-weight: bold;
     color: white !important;
 }
+
+.accordion-item{
+    border: none
+}

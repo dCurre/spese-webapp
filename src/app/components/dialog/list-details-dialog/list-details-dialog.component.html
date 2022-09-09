@@ -12,7 +12,7 @@
     
     <div class="accordion" id="accordionExample">
         <div class="accordion-item">
-            <button class="accordion-button collapsed bg-spese" type="button" data-toggle="collapse"
+            <button class="accordion-button collapsed bg-spese border-none" type="button" data-toggle="collapse"
                 data-target="#collapseList" aria-expanded="false" aria-controls="collapseList">
                 Saldo
             </button>
@@ -25,7 +25,7 @@
                     <b>{{element.key}} ha pagato {{formatToEur(element.value)}}</b>
                 </div>
                 <div *ngFor="let balanceDetail of filterByElement(balanceDetails, element.key)">
-                    {{balanceDetail.buyer}} deve a {{balanceDetail.receiver}}: {{formatToEur(balanceDetail.toPay)}}
+                    deve a {{balanceDetail.receiver}}: {{formatToEur(balanceDetail.toPay)}}
                 </div>
             </div>
         </div>

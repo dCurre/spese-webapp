@@ -47,11 +47,6 @@ export class ListDetailsDialogComponent implements OnInit {
             }
           });
         });
-
-        this.balanceDetails.forEach(detail => {
-          console.log(detail.buyer, "e deve a", detail.receiver, detail.toPay);
-        })
-
       });
     } catch (e) {
       console.error("ListDetailsDialogComponent.getSaldoDetails: ", e)

@@ -1,22 +1,33 @@
 <app-toolbar></app-toolbar>
 <br>
 <div *ngIf="expensesList$ | async as expensesList">
-    <h3 class="d-flex justify-content-center">
+    <h1 class="d-flex justify-content-center">
         {{expensesList.name}}
-    </h3>
+    </h1>
     <br>
     <div class="container col-lg-6">
-        <div class="d-flex justify-content-end">
-            <div>
-                <button id="btn-add" (click)="newExpense()" class="btn btn-success ml-1" type="button"><i
-                        class="fa fa-plus"></i> Nuova spesa</button>
+        <div class="d-flex">
+            <div class="mr-auto">
+                <div id="saldo" class="d-inline-flex">
+                    Saldo:
+                    <span id="saldo-pallino" class="avatar"
+                        [ngClass]="expensesList.paid ? 'gd-saldato' : ' gd-non-saldato'">
+                    </span>
+                </div>
             </div>
-            <div class="item-action dropdown">
+            <div>
+                <button id="btn-add" [disabled]="expensesList.paid" (click)="newExpense()" class="btn btn-success ml-1"
+                    type="button">
+                    <i class="fa fa-plus"></i> Nuova spesa</button>
+            </div>
+            <div class="btn-group dropdown">
                 <a href="#" data-toggle="dropdown" class="text-muted" data-abc="true">
-                    <span class="input-group-text"><i class="fas fa-cog"></i></span>
+                    <span class="input-group-text btn btn-outline-secondary"><i class="fas fa-cog"></i></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" role="menu">
                     <button class="dropdown-item" (click)="details(expensesList)">Dettagli</button>
+                    <button class="dropdown-item" (click)="salda(expensesList)">{{expensesList.paid ? 'Riapri Saldo' :
+                        'Chiudi Saldo'}}</button>
                     <button class="dropdown-item" (click)="shareLink()">Condividi</button>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item" (click)="leave(expensesList)">Abbandona</button>
@@ -45,15 +56,15 @@
                                 {{formatToEur(expense.amount)}}
                             </div>
                             <div class="item-action dropdown">
-                                <a href="#" data-toggle="dropdown" class="text-muted" data-abc="true">
+                                <button [disabled]="expensesList.paid" href="#" data-toggle="dropdown"
+                                    class="btn btn-link text-muted btn-dropdown-item" data-abc="true">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                         class="feather feather-more-vertical">
                                         <circle cx="12" cy="12" r="1"></circle>
                                         <circle cx="12" cy="5" r="1"></circle>
                                         <circle cx="12" cy="19" r="1"></circle>
-                                    </svg>
-                                </a>
+                                    </svg></button>
                                 <div class="dropdown-menu dropdown-menu-right" role="menu">
                                     <button class="dropdown-item" (click)="edit(expense)">Modifica</button>
                                     <div class="dropdown-divider"></div>

@@ -199,4 +199,23 @@ export class ExpenseListDetailsComponent implements OnInit {
       }
     }).catch((res) => {});
   }
+
+  salda(expensesList: ExpensesList) {
+    const modalDelete = this.modalService.open(DialogComponent, { centered: true });
+    const saldoMessage = expensesList.paid ? "Vuoi riaprire la lista " : "Vuoi chiudere la lista "
+
+    modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
+      'Conferma saldo',
+      saldoMessage + expensesList.name + "?");
+
+    modalDelete.result.then((response) => {
+      if (!response) {
+        return
+      }
+
+      expensesList.paid = !expensesList.paid
+      this.expensesListService.update(expensesList);
+
+    }).catch((res) => { });
+  }
 }

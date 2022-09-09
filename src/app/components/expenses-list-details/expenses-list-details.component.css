@@ -1,15 +1,3 @@
-.card {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  word-wrap: break-word;
-  background-color: #fff;
-  background-clip: border-box;
-  border: 1px solid rgba(19, 24, 44, .125);
-  border-radius: .25rem
-}
-
 .w-40 {
   width: 40px !important;
   height: 40px !important
@@ -100,7 +88,7 @@
   padding-left: .625rem;
 }
 
-a{
+a {
   text-decoration: none
 }
 
@@ -109,15 +97,15 @@ a:hover {
   text-decoration: none;
 }
 
-.list-item:hover{
+.list-item:hover {
   background: #f3f0ff !important;
 }
 
-#btn-add{
+#btn-add {
   margin-bottom: 4px;
 }
 
-#amount{
+#amount {
   padding-top: 1px;
   font-size: 1.1rem;
   color: black !important;
@@ -126,4 +114,23 @@ a:hover {
 .input-group-text {
   height: 38px;
   margin-left: 4px;
+}
+
+.btn-dropdown-item:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#saldo{
+  margin-bottom: 0;
+  padding-bottom: 0;
+  margin-top: 0.6rem;
+  font-size: 1.2rem;
+}
+
+#saldo-pallino {
+  width: 20px !important;
+  height: 20px !important;
+  margin-left: 6px;
+  margin-top: 0.4rem;
 }
