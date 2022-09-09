@@ -12,10 +12,10 @@ import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expe
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 import MathUtils from 'src/app/utils/math-utils';
-import { Clipboard } from '@angular/cdk/clipboard';
 import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
 import { ListDetailsDialogComponent } from '../dialog/list-details-dialog/list-details-dialog.component';
 import { ListDetailsDialogFields } from '../dialog/list-details-dialog/list-details-dialog-fields';
+import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
 
 @Component({
   selector: 'app-expenses-list-details',
@@ -35,8 +35,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     protected expensesListService: ExpensesListService,
     private constantsService: ConstantsService,
     private modalService: NgbModal,
-    private route: ActivatedRoute,
-    private clipboard: Clipboard,) { }
+    private route: ActivatedRoute,) { }
 
   ngOnInit(): void {
     this.listID = this.route.snapshot.paramMap.get('id')!!
@@ -139,11 +138,17 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   shareLink() {
     const listID = this.listID;
+    const modalShare = this.modalService.open(ShareDialogComponent, { centered: true });
     this.constantsService.getConstants().pipe(first()).subscribe(constants => {
-      const linkToShare = constants.shareLink.replace("{LIST_ID}", listID)
-      this.clipboard.copy(linkToShare);
-      window.alert("Link copiato")
+      modalShare.componentInstance.shareLink = constants.shareLink.replace("{LIST_ID}", listID)
     })
+
+    modalShare.result.then((response) => {
+      if (!response) {
+        return
+      }
+
+    }).catch((res) => { });
   }
 
   leave(expensesList: ExpensesList) {
@@ -169,7 +174,7 @@ export class ExpenseListDetailsComponent implements OnInit {
           this.expensesListService.leave(user!!.uid, expensesList);
         })
       }
-    }).catch((res) => {})
+    }).catch((res) => { })
   }
 
   deleteList(expensesList: ExpensesList) {
@@ -184,31 +189,31 @@ export class ExpenseListDetailsComponent implements OnInit {
       }
 
       this.expensesListService.delete(expensesList.id);
-    }).catch((res) => {});
+    }).catch((res) => { });
   }
 
-  details(expensesList: ExpensesList){
-    const modalDelete = this.modalService.open(ListDetailsDialogComponent, { centered: true });
-    modalDelete.componentInstance.dialogFields = new ListDetailsDialogFields(
+  details(expensesList: ExpensesList) {
+    const modalDetails = this.modalService.open(ListDetailsDialogComponent, { centered: true });
+    modalDetails.componentInstance.dialogFields = new ListDetailsDialogFields(
       'Dettagli',
       expensesList);
 
-    modalDelete.result.then((response) => {
+    modalDetails.result.then((response) => {
       if (!response) {
         return
       }
-    }).catch((res) => {});
+    }).catch((res) => { });
   }
 
   salda(expensesList: ExpensesList) {
-    const modalDelete = this.modalService.open(DialogComponent, { centered: true });
+    const modalSaldo = this.modalService.open(DialogComponent, { centered: true });
     const saldoMessage = expensesList.paid ? "Vuoi riaprire la lista " : "Vuoi chiudere la lista "
 
-    modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
+    modalSaldo.componentInstance.dialogFields = new ConfirmDialogFields(
       'Conferma saldo',
       saldoMessage + expensesList.name + "?");
 
-    modalDelete.result.then((response) => {
+    modalSaldo.result.then((response) => {
       if (!response) {
         return
       }

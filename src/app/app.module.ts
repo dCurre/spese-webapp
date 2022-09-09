@@ -33,6 +33,7 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { JoinComponent } from './components/join/join.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
 import { ListDetailsDialogComponent } from './components/dialog/list-details-dialog/list-details-dialog.component';
+import { ShareDialogComponent } from './components/dialog/share-dialog/share-dialog.component';
 
 
 @NgModule({
@@ -48,7 +49,8 @@ import { ListDetailsDialogComponent } from './components/dialog/list-details-dia
     NewExpenseDialogComponent,
     JoinComponent,
     AccessDeniedComponent,
-    ListDetailsDialogComponent
+    ListDetailsDialogComponent,
+    ShareDialogComponent
   ],
   imports: [
     BrowserModule,
