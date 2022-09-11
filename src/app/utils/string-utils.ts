@@ -5,7 +5,7 @@ export default class StringUtils {
             return "";
         }
 
-        string.replace("&","\%26"); // &
+        string = string.replace("&","\%26"); // &
         return string;
     }
 }
