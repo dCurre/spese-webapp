@@ -42,4 +42,5 @@ testem.log
 Thumbs.db
 
 #firebase
-.firebase/
+.firebase/*
+.firebase/hosting.*.cache
