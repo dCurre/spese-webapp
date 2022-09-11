@@ -26,3 +26,12 @@
 .accordion-item{
     border: none
 }
+
+.wa-icon{
+    color: white;
+    width: 52px;
+    height: 52px;
+    background-color: #02c408;
+    border-radius: 2rem;
+    padding-top: 0.45rem;
+}
