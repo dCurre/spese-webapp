@@ -1,8 +1,13 @@
 <app-toolbar></app-toolbar>
-<br>
+<div *ngIf="!(expensesList$ | async)">
+    <app-spinner></app-spinner>
+</div>
+
 <div *ngIf="expensesList$ | async as expensesList">
+    <br>
     <h1 class="d-flex justify-content-center">
         {{expensesList.name}}
+    <br>
     </h1>
     <br>
     <div class="container col-lg-6">

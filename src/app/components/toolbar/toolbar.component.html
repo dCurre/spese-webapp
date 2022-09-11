@@ -1,6 +1,12 @@
 <nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-spese">
-  <a class="navbar-brand" href=""><h1>Spese</h1></a>
-  <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <a class="navbar-brand" href="">
+    <div id="toolbar-site-name">
+      Spese
+    </div>
+  </a>
+  <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse"
+    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+    aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 
@@ -10,18 +16,20 @@
       <li class="nav-item">
         <div *ngIf="loggedUser$ | async as user">
           <a class="nav-link" href="">
-            <img class='user_image' referrerpolicy="no-referrer" [src]="user.profileImage"/> {{user.fullname}}
+            <img class='user_image' referrerpolicy="no-referrer" [src]="user.profileImage" /><span
+            class="toolbar-list-span">{{user.fullname}}</span>
           </a>
-        </div>	
+        </div>
       </li>
     </ul>
     <ul class="navbar-nav ">
       <li class="nav-item">
         <div *ngIf="loggedUser$ | async as user">
           <a class="nav-link" (click)="logout()" role="button">
-            <img class='user_image fas fa-sign-out-alt' referrerpolicy="no-referrer"/> Logout
+            <img class='user_image fas fa-sign-out-alt' referrerpolicy="no-referrer" /><span
+              class="toolbar-list-span">Logout</span>
           </a>
-        </div>	
+        </div>
       </li>
     </ul>
   </div>
