@@ -1,10 +1,6 @@
 <!-- IF NOT LOGGED IN -->
 <div *ngIf="!(afAuth.user | async)">
-    <app-sign-in></app-sign-in>
 </div>
 
-<!-- IF LOGGED IN -->
-<div *ngIf="(afAuth.user | async)">
-    <app-toolbar></app-toolbar>
-    <app-expenses-list></app-expenses-list>
-</div>
+<app-toolbar></app-toolbar>
+<app-expenses-list></app-expenses-list>

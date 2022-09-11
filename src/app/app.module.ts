@@ -34,6 +34,7 @@ import { JoinComponent } from './components/join/join.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
 import { ListDetailsDialogComponent } from './components/dialog/list-details-dialog/list-details-dialog.component';
 import { ShareDialogComponent } from './components/dialog/share-dialog/share-dialog.component';
+import { SpinnerComponent } from './components/spinner/spinner.component';
 
 
 @NgModule({
@@ -50,7 +51,8 @@ import { ShareDialogComponent } from './components/dialog/share-dialog/share-dia
     JoinComponent,
     AccessDeniedComponent,
     ListDetailsDialogComponent,
-    ShareDialogComponent
+    ShareDialogComponent,
+    SpinnerComponent
   ],
   imports: [
     BrowserModule,

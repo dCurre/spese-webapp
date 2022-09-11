@@ -1,63 +1,67 @@
 <br>
 <h3 class="d-flex justify-content-center">Le tue liste</h3>
 <br>
-
-
+<div *ngIf="!(expensesLists$ | async)">
+    <app-spinner></app-spinner>
+</div>
 <div class="container col-lg-6">
     <div class="d-flex justify-content-end">
         <button id="btn-add" (click)="newList()" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i>
             Nuova lista</button>
     </div>
-    <div class="d-flex justify-content-center">
-        <div class="list list-row card col-lg-12">
-            <div class="row">
-                <div class="col-md-12" *ngFor="let expensesList of expensesLists$ | async">
-                    <div class="list-item">
-                        <div>
-                            <a [routerLink]="['/list', expensesList.id]" data-abc="true">
-                                <span class="w-40 avatar"
-                                    [ngClass]="expensesList.paid ? 'gd-saldato' : ' gd-non-saldato'">
-                                    {{expensesList.name[0].toUpperCase()}}
-                                </span>
-                            </a>
-                        </div>
-                        <div class="flex">
-                            <a [routerLink]="['/list', expensesList.id]" data-abc="true">
-                                <div class="text-color">
-                                    {{expensesList.name}}
-                                    <div class="item-except text-muted text-sm h-1x">
-                                        Creata il {{timestampToDateString(expensesList.timestampIns)}} alle
-                                        {{timestampToHourString(expensesList.timestampIns)}}
+    <div *ngIf="(expensesLists$ | async)">
+        <div class="d-flex justify-content-center">
+            <div class="list list-row card col-lg-12">
+                <div class="row">
+                    <div class="col-md-12" *ngFor="let expensesList of expensesLists$ | async">
+                        <div class="list-item">
+                            <div>
+                                <a [routerLink]="['/list', expensesList.id]" data-abc="true">
+                                    <span class="w-40 avatar"
+                                        [ngClass]="expensesList.paid ? 'gd-saldato' : ' gd-non-saldato'">
+                                        {{expensesList.name[0].toUpperCase()}}
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="flex">
+                                <a [routerLink]="['/list', expensesList.id]" data-abc="true">
+                                    <div class="text-color">
+                                        {{expensesList.name}}
+                                        <div class="item-except text-muted text-sm h-1x">
+                                            Creata il {{timestampToDateString(expensesList.timestampIns)}} alle
+                                            {{timestampToHourString(expensesList.timestampIns)}}
+                                        </div>
                                     </div>
-                                </div>
-                            </a>
-                        </div>
-                        <!-- SCRITTA FIGA SULLA DESTRA
-                                <div class="no-wrap">
-                                    <div class="item-date text-muted text-sm d-none d-xs-block d-sm-block d-md-block">
-                                        15 weeks ago
+                                </a>
+                            </div>
+                            <!-- SCRITTA FIGA SULLA DESTRA
+                                    <div class="no-wrap">
+                                        <div class="item-date text-muted text-sm d-none d-xs-block d-sm-block d-md-block">
+                                            15 weeks ago
+                                        </div>
                                     </div>
+                                    -->
+                            <div class="item-action dropdown">
+                                <a href="" data-toggle="dropdown" class="text-muted" data-abc="true">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                        class="feather feather-more-vertical">
+                                        <circle cx="12" cy="12" r="1"></circle>
+                                        <circle cx="12" cy="5" r="1"></circle>
+                                        <circle cx="12" cy="19" r="1"></circle>
+                                    </svg>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right" role="menu">
+                                    <a [routerLink]="['/list', expensesList.id]" class="dropdown-item"
+                                        data-abc="true">Apri</a>
+                                    <div class="dropdown-divider"></div>
+                                    <button class="dropdown-item" (click)="leave(expensesList)">Abbandona</button>
                                 </div>
-                                -->
-                        <div class="item-action dropdown">
-                            <a href="" data-toggle="dropdown" class="text-muted" data-abc="true">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                    class="feather feather-more-vertical">
-                                    <circle cx="12" cy="12" r="1"></circle>
-                                    <circle cx="12" cy="5" r="1"></circle>
-                                    <circle cx="12" cy="19" r="1"></circle>
-                                </svg>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right" role="menu">
-                                <a [routerLink]="['/list', expensesList.id]" class="dropdown-item"
-                                    data-abc="true">Apri</a>
-                                <div class="dropdown-divider"></div>
-                                <button class="dropdown-item" (click)="leave(expensesList)">Abbandona</button>
                             </div>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
