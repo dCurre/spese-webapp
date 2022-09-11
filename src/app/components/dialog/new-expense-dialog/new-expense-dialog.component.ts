@@ -32,7 +32,6 @@ export class NewExpenseDialogComponent implements OnInit {
   model: NgbDateStruct;
 
   constructor(public modalService: NgbActiveModal,
-    private calendar: NgbCalendar,
     private expensesListService: ExpensesListService,
     private expenseService: ExpenseService,
     private userService: UserService) { }
@@ -46,7 +45,6 @@ export class NewExpenseDialogComponent implements OnInit {
   }
 
   setDefaultFields() {
-    console.log(this.defaultDateTimestamp);
     this.expense.expense = (this.defaultExpense !== undefined) ? this.defaultExpense.toString() : "";
     this.expense.amount = (this.defaultAmount !== undefined) ? this.defaultAmount : 0;
     this.model = this.defaultDateTimestamp !== undefined ? DateUtils.dateTongbDateStruct(new Date(this.defaultDateTimestamp * 1000)) : DateUtils.dateTongbDateStruct(new Date());

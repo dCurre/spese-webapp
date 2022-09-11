@@ -11,14 +11,14 @@ import { ExpenseListDetailsComponent } from './components/expenses-list-details/
 import { JoinComponent } from './components/join/join.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
 import { ListGuard } from './guard/list/list.guard';
+import { SignInGuard } from './guard/signin/signin.guard';
 
 const routes: Routes = [
-  { path: 'home', component: HomeComponent, canActivate: [AuthGuard] },
   { path: 'join', component: JoinComponent, canActivate: [AuthGuard, JoinGuard] },
-  { path: 'signin', component: SignInComponent},
+  { path: 'signin', component: SignInComponent, canActivate: [SignInGuard] },
   { path: 'accessdenied', component: AccessDeniedComponent},
   { path: 'list/:id', component: ExpenseListDetailsComponent, canActivate: [AuthGuard, ListGuard] },
-  { path: '**', component: HomeComponent },// catch-all in case no other path matched
+  { path: '', component: HomeComponent, canActivate: [AuthGuard]  },// catch-all in case no other path matched
 ];
 
 @NgModule({

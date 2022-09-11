@@ -7,7 +7,7 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 @Injectable({
     providedIn: 'root'
 })
-export class AuthGuard implements CanActivate {
+export class SignInGuard implements CanActivate {
     constructor(private router: Router, private afAuth: AngularFireAuth) { }
 
     canActivate(
@@ -16,14 +16,10 @@ export class AuthGuard implements CanActivate {
 
         return new Promise((resolve) => {
             this.afAuth.onAuthStateChanged((user) => {
-                if (user == null || user == undefined) {
-                    console.log('Auth Guard: user is not logged in');
-                    this.router.navigate(['/signin']);
-                    resolve(false);
-                    return;
+                console.log("Entro");
+                if (user !== null && user !== undefined) {
+                    this.router.navigate(['/']);
                 }
-                
-                console.log('Auth Guard: user is logged in');
                 resolve(true);
             });
         });
