@@ -2,10 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ExpensesListService } from '../../services/firestore/expensesList/expenses-list.service';
 import { ExpensesList } from '../../services/firestore/expensesList/expenses-list';
-import { map, Observable } from 'rxjs';
-import { UserService } from 'src/app/services/firestore/user/user.service';
-import { UserFieldsEnum } from 'src/app/enums/userFieldsEnum';
-import { User } from 'src/app/services/firestore/user/user';
+import { Observable } from 'rxjs';
 import DateUtils from 'src/app/utils/date-utils';
 import { DialogComponent } from 'src/app/components/dialog/confirm-dialog/confirm-dialog.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -22,38 +19,27 @@ import { NewListDialogComponent } from '../dialog/new-list-dialog/new-list-dialo
 export class ExpensesListComponent implements OnInit {
 
   protected expensesLists$: Observable<ExpensesList[]>;
-  protected listOwner$: Observable<User>;
+  protected loggedUserData$: any;
   closeResult: string;
 
   constructor(
     public afAuth: AngularFireAuth,
     private expensesListService: ExpensesListService,
-    private userService: UserService,
     private modalService: NgbModal,
     public router: Router) { }
 
   ngOnInit(): void {
     this.getExpensesListsByLoggedUser()
-    this.getListOwner()
+    this.getLoggedUserData()
   }
 
   async getExpensesListsByLoggedUser() {
-
+    console.log("getExpensesListsByLoggedUser");
     this.afAuth.authState.subscribe(user => {
       try {
         this.expensesLists$ = this.expensesListService.getByUserId(user!!.uid);
       } catch (e) {
-        console.error("HomeComponent.getLoggedUser: ", e)
-      }
-    })
-  }
-
-  async getListOwner() {
-    this.afAuth.authState.subscribe(user => {
-      try {
-        this.listOwner$ = this.userService.getUserByField(UserFieldsEnum.ID, user!!.uid);
-      } catch (e) {
-        console.error("HomeComponent.getLoggedUser: ", e)
+        console.error("HomeComponent.getExpensesListsByLoggedUser: ", e)
       }
     })
   }
@@ -67,13 +53,14 @@ export class ExpensesListComponent implements OnInit {
   }
 
   leave(expensesList: ExpensesList) {
+    console.log("leave");
     const modalLeave = this.modalService.open(DialogComponent, { centered: true });
     modalLeave.componentInstance.dialogFields = new ConfirmDialogFields(
       'Abbandona',
       'Vuoi veramente abbandonare ' + expensesList.name + '?');
 
     modalLeave.result.then(response => {
-      console.log(`Modal response: ${response}`)
+      console.debug(`Modal response: ${response}`)
 
       if (!response) {
         return
@@ -93,6 +80,7 @@ export class ExpensesListComponent implements OnInit {
   }
 
   delete(expensesList: ExpensesList) {
+    console.log("delete");
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
     modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
@@ -119,5 +107,12 @@ export class ExpensesListComponent implements OnInit {
         this.expensesListService.insert(response, user!!.uid);
       })
     }).catch((res) => {});
+  }
+
+  getLoggedUserData(){
+    console.log("getLoggedUserData");
+    this.afAuth.authState.subscribe(user => {
+      this.loggedUserData$ = user;
+    })
   }
 }

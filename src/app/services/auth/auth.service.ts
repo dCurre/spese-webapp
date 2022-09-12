@@ -20,9 +20,9 @@ export class AuthService {
     AuthLogin(provider: firebase.auth.AuthProvider | GoogleAuthProvider) {
         return this.afAuth.signInWithPopup(provider)
         .then((result) => {
-            console.log('You have been successfully logged in!')
+            console.debug('AuthLogin: You have been successfully logged in!')
         }).catch((error) => {
-            console.log(error)
+            console.debug("AuthLogin error:", error)
         })
     }
 

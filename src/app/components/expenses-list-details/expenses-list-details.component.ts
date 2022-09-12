@@ -158,7 +158,7 @@ export class ExpenseListDetailsComponent implements OnInit {
       'Vuoi veramente abbandonare ' + expensesList.name + '?');
 
     modalLeave.result.then(response => {
-      console.log(`Modal response: ${response}`)
+      console.debug(`Modal response: ${response}`)
 
       if (!response) {
         return

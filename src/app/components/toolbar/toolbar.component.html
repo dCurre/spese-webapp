@@ -1,5 +1,5 @@
 <nav class="navbar navbar-icon-top navbar-expand-lg navbar-dark bg-spese">
-  <a class="navbar-brand" href="">
+  <a class="navbar-brand" routerLink="">
     <div id="toolbar-site-name">
       Spese
     </div>
@@ -10,27 +10,25 @@
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+  <div *ngIf="!isSignin()" class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto"></ul>
-    <ul class="navbar-nav ">
-      <li class="nav-item">
-        <div *ngIf="loggedUser$ | async as user">
-          <a class="nav-link" href="">
+    <div *ngIf="loggedUser$ | async as user">
+      <ul class="navbar-nav ">
+        <li class="nav-item">
+          <a class="nav-link" routerLink="">
             <img class='user_image' referrerpolicy="no-referrer" [src]="user.profileImage" /><span
               class="toolbar-list-span align-middle">{{user.fullname}}</span>
           </a>
-        </div>
-      </li>
-    </ul>
-    <ul class="navbar-nav">
-      <li class="nav-item">
-        <div *ngIf="loggedUser$ | async as user">
+        </li>
+      </ul>
+      <ul class="navbar-nav">
+        <li class="nav-item">
           <a class="nav-link" (click)="logout()" role="button">
             <i class="fa fa-sign-out fa-2x logout-icon"></i><span id="logout-span"
               class="toolbar-list-span align-middle">Logout</span>
           </a>
-        </div>
-      </li>
-    </ul>
+        </li>
+      </ul>
+    </div>
   </div>
 </nav>

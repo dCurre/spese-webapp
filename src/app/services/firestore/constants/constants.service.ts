@@ -19,7 +19,7 @@ export class ConstantsService {
     getConstants() {
 
         return this.collection.valueChanges().pipe(map(constants => {
-            //console.log(constants[0])
+            console.debug(constants[0])
             return constants[0];
         }));
 

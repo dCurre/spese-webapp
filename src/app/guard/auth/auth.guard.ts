@@ -17,13 +17,13 @@ export class AuthGuard implements CanActivate {
         return new Promise((resolve) => {
             this.afAuth.onAuthStateChanged((user) => {
                 if (user == null || user == undefined) {
-                    console.log('Auth Guard: user is not logged in');
+                    console.debug('Auth Guard: user is not logged in');
                     this.router.navigate(['/signin']);
                     resolve(false);
                     return;
                 }
                 
-                console.log('Auth Guard: user is logged in');
+                console.debug('Auth Guard: user is logged in');
                 resolve(true);
             });
         });
