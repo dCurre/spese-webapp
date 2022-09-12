@@ -17,9 +17,8 @@ export class ConstantsService {
     constructor(private db: AngularFirestore) { }
 
     getConstants() {
-
         return this.collection.valueChanges().pipe(map(constants => {
-            console.debug(constants[0])
+            console.debug("ConstantsService.getConstants", constants[0])
             return constants[0];
         }));
 

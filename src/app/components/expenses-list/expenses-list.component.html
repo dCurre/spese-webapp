@@ -1,7 +1,7 @@
 <br>
 <h3 class="d-flex justify-content-center">Le tue liste</h3>
 <br>
-<div *ngIf="!(expensesLists$ | async)">
+<div *ngIf="!(expensesLists$)">
     <app-spinner></app-spinner>
 </div>
 <div class="container col-lg-6">
@@ -9,7 +9,7 @@
         <button id="btn-add" (click)="newList()" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i>
             Nuova lista</button>
     </div>
-    <div *ngIf="(expensesLists$ | async)">
+    <div *ngIf="(expensesLists$)">
         <div class="d-flex justify-content-center">
             <div class="list list-row card col-lg-12">
                 <div class="row">

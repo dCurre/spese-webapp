@@ -29,15 +29,15 @@ export class JoinComponent implements OnInit {
     this.getExpensesListDetails(this.listID)
   }
 
-  async getConstants() {
+  getConstants() {
     try {
       this.constants$ = this.constantsService.getConstants();
     } catch (e) {
-      console.error("JoinComponent.getDynamicLinks: ", e)
+      console.error("JoinComponent.getConstants: ", e)
     }
   }
 
-  async getExpensesListDetails(id: string) {
+  getExpensesListDetails(id: string) {
     try {
       this.expensesList$ = this.expensesListService.getById(id);
     } catch (e) {
@@ -63,10 +63,8 @@ export class JoinComponent implements OnInit {
   private getParams() {
     this.route.queryParams
       .subscribe(params => {
-        console.debug(params['list']);
         this.listID = params['list']
-      }
-      );
+      });
   }
 
 }

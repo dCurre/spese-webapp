@@ -1,4 +1,3 @@
-<app-toolbar></app-toolbar>
 <div class="card_padding spese-background bg-light">
     <div class="d-flex justify-content-center h-100">
         <div class="user_card">
@@ -9,7 +8,6 @@
                 </div>
             </div>
             <div *ngIf="constants$ | async as constants" class="form_container">
-
                 <form *ngIf="expensesList$ | async as expensesList">
                     <div class="d-flex justify-content-center">
                         {{expensesList.partecipants.length}} / {{constants.listMaxUsers}} Partecipanti
