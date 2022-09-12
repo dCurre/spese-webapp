@@ -100,8 +100,8 @@ export class NewExpenseDialogComponent implements OnInit {
     try {
       this.expensesListService.getById(id).subscribe(expensesList => {
         this.partecipantsTooltip = []
-        expensesList.partecipants.forEach(element => {
-          this.userService.getById(element).subscribe(user => {
+        expensesList.partecipants.forEach(partecipantID => {
+          this.userService.getById(partecipantID).subscribe(user => {
             if (!ListUtils.contains(this.partecipantsTooltip, user.fullname)) {
               this.partecipantsTooltip.push(user.fullname)
             }

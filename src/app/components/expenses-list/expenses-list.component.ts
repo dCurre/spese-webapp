@@ -19,8 +19,6 @@ import { NewListDialogComponent } from '../dialog/new-list-dialog/new-list-dialo
 export class ExpensesListComponent implements OnInit {
 
   protected expensesLists$: Observable<ExpensesList[]>;
-  protected loggedUserData$: any;
-  closeResult: string;
 
   constructor(
     public afAuth: AngularFireAuth,
@@ -30,16 +28,14 @@ export class ExpensesListComponent implements OnInit {
 
   ngOnInit(): void {
     this.getExpensesListsByLoggedUser()
-    this.getLoggedUserData()
   }
 
-  async getExpensesListsByLoggedUser() {
-    console.log("getExpensesListsByLoggedUser");
+  getExpensesListsByLoggedUser() {
     this.afAuth.authState.subscribe(user => {
       try {
         this.expensesLists$ = this.expensesListService.getByUserId(user!!.uid);
       } catch (e) {
-        console.error("HomeComponent.getExpensesListsByLoggedUser: ", e)
+        console.error("ExpensesListComponent.getExpensesListsByLoggedUser: ", e)
       }
     })
   }
@@ -53,7 +49,6 @@ export class ExpensesListComponent implements OnInit {
   }
 
   leave(expensesList: ExpensesList) {
-    console.log("leave");
     const modalLeave = this.modalService.open(DialogComponent, { centered: true });
     modalLeave.componentInstance.dialogFields = new ConfirmDialogFields(
       'Abbandona',
@@ -80,7 +75,6 @@ export class ExpensesListComponent implements OnInit {
   }
 
   delete(expensesList: ExpensesList) {
-    console.log("delete");
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
     modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
@@ -107,12 +101,5 @@ export class ExpensesListComponent implements OnInit {
         this.expensesListService.insert(response, user!!.uid);
       })
     }).catch((res) => {});
-  }
-
-  getLoggedUserData(){
-    console.log("getLoggedUserData");
-    this.afAuth.authState.subscribe(user => {
-      this.loggedUserData$ = user;
-    })
   }
 }

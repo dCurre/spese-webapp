@@ -34,7 +34,7 @@ export class ToolbarComponent implements OnInit {
   async getLoggedUser() {
     this.afAuth.authState.subscribe(user => {
       try{
-        this.loggedUser$ = this.userService.getUserByField(UserFieldsEnum.ID, user!!.uid);
+        this.loggedUser$ = this.userService.getById(user!!.uid);
       } catch (e){
           console.error("ToolbarComponent.getLoggedUser:", e)
       }

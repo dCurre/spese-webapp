@@ -17,15 +17,6 @@ export class ExpenseService {
 
     constructor(private db: AngularFirestore) { }
 
-    getAllExpenses() {
-        return this.collection.valueChanges().pipe(map(coll => {
-            return coll.map(user => {
-                console.debug(user)
-                return user;
-            });
-        }));
-    }
-
     getExpensesByListID(id: string) {
         return this.db.collection<Expense>(
             TablesEnum.EXPENSE,
@@ -33,7 +24,7 @@ export class ExpenseService {
                 .orderBy(ExpenseFieldsEnum.EXPENSE_DATE_TIMESTAMP, 'asc')
         ).valueChanges().pipe(map(coll => {
             return coll.map(expensesList => {
-                console.debug(expensesList.id)
+                console.debug("ExpenseService.getExpensesByListID", expensesList)
                 return expensesList;
             });
         }));

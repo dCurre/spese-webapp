@@ -44,7 +44,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     this.getExpensesListTotal(this.listID)
   }
 
-  async getExpensesByListId(id: string) {
+  getExpensesByListId(id: string) {
     try {
       this.expenses$ = this.expenseService.getExpensesByListID(id);
     } catch (e) {
@@ -54,7 +54,7 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   async getExpensesListDetails(id: string) {
     try {
-      this.expensesList$ = this.expensesListService.getById(id);
+      this.expensesList$ = this.expensesListService.getById(id).pipe(first());
     } catch (e) {
       console.error("ExpenseListDetailsComponent.getExpensesListDetails: ", e)
     }

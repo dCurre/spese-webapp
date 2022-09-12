@@ -6,7 +6,6 @@ import { ExpensesList } from './expenses-list';
 import { TablesEnum } from 'src/app/enums/tablesEnum';
 import { ExpensesListFieldsEnum } from 'src/app/enums/expensesListFieldsEnum';
 import { ExpenseService } from '../expense/expense.service';
-import { Expense } from '../expense/expense';
 import DateUtils from 'src/app/utils/date-utils';
 
 @Injectable({
@@ -20,15 +19,6 @@ export class ExpensesListService {
     constructor(private db: AngularFirestore,
         private expenseService: ExpenseService) { }
 
-    getAll() {
-        return this.collection.valueChanges().pipe(map(coll => {
-                return coll.map(expensesList => {
-                    console.debug(expensesList)
-                    return expensesList;
-                });
-            }));
-    }
-
     getByUserId(value: string) {
         return this.db.collection<ExpensesList>(
             TablesEnum.EXPENSES_LIST,
@@ -39,7 +29,7 @@ export class ExpensesListService {
                 ) 
             ).valueChanges().pipe(map(coll => {
             return coll.map(expensesList => {
-                console.debug(expensesList)
+                console.debug("ExpensesListService.getByUserId:", expensesList)
                 return expensesList;
             });
         }));
@@ -52,7 +42,7 @@ export class ExpensesListService {
                 ref.where(ExpensesListFieldsEnum.ID, '==', id)
                 ) 
             ).valueChanges().pipe(map(expensesList => {
-                console.debug(expensesList[0])
+                console.debug("ExpensesListService.getById:", expensesList[0])
                 return expensesList[0];
         }));
     };
@@ -84,7 +74,7 @@ export class ExpensesListService {
             this.collection.doc(expensesList.id).update(expensesList)
             return expensesList;
         } catch (e){
-            console.error("Impossibile cancellare lista,", e)
+            console.error("Impossibile aggiornare lista,", e)
             return null;
         }
     };

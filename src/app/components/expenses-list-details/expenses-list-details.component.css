@@ -106,7 +106,7 @@ a:hover {
 }
 
 #amount {
-  padding-top: 1px;
+  padding-top: 0.1rem;
   font-size: 1.1rem;
   color: black !important;
 }

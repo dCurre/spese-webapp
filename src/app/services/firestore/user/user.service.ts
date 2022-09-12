@@ -16,15 +16,6 @@ export class UserService {
 
     constructor(private db: AngularFirestore) { }
 
-    getAllUsers() {
-        return this.collection.valueChanges().pipe(map(coll => {
-                return coll.map(user => {
-                    console.debug(user)
-                    return user;
-                });
-            }));
-    }
-
     getUserByField(field: string, value: string) {
         return this.db.collection<User>(
             TablesEnum.USER,
@@ -32,7 +23,7 @@ export class UserService {
         ).valueChanges().pipe(
             map(users => {
               const user = users[0];
-              console.debug(user);
+              console.debug("UserService.getUserByField:",user);
               return user;
             })
           );
@@ -45,7 +36,7 @@ export class UserService {
         ).valueChanges().pipe(
             map(users => {
               const user = users[0];
-              console.debug(user);
+              console.debug("UserService.getById:",user);
               return user;
             })
           );

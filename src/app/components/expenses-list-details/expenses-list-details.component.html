@@ -1,4 +1,4 @@
-<div *ngIf="!(expensesList$ | async)">
+<div *ngIf="!(expensesList$)">
     <app-spinner></app-spinner>
 </div>
 <div *ngIf="expensesList$ | async as expensesList">
