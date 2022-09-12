@@ -16,7 +16,6 @@ export class SignInGuard implements CanActivate {
 
         return new Promise((resolve) => {
             this.afAuth.onAuthStateChanged((user) => {
-                console.log("Entro");
                 if (user !== null && user !== undefined) {
                     this.router.navigate(['/']);
                 }

@@ -1,13 +1,11 @@
-<app-toolbar></app-toolbar>
 <div *ngIf="!(expensesList$ | async)">
     <app-spinner></app-spinner>
 </div>
-
 <div *ngIf="expensesList$ | async as expensesList">
     <br>
     <h1 class="d-flex justify-content-center">
         {{expensesList.name}}
-    <br>
+        <br>
     </h1>
     <br>
     <div class="container col-lg-6">
@@ -61,7 +59,7 @@
                                 {{formatToEur(expense.amount)}}
                             </div>
                             <div class="item-action dropdown">
-                                <button [disabled]="expensesList.paid" href="#" data-toggle="dropdown"
+                                <button [disabled]="expensesList.paid" data-toggle="dropdown"
                                     class="btn btn-link text-muted btn-dropdown-item" data-abc="true">
                                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -83,7 +81,6 @@
         </div>
     </div>
 </div>
-
 <script>
     function myFunction() {
 

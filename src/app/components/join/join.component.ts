@@ -63,7 +63,7 @@ export class JoinComponent implements OnInit {
   private getParams() {
     this.route.queryParams
       .subscribe(params => {
-        console.log(params['list']);
+        console.debug(params['list']);
         this.listID = params['list']
       }
       );

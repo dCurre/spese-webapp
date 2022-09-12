@@ -23,7 +23,7 @@ export class ExpensesListService {
     getAll() {
         return this.collection.valueChanges().pipe(map(coll => {
                 return coll.map(expensesList => {
-                    //console.log(expensesList)
+                    console.debug(expensesList)
                     return expensesList;
                 });
             }));
@@ -39,7 +39,7 @@ export class ExpensesListService {
                 ) 
             ).valueChanges().pipe(map(coll => {
             return coll.map(expensesList => {
-                //console.log(expensesList)
+                console.debug(expensesList)
                 return expensesList;
             });
         }));
@@ -52,7 +52,7 @@ export class ExpensesListService {
                 ref.where(ExpensesListFieldsEnum.ID, '==', id)
                 ) 
             ).valueChanges().pipe(map(expensesList => {
-                //console.log(expensesList[0])
+                console.debug(expensesList[0])
                 return expensesList[0];
         }));
     };
@@ -74,7 +74,7 @@ export class ExpensesListService {
             this.collection.doc(id).delete();
             return true;
         } catch (e){
-            console.error("Impossibile cancellare lista, ", e)
+            console.error("Impossibile cancellare lista,", e)
             return false;
         }
     };
@@ -84,7 +84,7 @@ export class ExpensesListService {
             this.collection.doc(expensesList.id).update(expensesList)
             return expensesList;
         } catch (e){
-            console.error("Impossibile cancellare lista, ", e)
+            console.error("Impossibile cancellare lista,", e)
             return null;
         }
     };
@@ -102,7 +102,7 @@ export class ExpensesListService {
             this.collection.doc(newList.id).set(Object.assign({}, newList))
             return newList;
         } catch (e){
-            console.error("Impossibile creare lista, ", e)
+            console.error("Impossibile creare lista,", e)
             return null;
         }
     }

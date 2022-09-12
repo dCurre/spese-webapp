@@ -5,6 +5,7 @@ import { UserService } from '../../services/firestore/user/user.service';
 import { User } from '../../services/firestore/user/user';
 import { Observable } from 'rxjs';
 import { UserFieldsEnum } from 'src/app/enums/userFieldsEnum';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-toolbar',
@@ -17,10 +18,13 @@ export class ToolbarComponent implements OnInit {
 
   constructor(
     public afAuth: AngularFireAuth,
+    private router: Router,
     private userService: UserService) { }
 
   ngOnInit(): void {
-    this.getLoggedUser()
+    if(!this.isSignin()){
+      this.getLoggedUser();
+    }
   }
 
   logout(): void {
@@ -32,9 +36,13 @@ export class ToolbarComponent implements OnInit {
       try{
         this.loggedUser$ = this.userService.getUserByField(UserFieldsEnum.ID, user!!.uid);
       } catch (e){
-          console.error("HomeComponent.getLoggedUser: ", e)
+          console.error("ToolbarComponent.getLoggedUser:", e)
       }
     });
+  }
+
+  isSignin(){
+    return this.router.url == "/signin";
   }
 
 }
