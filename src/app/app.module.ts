@@ -22,6 +22,9 @@ import { AuthService } from 'src/app/services/auth/auth.service'
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDividerModule } from '@angular/material/divider';
 import { ExpensesListComponent } from './components/expenses-list/expenses-list.component';
 import { ExpenseListDetailsComponent } from './components/expenses-list-details/expenses-list-details.component';
 import { DialogComponent } from 'src/app/components/dialog/confirm-dialog/confirm-dialog.component';
@@ -35,6 +38,9 @@ import { AccessDeniedComponent } from './components/access-denied/access-denied.
 import { ListDetailsDialogComponent } from './components/dialog/list-details-dialog/list-details-dialog.component';
 import { ShareDialogComponent } from './components/dialog/share-dialog/share-dialog.component';
 import { SpinnerComponent } from './components/spinner/spinner.component';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSelectModule } from '@angular/material/select';
+import { SidebarComponent } from './components/sidebar/sidebar.component';
 
 
 @NgModule({
@@ -52,7 +58,8 @@ import { SpinnerComponent } from './components/spinner/spinner.component';
     AccessDeniedComponent,
     ListDetailsDialogComponent,
     ShareDialogComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    SidebarComponent,
   ],
   imports: [
     BrowserModule,
@@ -66,6 +73,11 @@ import { SpinnerComponent } from './components/spinner/spinner.component';
     MatInputModule,
     MatDialogModule,
     MatAutocompleteModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatIconModule,
+    MatDividerModule,
+    MatSelectModule,
 
     FormsModule,
     ReactiveFormsModule,

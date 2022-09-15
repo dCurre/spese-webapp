@@ -4,31 +4,8 @@
       Spese
     </div>
   </a>
-  <button class="navbar-toggler custom-toggler" type="button" data-toggle="collapse"
-    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-    aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-
-  <div *ngIf="!isSignin()" class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto"></ul>
-    <div *ngIf="loggedUser$ | async as user">
-      <ul class="navbar-nav ">
-        <li class="nav-item">
-          <a class="nav-link" routerLink="">
-            <img class='user_image' referrerpolicy="no-referrer" [src]="user.profileImage" /><span
-              class="toolbar-list-span align-middle">{{user.fullname}}</span>
-          </a>
-        </li>
-      </ul>
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" (click)="logout()" role="button">
-            <i class="fa fa-sign-out fa-2x logout-icon"></i><span id="logout-span"
-              class="toolbar-list-span align-middle">Logout</span>
-          </a>
-        </li>
-      </ul>
+    <div>
+        <i id="sidenav-btn" class="fa fa-bars btn fa-2x" (click)="toogleSidebar()"></i>
     </div>
-  </div>
 </nav>
