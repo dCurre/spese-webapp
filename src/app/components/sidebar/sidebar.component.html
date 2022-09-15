@@ -1,0 +1,36 @@
+<div>
+    <i id="sidenav-close-btn" class="fa fa-times btn fa-2x" (click)="closeSidebar()"></i>
+</div>
+<div class="p-4 pt-5">
+    <div *ngIf="loggedUser$ | async as user">
+        <div class="logo">
+            <a class="nav-link" routerLink="" (click)="closeSidebar()">
+                <img id="user-img" class='rounded-circle mb-5' [src]="user.profileImage" />
+            </a>
+        </div>
+        <!-- END SIDEBAR USERPIC -->
+
+        <!-- SIDEBAR USER TITLE -->
+        <div class="profile-usertitle">
+            <div class="profile-usertitle-name">
+                <a class="nav-link" routerLink="" (click)="closeSidebar()">{{user.fullname}}</a>
+            </div>
+        </div>
+        <!-- END SIDEBAR USER TITLE -->
+    </div>
+    <mat-divider></mat-divider>
+    <!-- SIDEBAR MENU -->
+    <div class="profile-usermenu">
+        <ul class="list-unstyled components mb-5">
+            <li>
+                <a class="nav-link fa fa-times" routerLink="" (click)="closeSidebar()">Home</a>
+            </li>
+            <li>
+                Campo
+            </li>
+            <li>
+                <a class="nav-link" (click)="closeSidebar();logout()" role="button">Esci</a>
+            </li>
+        </ul>
+    </div>
+</div>

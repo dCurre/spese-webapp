@@ -102,4 +102,8 @@ export class ExpensesListComponent implements OnInit {
       })
     }).catch((res) => {});
   }
+
+  navigateToList(expensesList: ExpensesList){
+    this.router.navigate(['/list', expensesList.id], { state: { example: expensesList } });
+  }
 }

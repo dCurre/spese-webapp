@@ -48,3 +48,7 @@
 #logout-span{
   padding-top: -10px;
 }
+
+#sidenav-btn{
+  color: white !important;
+}

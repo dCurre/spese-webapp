@@ -1,0 +1,10 @@
+mat-sidenav {
+    min-width: 300px;
+    max-width: 300px;
+    background: #1d1919;
+    color: #fff;
+}
+
+mat-sidenav-container {
+    height: calc(100vh);
+}
