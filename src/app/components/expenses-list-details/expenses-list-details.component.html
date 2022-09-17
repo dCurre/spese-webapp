@@ -19,7 +19,7 @@
                 </div>
             </div>
             <div>
-                <button id="btn-add" [disabled]="expensesList.paid" (click)="newExpense()" class="btn btn-success ml-1"
+                <button id="btn-add" (click)="newExpense()" class="btn ml-1" [ngClass]="expensesList.paid ? 'btn-secondary' : 'btn-success'" [disabled]="expensesList.paid" 
                     type="button">
                     <i class="fa fa-plus"></i> Nuova spesa</button>
             </div>
