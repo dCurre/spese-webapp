@@ -1,5 +1,5 @@
 <div>
-    <i id="sidenav-close-btn" class="fa fa-times btn fa-2x" (click)="closeSidebar()"></i>
+    <i id="sidenav-close-btn" class="fa fa-times fa-2x" (click)="closeSidebar()"></i>
 </div>
 <div class="p-4 pt-5">
     <div *ngIf="loggedUser$ | async as user">
@@ -18,18 +18,15 @@
         </div>
         <!-- END SIDEBAR USER TITLE -->
     </div>
-    <mat-divider></mat-divider>
     <!-- SIDEBAR MENU -->
     <div class="profile-usermenu">
-        <ul class="list-unstyled components mb-5">
-            <li>
-                <a class="nav-link fa fa-times" routerLink="" (click)="closeSidebar()">Home</a>
+        <mat-divider></mat-divider>
+        <ul class="list-unstyled side-list">
+            <li class="side-list-elem">
+                <a class="nav-link fa fa-home" routerLink="" (click)="closeSidebar()"><span class="side-list-span">Home</span></a>
             </li>
-            <li>
-                Campo
-            </li>
-            <li>
-                <a class="nav-link" (click)="closeSidebar();logout()" role="button">Esci</a>
+            <li class="side-list-elem">
+                <a class="nav-link fa fa-sign-out" (click)="closeSidebar();logout()" role="button"><span class="side-list-span">Esci</span></a>
             </li>
         </ul>
     </div>
