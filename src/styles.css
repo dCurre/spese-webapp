@@ -1,5 +1,9 @@
 @import url("//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 
+body{
+  font-family: "Poppins", Arial, sans-serif;
+}
+
 .cdk-overlay-container,
 .cdk-overlay-pane {
     z-index: 9999 !important;
