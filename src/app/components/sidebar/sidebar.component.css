@@ -16,6 +16,8 @@
 #user-img {
   width: 120px;
   height: 120px;
+  background-image: url("../../../assets/loading.gif");
+  background-size: cover;
 }
 
 .profile-usertitle {
