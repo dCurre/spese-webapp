@@ -41,6 +41,7 @@ import { SpinnerComponent } from './components/spinner/spinner.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSelectModule } from '@angular/material/select';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { SaldoDetailsComponent } from './components/saldo-details/saldo-details.component';
 
 
 @NgModule({
@@ -60,6 +61,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
     ShareDialogComponent,
     SpinnerComponent,
     SidebarComponent,
+    SaldoDetailsComponent,
   ],
   imports: [
     BrowserModule,

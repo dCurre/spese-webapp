@@ -28,7 +28,7 @@
                     <span class="input-group-text btn btn-outline-secondary"><i class="fas fa-cog"></i></span>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" role="menu">
-                    <button class="dropdown-item" (click)="details(expensesList)">Dettagli</button>
+                    <button class="dropdown-item" [routerLink]="['/details', expensesList.id]">Dettagli</button>
                     <button class="dropdown-item" (click)="shareLink()">Condividi</button>
                     <div class="dropdown-divider"></div>
                     <button class="dropdown-item" (click)="salda(expensesList)">{{expensesList.paid ? 'Riapri Saldo' :

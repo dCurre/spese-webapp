@@ -27,7 +27,7 @@ export class ListGuard implements CanActivate {
             //Check validità id lista
             if (listID == null || listID == undefined || listID.length == 0) {
                 console.error("Url non valido")
-                this.router.navigate(['/']);
+                this.router.navigate(['/accessdenied']);
                 resolve(false);
             }
 
@@ -35,7 +35,7 @@ export class ListGuard implements CanActivate {
             this.expensesListService.getById(listID).subscribe(expensesList => {
                 if (expensesList == undefined) {
                     console.error('List Guard: list not found');
-                    this.router.navigate(['/']);
+                    this.router.navigate(['/accessdenied']);
                     resolve(false);
                 }
 

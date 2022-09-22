@@ -12,10 +12,13 @@ import { JoinComponent } from './components/join/join.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
 import { ListGuard } from './guard/list/list.guard';
 import { SignInGuard } from './guard/signin/signin.guard';
+import { SaldoDetailsComponent } from './components/saldo-details/saldo-details.component';
+import { ListDetailsGuard } from './guard/list-details/list-details.guard';
 
 const routes: Routes = [
   { path: 'join', component: JoinComponent, canActivate: [AuthGuard, JoinGuard] },
   { path: 'signin', component: SignInComponent, canActivate: [SignInGuard] },
+  { path: 'details/:id', component: SaldoDetailsComponent, canActivate: [AuthGuard, ListDetailsGuard]},
   { path: 'accessdenied', component: AccessDeniedComponent},
   { path: 'list/:id', component: ExpenseListDetailsComponent, canActivate: [AuthGuard, ListGuard] },
   { path: '', component: HomeComponent, canActivate: [AuthGuard]  },// catch-all in case no other path matched
