@@ -9,7 +9,7 @@ import ListUtils from 'src/app/utils/list-utils';
 @Injectable({
     providedIn: 'root'
 })
-export class ListGuard implements CanActivate {
+export class ListDetailsGuard implements CanActivate {
     constructor(
         private router: Router,
         private expensesListService: ExpensesListService,
@@ -22,7 +22,7 @@ export class ListGuard implements CanActivate {
 
         return new Promise((resolve) => {
             //Estraggo id lista
-            const listID = state.url.split("list/")[1] //FA SCHIFO AL CAZZO
+            const listID = state.url.split("details/")[1] //FA SCHIFO AL CAZZO
 
             //Check validità id lista
             if (listID == null || listID == undefined || listID.length == 0) {
@@ -34,7 +34,7 @@ export class ListGuard implements CanActivate {
             //Check esistenza lista
             this.expensesListService.getById(listID).subscribe(expensesList => {
                 if (expensesList == undefined) {
-                    console.error('List Guard: list not found');
+                    console.error('ListDetails Guard: list not found');
                     this.router.navigate(['/accessdenied']);
                     resolve(false);
                 }
