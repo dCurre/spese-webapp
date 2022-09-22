@@ -1,4 +1,8 @@
-<div class="card_padding spese-background bg-light">
+<div *ngIf="(loggedUser$)" >
+    <app-spinner></app-spinner>
+</div>
+
+<div *ngIf="!(loggedUser$)" class="card_padding spese-background bg-light">
     <div class="d-flex justify-content-center h-100">
         <div class="user_card">
             <div class="d-flex justify-content-center">

@@ -48,4 +48,13 @@ export class SidebarComponent implements OnInit {
   logout(): void {
     this.afAuth.signOut();
   }
+
+  onImageLoad(evt: { target: { naturalWidth: any; naturalHeight: any; }; }) {
+    if (evt && evt.target) {
+      const width = evt.target.naturalWidth;
+      const height = evt.target.naturalHeight;
+      const portrait = height > width ? true : false;
+      console.log(width, height, 'portrait: ', portrait);
+    }
+  }
 }
