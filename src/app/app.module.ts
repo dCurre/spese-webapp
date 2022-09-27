@@ -35,7 +35,6 @@ import { NewExpenseDialogComponent } from './components/dialog/new-expense-dialo
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { JoinComponent } from './components/join/join.component';
 import { AccessDeniedComponent } from './components/access-denied/access-denied.component';
-import { ListDetailsDialogComponent } from './components/dialog/list-details-dialog/list-details-dialog.component';
 import { ShareDialogComponent } from './components/dialog/share-dialog/share-dialog.component';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -57,7 +56,6 @@ import { NgChartsModule } from 'ng2-charts';
     NewExpenseDialogComponent,
     JoinComponent,
     AccessDeniedComponent,
-    ListDetailsDialogComponent,
     ShareDialogComponent,
     SpinnerComponent,
     SidebarComponent,

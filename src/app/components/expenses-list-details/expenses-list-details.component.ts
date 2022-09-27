@@ -13,8 +13,6 @@ import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.compone
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 import MathUtils from 'src/app/utils/math-utils';
 import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
-import { ListDetailsDialogComponent } from '../dialog/list-details-dialog/list-details-dialog.component';
-import { ListDetailsDialogFields } from '../dialog/list-details-dialog/list-details-dialog-fields';
 import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
 
 @Component({
@@ -189,19 +187,6 @@ export class ExpenseListDetailsComponent implements OnInit {
       }
 
       this.expensesListService.delete(expensesList.id);
-    }).catch((res) => { });
-  }
-
-  details(expensesList: ExpensesList) {
-    const modalDetails = this.modalService.open(ListDetailsDialogComponent, { centered: true });
-    modalDetails.componentInstance.dialogFields = new ListDetailsDialogFields(
-      'Dettagli',
-      expensesList);
-
-    modalDetails.result.then((response) => {
-      if (!response) {
-        return
-      }
     }).catch((res) => { });
   }
 
