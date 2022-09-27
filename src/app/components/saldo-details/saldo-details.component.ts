@@ -5,8 +5,8 @@ import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { ActivatedRoute } from '@angular/router';
 import { ExpenseService } from 'src/app/services/firestore/expense/expense.service';
 import { first, reduce } from 'rxjs';
-import { SaldoDetails } from '../dialog/list-details-dialog/list-details-dialog-fields';
 import MathUtils from 'src/app/utils/math-utils';
+import { SaldoDetails } from './list-details-dialog-fields';
 
 @Component({
   selector: 'app-saldo-details',
@@ -89,6 +89,7 @@ export class SaldoDetailsComponent implements OnInit {
             weight: 'bold',
             size: 18,
           },
+          color: '',
           padding: {
             top: 50,
             bottom: -1000
@@ -111,5 +112,13 @@ export class SaldoDetailsComponent implements OnInit {
         },
       }
     };
+  }
+
+  formatToEur(amount: number) {
+    return MathUtils.formatToEur(amount);
+  }
+  
+  filterByElement(balanceDetails: SaldoDetails[], filterKey: string){
+    return balanceDetails.filter((obj) => { return obj.buyer === filterKey;});
   }
 }

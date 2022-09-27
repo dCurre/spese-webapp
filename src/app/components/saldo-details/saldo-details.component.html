@@ -8,3 +8,13 @@
     </canvas>
   </div>
 </div>
+<div class="card card-body">
+  <div *ngFor="let element of mapPagato | keyvalue">
+      <div>
+          <b>{{element.key}} ha pagato {{formatToEur(element.value)}}</b>
+      </div>
+      <div *ngFor="let balanceDetail of filterByElement(balanceDetails, element.key)">
+          deve a {{balanceDetail.receiver}}: {{formatToEur(balanceDetail.toPay)}}
+      </div>
+  </div>
+</div>
