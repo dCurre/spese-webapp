@@ -42,7 +42,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatSelectModule } from '@angular/material/select';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { SaldoDetailsComponent } from './components/saldo-details/saldo-details.component';
-
+import { NgChartsModule } from 'ng2-charts';
 
 @NgModule({
   declarations: [
@@ -81,9 +81,11 @@ import { SaldoDetailsComponent } from './components/saldo-details/saldo-details.
     MatDividerModule,
     MatSelectModule,
 
+    NgbModule,
+    NgChartsModule,
+
     FormsModule,
     ReactiveFormsModule,
-    NgbModule,
   ],
   providers: [AuthService],
   bootstrap: [AppComponent]

@@ -1,4 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
+import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { ActivatedRoute } from '@angular/router';
+import { ExpenseService } from 'src/app/services/firestore/expense/expense.service';
+import { first, reduce } from 'rxjs';
+import { SaldoDetails } from '../dialog/list-details-dialog/list-details-dialog-fields';
+import MathUtils from 'src/app/utils/math-utils';
 
 @Component({
   selector: 'app-saldo-details',
@@ -7,9 +15,101 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SaldoDetailsComponent implements OnInit {
 
-  constructor() { }
+  @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
+
+  public pieChartType: ChartType = 'pie';
+  public pieChartPlugins = [ChartDataLabels];
+  public pieChartOptions: ChartConfiguration['options'];
+  public pieChartData: ChartData<'pie', number[], string | string[]>;
+  private listID: string = ""
+  private expensesListTotalAmount: number = 0;
+  protected mapPagato = new Map<string, number>();
+  protected balanceDetails: SaldoDetails[] = [];
+
+  constructor(
+    private route: ActivatedRoute,
+    private expenseService: ExpenseService,) { }
 
   ngOnInit(): void {
+    this.listID = this.route.snapshot.paramMap.get('id')!!
+    this.getSaldoDetails(this.listID)
   }
 
+
+  getSaldoDetails(id: string) {
+    try {
+      this.expenseService.getExpensesByListID(id).pipe(first()).subscribe(expenseList => {
+        //Calcolo il totale di tutte le spese
+        this.expensesListTotalAmount = expenseList.reduce((accumulator, current) => { return accumulator + current.amount; }, 0);
+
+        //Calcolo il totale per utente
+        [...new Set(expenseList.map(a => a.buyer))].forEach(user => {
+          this.mapPagato.set(user, expenseList.filter(expenseFiltered => expenseFiltered.buyer == user).reduce((accumulator, current) => { return accumulator + current.amount; }, 0));
+        });
+
+        //Calcolo il totale dovuto per ogni utente
+        this.mapPagato.forEach((buyerPaid: number, buyer: string) => {
+          this.mapPagato.forEach((receiverPaid: number, receiver: string) => {
+            if (buyer != receiver) {
+              this.balanceDetails.push(new SaldoDetails(buyer, receiver, (receiverPaid - buyerPaid) / this.mapPagato.size))
+            }
+          });
+        });
+
+        this.fillChart();
+      });
+    } catch (e) {
+      console.error("SaldoDetailsComponent.getSaldoDetails: ", e)
+    }
+  }
+
+  fillChart() {
+
+    this.pieChartData = {
+      labels: Array.from(this.mapPagato.keys()),
+      datasets: [{
+        data: Array.from(this.mapPagato.values()),
+        backgroundColor: [
+          '#7C4DFF',
+          '#69A197',
+          '#8BBCCC',
+          '#4C6793',
+          '#ADDDD0',
+        ],
+      }]
+    };
+
+    this.pieChartOptions = {
+      responsive: true,
+      plugins: {
+        title: {
+          display: true,
+          text: 'Totale: ' + MathUtils.formatToEur(this.expensesListTotalAmount),
+          font: {
+            weight: 'bold',
+            size: 18,
+          },
+          padding: {
+            top: 50,
+            bottom: -1000
+          },
+        },
+        legend: {
+          display: true,
+          position: 'right',
+          labels: {
+            color: 'black',
+          }
+        },
+        datalabels: {
+          color: ['white'],
+          formatter: (value, ctx) => {
+            if (ctx.chart.data.labels) {
+              return MathUtils.formatToEur(value);
+            }
+          },
+        },
+      }
+    };
+  }
 }

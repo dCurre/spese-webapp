@@ -8,4 +8,8 @@ export default class StringUtils {
         string = string.replace("&","\%26"); // &
         return string;
     }
+
+    static stringToNumber(value: string){
+        return +value;
+    }
 }
