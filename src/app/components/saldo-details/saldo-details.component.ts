@@ -69,6 +69,7 @@ export class SaldoDetailsComponent implements OnInit {
       labels: Array.from(this.mapPagato.keys()),
       datasets: [{
         data: Array.from(this.mapPagato.values()),
+        borderWidth: 1,
         backgroundColor: [
           '#7C4DFF',
           '#69A197',
@@ -87,11 +88,11 @@ export class SaldoDetailsComponent implements OnInit {
           text: 'Totale: ' + MathUtils.formatToEur(this.expensesListTotalAmount),
           font: {
             weight: 'bold',
-            size: 18,
+            size: 24,
           },
           color: '',
           padding: {
-            top: 50,
+            top: 30,
             bottom: -1000
           },
         },

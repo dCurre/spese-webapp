@@ -54,6 +54,7 @@
                                 <div class="dropdown-menu dropdown-menu-right" role="menu">
                                     <a [routerLink]="['/list', expensesList.id]" class="dropdown-item"
                                         data-abc="true">Apri</a>
+                                    <button class="dropdown-item" (click)="shareLink(expensesList.id)">Condividi</button>
                                     <div class="dropdown-divider"></div>
                                     <button class="dropdown-item" (click)="leave(expensesList)">Abbandona</button>
                                 </div>
