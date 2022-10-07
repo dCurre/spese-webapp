@@ -43,6 +43,10 @@ export class NewExpenseDialogComponent implements OnInit {
     this.getExpensesList(this.listID);
     this.setDefaultFields()
   }
+  
+  ngOnDestroy() {
+    this.modalService.dismiss()
+  }
 
   setDefaultFields() {
     this.expense.expense = (this.defaultExpense !== undefined) ? this.defaultExpense.toString() : "";

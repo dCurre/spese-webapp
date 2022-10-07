@@ -42,6 +42,10 @@ export class ExpenseListDetailsComponent implements OnInit {
     this.getExpensesListTotal(this.listID)
   }
 
+  ngOnDestroy() {
+    this.modalService.dismissAll()
+  }
+
   getExpensesByListId(id: string) {
     try {
       this.expenses$ = this.expenseService.getExpensesByListID(id);

@@ -2,13 +2,15 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ExpensesListService } from '../../services/firestore/expensesList/expenses-list.service';
 import { ExpensesList } from '../../services/firestore/expensesList/expenses-list';
-import { Observable } from 'rxjs';
+import { first, Observable } from 'rxjs';
 import DateUtils from 'src/app/utils/date-utils';
 import { DialogComponent } from 'src/app/components/dialog/confirm-dialog/confirm-dialog.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 import { Router } from '@angular/router';
 import { NewListDialogComponent } from '../dialog/new-list-dialog/new-list-dialog.component';
+import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
+import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
 
 @Component({
   selector: 'app-expenses-list',
@@ -24,10 +26,15 @@ export class ExpensesListComponent implements OnInit {
     public afAuth: AngularFireAuth,
     private expensesListService: ExpensesListService,
     private modalService: NgbModal,
+    private constantsService: ConstantsService,
     public router: Router) { }
 
   ngOnInit(): void {
     this.getExpensesListsByLoggedUser()
+  }
+
+  ngOnDestroy() {
+    this.modalService.dismissAll()
   }
 
   getExpensesListsByLoggedUser() {
@@ -105,5 +112,19 @@ export class ExpensesListComponent implements OnInit {
 
   navigateToList(expensesList: ExpensesList){
     this.router.navigate(['/list', expensesList.id], { state: { example: expensesList } });
+  }
+
+  shareLink(listID: string) {
+    const modalShare = this.modalService.open(ShareDialogComponent, { centered: true });
+    this.constantsService.getConstants().pipe(first()).subscribe(constants => {
+      modalShare.componentInstance.shareLink = constants.shareLink.replace("{LIST_ID}", listID)
+    })
+
+    modalShare.result.then((response) => {
+      if (!response) {
+        return
+      }
+
+    }).catch((res) => { });
   }
 }
