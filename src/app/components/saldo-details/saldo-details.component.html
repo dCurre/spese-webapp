@@ -1,20 +1,26 @@
 <div class="container">
   <div id="spese-detail-chart" class="chart">
-    <canvas baseChart
-        [data]="pieChartData"
-        [type]="pieChartType"
-        [options]="pieChartOptions"
-        [plugins]="pieChartPlugins">
+    <canvas baseChart [data]="pieChartData" [type]="pieChartType" [options]="pieChartOptions"
+      [plugins]="pieChartPlugins">
     </canvas>
   </div>
 </div>
-<div class="card card-body">
-  <div *ngFor="let element of mapPagato | keyvalue">
-      <div>
-          <b>{{element.key}} ha pagato {{formatToEur(element.value)}}</b>
-      </div>
-      <div *ngFor="let balanceDetail of filterByElement(balanceDetails, element.key)">
-          deve a {{balanceDetail.receiver}}: {{formatToEur(balanceDetail.toPay)}}
-      </div>
-  </div>
+<div class="bg-white">
+  <table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Deve a</th>
+        <th>Importo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let balanceDetail of balanceDetails">
+        <td>{{balanceDetail.buyer}}</td>
+        <td>{{balanceDetail.receiver}}</td>
+        <td class = "text-right" [ngClass]="(balanceDetail.toPay > 0) ? 'text-danger' : 'text-success'">{{formatToEur(balanceDetail.toPay)}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </div>

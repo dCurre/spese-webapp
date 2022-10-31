@@ -100,6 +100,9 @@ export class SaldoDetailsComponent implements OnInit {
           display: true,
           position: 'right',
           labels: {
+            font: {
+              size: 16,
+            },
             color: 'black',
           }
         },
