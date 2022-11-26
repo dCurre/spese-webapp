@@ -4,7 +4,7 @@ import { ExpenseService } from '../../services/firestore/expense/expense.service
 import { Expense } from '../../services/firestore/expense/expense';
 import { ExpensesList } from '../../services/firestore/expensesList/expenses-list';
 import { first, Observable } from 'rxjs';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
 import DateUtils from 'src/app/utils/date-utils';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -33,7 +33,8 @@ export class ExpenseListDetailsComponent implements OnInit {
     protected expensesListService: ExpensesListService,
     private constantsService: ConstantsService,
     private modalService: NgbModal,
-    private route: ActivatedRoute,) { }
+    private route: ActivatedRoute,
+    public router: Router) { }
 
   ngOnInit(): void {
     this.listID = this.route.snapshot.paramMap.get('id')!!
@@ -173,7 +174,7 @@ export class ExpenseListDetailsComponent implements OnInit {
       } else {
         //Se non è l'unico in lista, il nuovo owner diventa il primo presente nella lista partecipanti (first-in)
         this.afAuth.authState.subscribe(user => {
-          this.expensesListService.leave(user!!.uid, expensesList);
+          this.expensesListService.leave(user!!.uid, expensesList)
         })
       }
     }).catch((res) => { })
@@ -183,7 +184,8 @@ export class ExpenseListDetailsComponent implements OnInit {
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
     modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
-      "Sei l'unico componente di " + expensesList.name + ".\nVuoi veramente cancellarla?");
+      "Sei l'unico componente di " + expensesList.name + ".\nVuoi veramente cancellarla?"
+      );
 
     modalDelete.result.then((response) => {
       if (!response) {
