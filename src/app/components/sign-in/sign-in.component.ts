@@ -6,6 +6,7 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { UserService } from 'src/app/services/firestore/user/user.service';
 import { Observable } from 'rxjs';
 import { User } from 'src/app/services/firestore/user/user';
+import { PathService } from 'src/app/services/path/path.service';
 
 
 @Component({
@@ -21,6 +22,7 @@ export class SignInComponent implements OnInit {
 
   constructor(public authService: AuthService,
     private afAuth: AngularFireAuth,
+    private pathService: PathService,
     private userService: UserService,) {
     this.loginForm = new FormGroup({
         'email': new FormControl('', [Validators.required, Validators.email]),
@@ -32,7 +34,9 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.getLoggedUser()
+    if (!this.pathService.isPath("/signin")) {
+      this.getLoggedUser()
+  }
   }
 
   getLoggedUser() {
@@ -40,7 +44,7 @@ export class SignInComponent implements OnInit {
       try {
         this.loggedUser$ = this.userService.getById(user!!.uid);
       } catch (e) {
-        console.error("ToolbarComponent.getLoggedUser:", e)
+        console.error("SigninComponent.getLoggedUser:", e)
       }
     });
   }

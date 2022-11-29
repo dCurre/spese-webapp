@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { User } from 'src/app/services/firestore/user/user';
 import { UserService } from 'src/app/services/firestore/user/user.service';
+import { PathService } from 'src/app/services/path/path.service';
 import { SidenavService } from 'src/app/services/sidenav/sidenav.service';
 
 @Component({
@@ -18,11 +19,11 @@ export class SidebarComponent implements OnInit {
   constructor(
     private afAuth: AngularFireAuth,
     private userService: UserService,
-    private router: Router,
-    private sidenavService: SidenavService) { }
+    private sidenavService: SidenavService,
+    private pathService: PathService) { }
 
   ngOnInit(): void {
-    if (!this.isRouteSignin()) {
+    if (!this.pathService.isPath("/signin")) {
       this.getLoggedUser();
     }
   }
@@ -40,11 +41,7 @@ export class SidebarComponent implements OnInit {
   closeSidebar(){
     this.sidenavService.close();
   }
-
-  isRouteSignin() {
-    return this.router.url == "/signin";
-  }
-
+  
   logout(): void {
     this.afAuth.signOut();
   }

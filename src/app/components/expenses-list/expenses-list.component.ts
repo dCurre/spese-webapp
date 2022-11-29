@@ -11,6 +11,7 @@ import { Router } from '@angular/router';
 import { NewListDialogComponent } from '../dialog/new-list-dialog/new-list-dialog.component';
 import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
 import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
+import { PathService } from 'src/app/services/path/path.service';
 
 @Component({
   selector: 'app-expenses-list',
@@ -27,10 +28,13 @@ export class ExpensesListComponent implements OnInit {
     private expensesListService: ExpensesListService,
     private modalService: NgbModal,
     private constantsService: ConstantsService,
-    public router: Router) { }
+    public router: Router,
+    private pathService: PathService) { }
 
   ngOnInit(): void {
-    this.getExpensesListsByLoggedUser()
+    if (!this.pathService.isPath("/signin")) {
+      this.getExpensesListsByLoggedUser()
+    }
   }
 
   ngOnDestroy() {
