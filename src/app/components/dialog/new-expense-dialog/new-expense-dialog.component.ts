@@ -14,7 +14,6 @@ import ListUtils from 'src/app/utils/list-utils';
   styleUrls: ['./new-expense-dialog.component.css']
 })
 
-
 export class NewExpenseDialogComponent implements OnInit {
 
   @Input() defaultExpense: String;
@@ -41,10 +40,6 @@ export class NewExpenseDialogComponent implements OnInit {
     this.getUserList(this.listID);
     this.getExpensesList(this.listID);
     this.setDefaultFields()
-  }
-  
-  ngOnDestroy() {
-    this.modalService.dismiss()
   }
 
   setDefaultFields() {
