@@ -1,6 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal, NgbCalendar, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { Observable } from 'rxjs';
 import Constants from 'src/app/constants/constants';
 import { Expense } from 'src/app/services/firestore/expense/expense';
 import { ExpenseService } from 'src/app/services/firestore/expense/expense.service';

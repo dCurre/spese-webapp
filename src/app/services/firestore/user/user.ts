@@ -4,5 +4,4 @@ export class User {
     fullname: string;
     profileImage : string;
     hidePaidLists: boolean;
-    messagingToken: string;
 }
