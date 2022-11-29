@@ -13,7 +13,6 @@ export class SignInComponent implements OnInit {
 
   loginForm: FormGroup;
   firebaseErrorMessage: string;
-  protected loggedUser$: Observable<User>;
 
   constructor(public authService: AuthService,) {
     this.loginForm = new FormGroup({
@@ -26,7 +25,7 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loggedUser$ = this.authService.getLoggedUser()
+   
   }
 
 }

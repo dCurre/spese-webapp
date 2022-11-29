@@ -6,6 +6,6 @@
   </a>
     <ul class="navbar-nav mr-auto"></ul>
     <div>
-        <i *ngIf="!this.pathService.isPath('/signin')" id="sidenav-btn" class="fa fa-bars fa-2x" (click)="toogleSidebar()"></i>
+        <i *ngIf="isSignin()" id="sidenav-btn" class="fa fa-bars fa-2x" (click)="toogleSidebar()"></i>
     </div>
 </nav>

@@ -11,6 +11,7 @@ import { SidenavService } from 'src/app/services/sidenav/sidenav.service';
 })
 export class ToolbarComponent implements OnInit {
 
+
   constructor(
     public afAuth: AngularFireAuth,
     private router: Router,
@@ -22,5 +23,9 @@ export class ToolbarComponent implements OnInit {
 
   toogleSidebar() {
     this.sidenavService.toggle();
+  }
+
+  isSignin(): boolean {
+    return !this.pathService.isPath('/signin')
   }
 }
