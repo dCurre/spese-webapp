@@ -1,11 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/services/firestore/user/user';
-import { UserService } from 'src/app/services/firestore/user/user.service';
-import { PathService } from 'src/app/services/path/path.service';
 import { SidenavService } from 'src/app/services/sidenav/sidenav.service';
 
 @Component({
@@ -18,25 +14,11 @@ export class SidebarComponent implements OnInit {
   protected loggedUser$: Observable<User>;
   
   constructor(
-    private afAuth: AngularFireAuth,
-    private userService: UserService,
     private sidenavService: SidenavService,
-    private pathService: PathService) { }
+    private authService: AuthService) { }
 
   ngOnInit(): void {
-    if (!this.pathService.isPath("/signin")) {
-      this.getLoggedUser();
-    }
-  }
-
-  getLoggedUser() {
-    this.afAuth.authState.subscribe(user => {
-      try {
-        this.loggedUser$ = this.userService.getById(user!!.uid);
-      } catch (e) {
-        console.error("SidebarComponent.getLoggedUser:", e)
-      }
-    });
+    this.loggedUser$ = this.authService.getLoggedUser()
   }
 
   closeSidebar(){
@@ -44,7 +26,7 @@ export class SidebarComponent implements OnInit {
   }
   
   logout(): void {
-    this.afAuth.signOut();
+    this.authService.signOut();
   }
 
   onImageLoad(evt: { target: { naturalWidth: any; naturalHeight: any; }; }) {

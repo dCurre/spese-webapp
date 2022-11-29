@@ -7,7 +7,8 @@ import { Injectable } from '@angular/core';
 export class PathService {
 
   isPath(string: String) {
-    return location.pathname === "/signin";
+    console.log("PATH: " + location.pathname)
+    return location.pathname === string;
   };
 
 }
