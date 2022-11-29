@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/services/firestore/user/user';
 import { UserService } from 'src/app/services/firestore/user/user.service';
 import { PathService } from 'src/app/services/path/path.service';
@@ -33,7 +34,7 @@ export class SidebarComponent implements OnInit {
       try {
         this.loggedUser$ = this.userService.getById(user!!.uid);
       } catch (e) {
-        console.error("ToolbarComponent.getLoggedUser:", e)
+        console.error("SidebarComponent.getLoggedUser:", e)
       }
     });
   }
