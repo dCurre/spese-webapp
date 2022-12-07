@@ -19,7 +19,8 @@
                 </div>
             </div>
             <div>
-                <button id="btn-add" (click)="newExpense()" class="btn ml-1" [ngClass]="expensesList.paid ? 'btn-secondary' : 'btn-success'" [disabled]="expensesList.paid" 
+                <button id="btn-add" (click)="newExpense()" class="btn ml-1"
+                    [ngClass]="expensesList.paid ? 'btn-secondary' : 'btn-success'" [disabled]="expensesList.paid"
                     type="button">
                     <i class="fa fa-plus"></i> Nuova spesa</button>
             </div>
@@ -31,46 +32,51 @@
                     <button class="dropdown-item" [routerLink]="['/details', expensesList.id]">Dettagli</button>
                     <button class="dropdown-item" (click)="shareLink()">Condividi</button>
                     <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" (click)="salda(expensesList)">{{expensesList.paid ? 'Riapri Saldo' : 'Chiudi Saldo'}}</button>
+                    <button class="dropdown-item" (click)="salda(expensesList)">{{expensesList.paid ? 'Riapri Saldo' :
+                        'Chiudi Saldo'}}</button>
                     <button class="dropdown-item" (click)="leave(expensesList)">Abbandona</button>
                 </div>
             </div>
         </div>
-
-        <div class="d-flex justify-content-center mb-1" *ngFor="let expense of expenses$ | async">
-            <div class="list list-row card col-lg-12">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="list-item">
-                            <div class="flex">
-                                <div class="">
-                                    <a data-abc="true">{{expense.expense}}</a>
+        <div *ngIf="expenses$ | async as expenses">
+            <div *ngIf="(expenses.length <= 0)">
+                <app-not-found subject="spesa"></app-not-found>
+            </div>
+            <div class="d-flex justify-content-center mb-1" *ngFor="let expense of expenses">
+                <div class="list list-row card col-lg-12">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="list-item">
+                                <div class="flex">
+                                    <div class="">
+                                        <a data-abc="true">{{expense.expense}}</a>
+                                    </div>
+                                    <div class="text-muted text-sm h-1x">
+                                        {{expense.buyer}}
+                                    </div>
+                                    <div class="text-muted text-sm h-1x">
+                                        {{timestampToDateString(expense.expenseDateTimestamp)}}
+                                        {{timestampToHourString(expense.expenseDateTimestamp)}}
+                                    </div>
                                 </div>
-                                <div class="text-muted text-sm h-1x">
-                                    {{expense.buyer}}
+                                <div id="amount">
+                                    {{formatToEur(expense.amount)}}
                                 </div>
-                                <div class="text-muted text-sm h-1x">
-                                    {{timestampToDateString(expense.expenseDateTimestamp)}}
-                                    {{timestampToHourString(expense.expenseDateTimestamp)}}
-                                </div>
-                            </div>
-                            <div id="amount">
-                                {{formatToEur(expense.amount)}}
-                            </div>
-                            <div class="item-action dropdown">
-                                <button [disabled]="expensesList.paid" data-toggle="dropdown"
-                                    class="btn btn-link text-muted btn-dropdown-item" data-abc="true">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                        class="feather feather-more-vertical">
-                                        <circle cx="12" cy="12" r="1"></circle>
-                                        <circle cx="12" cy="5" r="1"></circle>
-                                        <circle cx="12" cy="19" r="1"></circle>
-                                    </svg></button>
-                                <div class="dropdown-menu dropdown-menu-right" role="menu">
-                                    <button class="dropdown-item" (click)="edit(expense)">Modifica</button>
-                                    <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item" (click)="delete(expense)">Cancella</button>
+                                <div class="item-action dropdown">
+                                    <button [disabled]="expensesList.paid" data-toggle="dropdown"
+                                        class="btn btn-link text-muted btn-dropdown-item" data-abc="true">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                            stroke-linejoin="round" class="feather feather-more-vertical">
+                                            <circle cx="12" cy="12" r="1"></circle>
+                                            <circle cx="12" cy="5" r="1"></circle>
+                                            <circle cx="12" cy="19" r="1"></circle>
+                                        </svg></button>
+                                    <div class="dropdown-menu dropdown-menu-right" role="menu">
+                                        <button class="dropdown-item" (click)="edit(expense)">Modifica</button>
+                                        <div class="dropdown-divider"></div>
+                                        <button class="dropdown-item" (click)="delete(expense)">Cancella</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

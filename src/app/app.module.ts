@@ -42,6 +42,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { SaldoDetailsComponent } from './components/saldo-details/saldo-details.component';
 import { NgChartsModule } from 'ng2-charts';
+import { NotFoundComponent } from './components/not-found/not-found.component';
 
 @NgModule({
   declarations: [
@@ -60,6 +61,7 @@ import { NgChartsModule } from 'ng2-charts';
     SpinnerComponent,
     SidebarComponent,
     SaldoDetailsComponent,
+    NotFoundComponent,
   ],
   imports: [
     BrowserModule,

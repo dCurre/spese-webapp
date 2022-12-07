@@ -20,11 +20,14 @@
             </div>
         </div>
     </div>
-    <div *ngIf="(expensesLists$)">
-        <div class="d-flex justify-content-center mb-5">
+    <div *ngIf="expensesLists$ | async as expensesLists">
+        <div *ngIf="(expensesLists.length <= 0)">
+            <app-not-found subject="lista"></app-not-found>
+        </div>
+        <div *ngIf="(expensesLists.length > 0)" class="d-flex justify-content-center mb-5">
             <div class="list list-row card col-lg-12">
                 <div class="row">
-                    <div class="col-md-12" *ngFor="let expensesList of expensesLists$ | async">
+                    <div class="col-md-12" *ngFor="let expensesList of expensesLists">
                         <div class="list-item">
                             <div>
                                 <a [routerLink]="['/list', expensesList.id]" data-abc="true">

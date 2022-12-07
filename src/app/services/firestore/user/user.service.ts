@@ -63,12 +63,12 @@ export class UserService {
 
   update(user: User) {
     try {
-        this.collection.doc(user.id).update(Object.assign({}, user))
-        return user;
+      this.collection.doc(user.id).update(Object.assign({}, user))
+      return user;
     } catch (e) {
-        console.error("Impossibile aggiornare user, ", e)
-        return null;
+      console.error("Impossibile aggiornare user, ", e)
+      return null;
     }
-};
+  };
 
 }
