@@ -4,10 +4,21 @@
 <div *ngIf="!(expensesLists$)">
     <app-spinner></app-spinner>
 </div>
-<div class="container col-lg-6">
+<div *ngIf="loggedUser$ | async as user" class="container col-lg-6">
     <div class="d-flex justify-content-end">
-        <button id="btn-add" (click)="newList()" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i>
+        <button id="btn-add" (click)="newList(user.id)" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i>
             Nuova lista</button>
+        <div class="btn-group dropdown">
+            <a href="#" data-toggle="dropdown" class="text-muted" data-abc="true">
+                <span class="input-group-text btn btn-outline-secondary"><i class="fas fa-cog"></i></span>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right" role="menu">
+                <button class="dropdown-item" (click)="changePaidListsVisibility(user)">{{user.hidePaidLists ?
+                    'Mostra liste saldate' : 'Nascondi liste saldate'}}</button>
+                <div class="dropdown-divider"></div>
+                <button class="dropdown-item" (click)="archive()">Archivio</button>
+            </div>
+        </div>
     </div>
     <div *ngIf="(expensesLists$)">
         <div class="d-flex justify-content-center mb-5">
@@ -54,9 +65,10 @@
                                 <div class="dropdown-menu dropdown-menu-right" role="menu">
                                     <a [routerLink]="['/list', expensesList.id]" class="dropdown-item"
                                         data-abc="true">Apri</a>
-                                    <button class="dropdown-item" (click)="shareLink(expensesList.id)">Condividi</button>
+                                    <button class="dropdown-item"
+                                        (click)="shareLink(expensesList.id)">Condividi</button>
                                     <div class="dropdown-divider"></div>
-                                    <button class="dropdown-item" (click)="leave(expensesList)">Abbandona</button>
+                                    <button class="dropdown-item" (click)="leave(expensesList, user)">Abbandona</button>
                                 </div>
                             </div>
                         </div>
