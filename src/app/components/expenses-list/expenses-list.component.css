@@ -100,7 +100,7 @@
     padding-right: .625rem
 }
 
-a{
+a {
     text-decoration: none
 }
 
@@ -109,10 +109,15 @@ a:hover {
     text-decoration: none;
 }
 
-.list-item:hover{
+.list-item:hover {
     background: #f3f0ff !important;
 }
 
-#btn-add{
+#btn-add {
     margin-bottom: 4px;
+}
+
+.input-group-text {
+    height: 38px;
+    margin-left: 4px;
 }

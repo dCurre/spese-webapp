@@ -12,6 +12,8 @@ import { NewListDialogComponent } from '../dialog/new-list-dialog/new-list-dialo
 import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
 import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
 import { PathService } from 'src/app/services/path/path.service';
+import { UserService } from 'src/app/services/firestore/user/user.service';
+import { User } from 'src/app/services/firestore/user/user';
 
 @Component({
   selector: 'app-expenses-list',
@@ -22,10 +24,12 @@ import { PathService } from 'src/app/services/path/path.service';
 export class ExpensesListComponent implements OnInit {
 
   protected expensesLists$: Observable<ExpensesList[]>;
+  protected loggedUser$: Observable<User>;
 
   constructor(
     public afAuth: AngularFireAuth,
     private expensesListService: ExpensesListService,
+    private userService: UserService,
     private modalService: NgbModal,
     private constantsService: ConstantsService,
     public router: Router,
@@ -41,10 +45,14 @@ export class ExpensesListComponent implements OnInit {
     this.modalService.dismissAll()
   }
 
-  getExpensesListsByLoggedUser() {
+  private getExpensesListsByLoggedUser() {
     this.afAuth.authState.subscribe(user => {
       try {
-        this.expensesLists$ = this.expensesListService.getByUserId(user!!.uid);
+        this.loggedUser$ = this.userService.getById(user!!.uid);
+        this.loggedUser$.subscribe(user => {
+          this.expensesLists$ = this.expensesListService.getByUserId(user);
+        })
+        
       } catch (e) {
         console.error("ExpensesListComponent.getExpensesListsByLoggedUser: ", e)
       }
@@ -59,7 +67,7 @@ export class ExpensesListComponent implements OnInit {
     return DateUtils.timestampToHourString(timestamp);
   }
 
-  leave(expensesList: ExpensesList) {
+  leave(expensesList: ExpensesList, user: User) {
     const modalLeave = this.modalService.open(DialogComponent, { centered: true });
     modalLeave.componentInstance.dialogFields = new ConfirmDialogFields(
       'Abbandona',
@@ -78,11 +86,9 @@ export class ExpensesListComponent implements OnInit {
         this.delete(expensesList)
       } else {
         //Se non è l'unico in lista, il nuovo owner diventa il primo presente nella lista partecipanti (first-in)
-        this.afAuth.authState.subscribe(user => {
-          this.expensesListService.leave(user!!.uid, expensesList);
-        })
+        this.expensesListService.leave(user.id, expensesList);
       }
-    }).catch((res) => {})
+    }).catch((res) => { })
   }
 
   delete(expensesList: ExpensesList) {
@@ -97,24 +103,22 @@ export class ExpensesListComponent implements OnInit {
       }
 
       this.expensesListService.delete(expensesList.id);
-    }).catch((res) => {});
+    }).catch((res) => { });
   }
 
-  newList() {
+  newList(userID: string) {
     const modalNewList = this.modalService.open(NewListDialogComponent, { centered: true });
-    
+
     modalNewList.result.then((response) => {
       if (response == null) {
         return
       }
 
-      this.afAuth.authState.subscribe(user => {
-        this.expensesListService.insert(response, user!!.uid);
-      })
-    }).catch((res) => {});
+      this.expensesListService.insert(response, userID);
+    }).catch((res) => { });
   }
 
-  navigateToList(expensesList: ExpensesList){
+  navigateToList(expensesList: ExpensesList) {
     this.router.navigate(['/list', expensesList.id], { state: { example: expensesList } });
   }
 
@@ -130,5 +134,33 @@ export class ExpensesListComponent implements OnInit {
       }
 
     }).catch((res) => { });
+  }
+
+  protected changePaidListsVisibility(user: User) {
+    const modalConfirm = this.modalService.open(DialogComponent, { centered: true });
+
+    modalConfirm.componentInstance.dialogFields = new ConfirmDialogFields(
+      'Conferma',
+      user.hidePaidLists
+        ? "Vuoi veramente mostrare le liste saldate?"
+        : "Vuoi veramente nascondere le liste saldate?"
+    );
+
+    modalConfirm.result.then((response) => {
+      if (!response) {
+        return
+      }
+
+      try {
+        user.hidePaidLists = !user.hidePaidLists;
+        this.userService.update(user)
+      } catch (e) {
+        console.error("ExpensesListComponent.hidePaidLists: ", e)
+      }
+    }).catch((res) => { });
+  }
+
+  protected archive() {
+
   }
 }
