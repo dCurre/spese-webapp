@@ -20,7 +20,7 @@ export default class DateUtils {
     }
 
     static dateToString(date: Date){
-        return date.getDate() + "/" + MathUtils.twoDigits(date.getMonth()+1) + "/" + date.getFullYear();
+        return MathUtils.twoDigits(date.getDate()) + "/" + MathUtils.twoDigits(date.getMonth()+1) + "/" + date.getFullYear();
     }
 
     static ddmmyyyyToDate(date: string){
