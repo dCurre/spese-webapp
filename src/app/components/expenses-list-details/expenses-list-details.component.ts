@@ -99,6 +99,28 @@ export class ExpenseListDetailsComponent implements OnInit {
     }).catch((res) => { });
   }
 
+  repeat(expense: Expense) {
+    const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
+    modalInsert.componentInstance.listID = this.listID;
+    modalInsert.componentInstance.action = 'Ripeti'
+    modalInsert.componentInstance.defaultExpense = expense.expense
+    modalInsert.componentInstance.defaultAmount = expense.amount
+    modalInsert.componentInstance.defaultBuyer = expense.buyer
+
+    modalInsert.result.then((response) => {
+      if (response == null) {
+        return
+      }
+
+      expense.expense = response.expense
+      expense.amount = response.amount
+      expense.expenseDate = response.expenseDate
+      expense.buyer = response.buyer
+
+      this.expenseService.insert(expense, this.listID);
+    }).catch((res) => { });
+  }
+
   delete(expense: Expense) {
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
     modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
