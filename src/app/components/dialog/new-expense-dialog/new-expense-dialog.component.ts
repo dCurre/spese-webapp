@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NgbActiveModal, NgbCalendar, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import Constants from 'src/app/constants/constants';
 import { Expense } from 'src/app/services/firestore/expense/expense';
 import { ExpenseService } from 'src/app/services/firestore/expense/expense.service';
@@ -7,6 +7,7 @@ import { ExpensesListService } from 'src/app/services/firestore/expensesList/exp
 import { UserService } from 'src/app/services/firestore/user/user.service';
 import DateUtils from 'src/app/utils/date-utils';
 import ListUtils from 'src/app/utils/list-utils';
+import StringUtils from 'src/app/utils/string-utils';
 
 @Component({
   selector: 'app-new-expense-dialog',
@@ -16,17 +17,15 @@ import ListUtils from 'src/app/utils/list-utils';
 
 export class NewExpenseDialogComponent implements OnInit {
 
-  @Input() defaultExpense: String;
-  @Input() defaultAmount: number;
-  @Input() defaultDateTimestamp: number;
-  @Input() defaultBuyer: String;
+  @Input() listID: string;
   @Input() action: String;
+  @Input() expense: Expense;
 
-  protected expense: Expense;
+  protected newExpense: Expense;
   protected partecipantsTooltip: string[] = [];
   protected expenseTooltip: string[] = [];
   protected maxInputText = Constants.maxInputText;
-  listID: string;
+  
   model: NgbDateStruct;
 
   constructor(public modalService: NgbActiveModal,
@@ -35,7 +34,7 @@ export class NewExpenseDialogComponent implements OnInit {
     private userService: UserService) { }
 
   ngOnInit(): void {
-    this.expense = new Expense();
+    this.newExpense = Object.assign({}, this.expense);
 
     this.getUserList(this.listID);
     this.getExpensesList(this.listID);
@@ -43,11 +42,12 @@ export class NewExpenseDialogComponent implements OnInit {
   }
 
   setDefaultFields() {
-    this.expense.expense = (this.defaultExpense !== undefined) ? this.defaultExpense.toString() : "";
-    this.expense.amount = (this.defaultAmount !== undefined) ? this.defaultAmount : 0;
-    this.model = this.defaultDateTimestamp !== undefined ? DateUtils.dateTongbDateStruct(new Date(this.defaultDateTimestamp * 1000)) : DateUtils.dateTongbDateStruct(new Date());
-    this.expense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
-    this.expense.buyer = (this.defaultBuyer !== undefined) ? this.defaultBuyer.toString() : "";
+    if (this.newExpense.expense == undefined) this.newExpense.expense = "";
+    if (this.newExpense.amount == undefined) this.newExpense.amount = 0;
+    if(this.newExpense.expenseDateTimestamp == undefined || !StringUtils.equalsIgnoreCase("Modifica", this.action)) this.newExpense.expenseDateTimestamp = DateUtils.getNowTimestamp();
+    this.model = DateUtils.dateTongbDateStruct(new Date(this.newExpense.expenseDateTimestamp * 1000));
+    this.newExpense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
+    if (this.newExpense.buyer == undefined) this.newExpense.buyer =  "";
   }
 
   selectToday() {
@@ -90,8 +90,14 @@ export class NewExpenseDialogComponent implements OnInit {
   }
 
   close() {
-    this.expense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
-    this.modalService.close(this.expense);
+    this.newExpense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
+    
+    if(!StringUtils.equalsIgnoreCase("Modifica", this.action)){
+      this.expenseService.insert(this.newExpense, this.listID);
+    } else {
+      this.expenseService.update(this.newExpense);
+    }
+    this.modalService.close();
   }
 
   async getUserList(id: string) {
