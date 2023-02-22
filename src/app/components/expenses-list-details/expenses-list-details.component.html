@@ -19,7 +19,7 @@
                 </div>
             </div>
             <div>
-                <button id="btn-add" (click)="newExpense()" class="btn ml-1"
+                <button id="btn-add" (click)="openNewExpenseDialog(newExpense(), 'Crea')" class="btn ml-1"
                     [ngClass]="expensesList.paid ? 'btn-secondary' : 'btn-success'" [disabled]="expensesList.paid"
                     type="button">
                     <i class="fa fa-plus"></i> Nuova spesa</button>
@@ -73,8 +73,8 @@
                                             <circle cx="12" cy="19" r="1"></circle>
                                         </svg></button>
                                     <div class="dropdown-menu dropdown-menu-right" role="menu">
-                                        <button class="dropdown-item" (click)="edit(expense)">Modifica</button>
-                                        <button class="dropdown-item" (click)="repeat(expense)">Ripeti</button>
+                                        <button class="dropdown-item" (click)="openNewExpenseDialog(expense, 'Modifica')">Modifica</button>
+                                        <button class="dropdown-item" (click)="openNewExpenseDialog(expense, 'Ripeti')">Ripeti</button>
                                         <div class="dropdown-divider"></div>
                                         <button class="dropdown-item" (click)="delete(expense)">Cancella</button>
                                     </div>

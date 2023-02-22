@@ -64,61 +64,14 @@ export class ExpenseListDetailsComponent implements OnInit {
   }
 
   newExpense() {
-    const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
-    modalInsert.componentInstance.listID = this.listID;
-    modalInsert.componentInstance.action = 'Crea'
-
-    modalInsert.result.then((response) => {
-      if (response == null) {
-        return
-      }
-      this.expenseService.insert(response, this.listID);
-    }).catch((res) => { });
+    return new Expense(); //Sbrocco
   }
 
-  edit(expense: Expense) {
+  openNewExpenseDialog(expense: Expense, action: String) {
     const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
     modalInsert.componentInstance.listID = this.listID;
-    modalInsert.componentInstance.action = 'Modifica'
-    modalInsert.componentInstance.defaultExpense = expense.expense
-    modalInsert.componentInstance.defaultAmount = expense.amount
-    modalInsert.componentInstance.defaultDateTimestamp = expense.expenseDateTimestamp
-    modalInsert.componentInstance.defaultBuyer = expense.buyer
-
-    modalInsert.result.then((response) => {
-      if (response == null) {
-        return
-      }
-
-      expense.expense = response.expense
-      expense.amount = response.amount
-      expense.expenseDate = response.expenseDate
-      expense.buyer = response.buyer
-
-      this.expenseService.update(expense);
-    }).catch((res) => { });
-  }
-
-  repeat(expense: Expense) {
-    const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
-    modalInsert.componentInstance.listID = this.listID;
-    modalInsert.componentInstance.action = 'Ripeti'
-    modalInsert.componentInstance.defaultExpense = expense.expense
-    modalInsert.componentInstance.defaultAmount = expense.amount
-    modalInsert.componentInstance.defaultBuyer = expense.buyer
-
-    modalInsert.result.then((response) => {
-      if (response == null) {
-        return
-      }
-
-      expense.expense = response.expense
-      expense.amount = response.amount
-      expense.expenseDate = response.expenseDate
-      expense.buyer = response.buyer
-
-      this.expenseService.insert(expense, this.listID);
-    }).catch((res) => { });
+    modalInsert.componentInstance.action = action
+    modalInsert.componentInstance.expense = expense
   }
 
   delete(expense: Expense) {
@@ -222,9 +175,11 @@ export class ExpenseListDetailsComponent implements OnInit {
     const modalSaldo = this.modalService.open(DialogComponent, { centered: true });
     const saldoMessage = expensesList.paid ? "Vuoi riaprire la lista " : "Vuoi chiudere la lista "
 
-    modalSaldo.componentInstance.dialogFields = new ConfirmDialogFields(
-      'Conferma saldo',
-      saldoMessage + expensesList.name + "?");
+    modalSaldo.componentInstance.dialogFields =
+      new ConfirmDialogFields(
+        'Conferma saldo',
+        saldoMessage + expensesList.name + "?"
+      );
 
     modalSaldo.result.then((response) => {
       if (!response) {
