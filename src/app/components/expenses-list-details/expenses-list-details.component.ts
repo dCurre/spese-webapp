@@ -26,6 +26,7 @@ export class ExpenseListDetailsComponent implements OnInit {
   protected expensesList$: Observable<ExpensesList>;
   protected expensesListTotalAmount: number = 0;
   private listID: string;
+  protected searchTerm: string;
 
   constructor(
     public afAuth: AngularFireAuth,

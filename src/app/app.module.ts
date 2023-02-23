@@ -43,6 +43,7 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { SaldoDetailsComponent } from './components/saldo-details/saldo-details.component';
 import { NgChartsModule } from 'ng2-charts';
 import { NotFoundComponent } from './components/not-found/not-found.component';
+import { ExpenseFilterPipe } from './components/filter-pipes/expense-filter/expense-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -62,6 +63,7 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
     SidebarComponent,
     SaldoDetailsComponent,
     NotFoundComponent,
+    ExpenseFilterPipe,
   ],
   imports: [
     BrowserModule,
@@ -69,7 +71,6 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
     BrowserAnimationsModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
-
     MatButtonModule,
     MatCardModule,
     MatInputModule,
