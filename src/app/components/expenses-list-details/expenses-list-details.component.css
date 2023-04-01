@@ -134,3 +134,14 @@ a:hover {
   margin-left: 6px;
   margin-top: 0.3rem;
 }
+
+.mat-expansion-panel-header-description {
+  flex-grow: 0.4;
+  justify-content: flex-end;
+}
+
+.mat-expansion-panel-header{
+  padding-left: 0px;
+  padding-top: 3px;
+  padding-bottom: 2px;
+}
