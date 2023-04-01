@@ -1,37 +1,13 @@
 <mat-sidenav-container>
     <mat-sidenav #sidenav="matSidenav" mode="over" position="end">
         <app-sidebar></app-sidebar>
-            <!-- 
-            <button mat-icon-button (click)="toogleSidebar()">TOGGLE</button>
-            <div *ngIf="loggedUser$ | async as user">
-                <a class="nav-link" routerLink="" (click)="closeSidebar()">
-                    <img class='img logo rounded-circle mb-5' [src]="user.profileImage" /><span
-                        class="toolbar-list-span align-middle">{{user.fullname}}</span>
-                </a>
-                <mat-divider></mat-divider>
-                <ul class="list-unstyled components mb-5">
-                    <li>
-                        <span id="logout-span" class="toolbar-list-span align-middle">CAMPO</span>
-                    </li>
-                    <li>
-                        <span id="logout-span" class="toolbar-list-span align-middle">CAMPO</span>
-                    </li>
-                    <li>
-                        <span id="logout-span" class="toolbar-list-span align-middle">CAMPO</span>
-                    </li>
-                    <li>
-                        <a class="nav-link" (click)="closeSidebar();logout()" role="button">
-                            <span id="logout-span" class="toolbar-list-span align-middle">Esci</span>
-                        </a>
-                    </li>
-                </ul>
-
-            </div>-->
-
     </mat-sidenav>
     <mat-sidenav-content>
         <!-- CONTENT PAGINA -->
         <app-toolbar></app-toolbar>
         <router-outlet></router-outlet>
+        <div *ngIf="showSpinner">
+            <app-spinner></app-spinner>
+        </div>
     </mat-sidenav-content>
 </mat-sidenav-container>
