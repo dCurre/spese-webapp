@@ -39,3 +39,8 @@ body{
     border-radius: 2rem;
     padding-top: 0.45rem;
 }
+
+.lists-container{
+    max-height: 70vh;
+    overflow-y:scroll;
+}
