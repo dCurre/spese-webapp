@@ -14,6 +14,7 @@ import { ConstantsService } from 'src/app/services/firestore/constants/constants
 import { PathService } from 'src/app/services/path/path.service';
 import { UserService } from 'src/app/services/firestore/user/user.service';
 import { User } from 'src/app/services/firestore/user/user';
+import { AppComponent } from 'src/app/app.component';
 
 @Component({
   selector: 'app-expenses-list',
@@ -25,8 +26,10 @@ export class ExpensesListComponent implements OnInit {
 
   protected expensesLists$: Observable<ExpensesList[]>;
   protected loggedUser$: Observable<User>;
+  public hasLoaded = false;
 
   constructor(
+    private appComponent: AppComponent,
     public afAuth: AngularFireAuth,
     private expensesListService: ExpensesListService,
     private userService: UserService,
@@ -36,6 +39,7 @@ export class ExpensesListComponent implements OnInit {
     private pathService: PathService) { }
 
   ngOnInit(): void {
+    this.appComponent.showSpinner = false;
     if (!this.pathService.isPath("/signin")) {
       this.getExpensesListsByLoggedUser()
     }
