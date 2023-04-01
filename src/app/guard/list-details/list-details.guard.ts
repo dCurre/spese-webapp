@@ -35,14 +35,14 @@ export class ListDetailsGuard implements CanActivate {
             this.expensesListService.getById(listID).subscribe(expensesList => {
                 if (expensesList == undefined) {
                     console.error('ListDetails Guard: list not found');
-                    this.router.navigate(['/accessdenied']);
+                    this.router.navigate(['']);
                     resolve(false);
                 }
 
-                //Se l'utente fa già parte della lista --> redirect alla lista stessa
+                //Se l'utente non fa parte della lista
                 this.afAuth.onAuthStateChanged((user) => {
                     if (!ListUtils.contains(expensesList.partecipants, user?.uid)) {
-                        this.router.navigate(['/']);
+                        this.router.navigate(['']);
                         resolve(false);
                     }
 

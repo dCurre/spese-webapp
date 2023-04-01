@@ -8,7 +8,9 @@ import { AngularFireAuth } from '@angular/fire/compat/auth';
     providedIn: 'root'
 })
 export class AuthGuard implements CanActivate {
-    constructor(private router: Router, private afAuth: AngularFireAuth) { }
+    constructor(
+        private router: Router,
+        private afAuth: AngularFireAuth,) { }
 
     canActivate(
         route: ActivatedRouteSnapshot,

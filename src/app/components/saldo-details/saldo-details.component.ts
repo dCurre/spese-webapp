@@ -7,6 +7,7 @@ import { ExpenseService } from 'src/app/services/firestore/expense/expense.servi
 import { first, reduce } from 'rxjs';
 import MathUtils from 'src/app/utils/math-utils';
 import { SaldoDetails } from './list-details-dialog-fields';
+import { AppComponent } from 'src/app/app.component';
 
 @Component({
   selector: 'app-saldo-details',
@@ -27,12 +28,15 @@ export class SaldoDetailsComponent implements OnInit {
   protected balanceDetails: SaldoDetails[] = [];
 
   constructor(
+    private appComponent: AppComponent,
     private route: ActivatedRoute,
     private expenseService: ExpenseService,) { }
 
   ngOnInit(): void {
     this.listID = this.route.snapshot.paramMap.get('id')!!
     this.getSaldoDetails(this.listID)
+
+    this.appComponent.showSpinner = false; //TODO: trovare un modo più intelligente per nascondere lo spinner
   }
 
 
