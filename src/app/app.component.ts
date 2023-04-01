@@ -9,7 +9,7 @@ import { MatSidenav } from '@angular/material/sidenav';
 })
 export class AppComponent{
   title = 'spese-webapp';
-  public showSpinner = true;
+  public showSpinner : boolean;
 
   @ViewChild(MatSidenav)
   protected sidenav!: MatSidenav;
@@ -19,6 +19,7 @@ export class AppComponent{
   }
 
   ngOnInit(): void {
+    this.showSpinner = true;
   }
 
   ngAfterViewInit(): void {
@@ -29,5 +30,4 @@ export class AppComponent{
     this.sidenav.close();
     this.sidenavService.setSidenav(this.sidenav);
   }
-
 }

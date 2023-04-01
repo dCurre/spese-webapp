@@ -5,9 +5,7 @@
     <br>
     <h1 class="d-flex justify-content-center">
         {{expensesList.name}}
-        <br>
     </h1>
-    <br>
     <div class="container col-lg-6 mb-5">
         
         <div id="saldo" class="d-inline-flex">
@@ -46,7 +44,7 @@
                 </div>
             </div>
         </div>
-        <div *ngIf="expenses$ | async as expenses">
+        <div *ngIf="expenses$ | async as expenses" class="lists-container">
             <div *ngIf="(expenses.length <= 0)">
                 <app-not-found subject="spesa"></app-not-found>
             </div>
