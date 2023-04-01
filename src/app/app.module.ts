@@ -44,6 +44,7 @@ import { SaldoDetailsComponent } from './components/saldo-details/saldo-details.
 import { NgChartsModule } from 'ng2-charts';
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import { ExpenseFilterPipe } from './components/filter-pipes/expense-filter/expense-filter.pipe';
+import {MatExpansionModule} from '@angular/material/expansion';
 
 @NgModule({
   declarations: [
@@ -69,6 +70,7 @@ import { ExpenseFilterPipe } from './components/filter-pipes/expense-filter/expe
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    MatExpansionModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
     MatButtonModule,

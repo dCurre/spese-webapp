@@ -44,6 +44,7 @@
                 </div>
             </div>
         </div>
+
         <div *ngIf="expenses$ | async as expenses" class="lists-container">
             <div *ngIf="(expenses.length <= 0)">
                 <app-not-found subject="spesa"></app-not-found>
@@ -51,6 +52,32 @@
             <div class="d-flex justify-content-center mb-1" *ngFor="let expense of expenses | expenseFilter:searchTerm">
                 <div class="list list-row card col-lg-12">
                     <div class="row">
+                        <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
+                            <mat-expansion-panel-header class="row-header">
+                            <mat-panel-title>
+                                <a data-abc="true">{{expense.expense}}</a>
+                            </mat-panel-title>
+                            <mat-panel-description>
+                                {{formatToEur(expense.amount)}}
+                            </mat-panel-description>
+                            </mat-expansion-panel-header>
+                            
+                            <div class="text-muted text-sm h-1x">
+                                {{expense.buyer}}
+                            </div>
+                            <div class="text-muted text-sm h-1x">
+                                {{timestampToDateString(expense.expenseDateTimestamp)}}
+                                {{timestampToHourString(expense.expenseDateTimestamp)}}
+                            </div>
+
+                            <mat-action-row>
+                                <button mat-button color="warn" (click)="openNewExpenseDialog(expense, 'Modifica')">Modfiica</button>
+                                <button mat-button color="primary" (click)="openNewExpenseDialog(expense, 'Ripeti')">Ripeti</button>
+                                <button mat-button color="primary" (click)="delete(expense)">Cancella</button>
+                            </mat-action-row>
+                        </mat-expansion-panel>
+                      
+                      <!-- OLD LIST 
                         <div class="col-md-12">
                             <div class="list-item">
                                 <div class="flex">
@@ -87,6 +114,7 @@
                                 </div>
                             </div>
                         </div>
+                        -->
                     </div>
                 </div>
             </div>

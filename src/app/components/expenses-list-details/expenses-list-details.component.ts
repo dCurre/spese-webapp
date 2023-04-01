@@ -28,6 +28,7 @@ export class ExpenseListDetailsComponent implements OnInit {
   protected expensesListTotalAmount: number = 0;
   private listID: string;
   protected searchTerm: string;
+  protected panelOpenState = false;
 
   constructor(
     private appComponent: AppComponent,
