@@ -22,6 +22,7 @@ const routes: Routes = [
   { path: 'accessdenied', component: AccessDeniedComponent},
   { path: 'list/:id', component: ExpenseListDetailsComponent, canActivate: [AuthGuard, ListGuard] },
   { path: '', component: HomeComponent, canActivate: [AuthGuard]  },// catch-all in case no other path matched
+  { path: '**', component: AccessDeniedComponent, canActivate: [AuthGuard]  },// catch-all in case no other path matched
 ];
 
 @NgModule({
