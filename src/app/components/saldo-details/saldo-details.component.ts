@@ -56,6 +56,9 @@ export class SaldoDetailsComponent implements OnInit {
 
               //Se owner finisce in cima altrimenti compare per nome
               this.partecipantsList.sort((a, b) => a.id == expensesList.owner ? -1 : a.fullname.localeCompare(b.fullname))
+              this.partecipantsList.sort(function( a , b ){
+                return (a.id == expensesList.owner) ? -1 : (a > b ? -1 : 1);
+              });
             })
         })
       })
