@@ -15,6 +15,8 @@ import MathUtils from 'src/app/utils/math-utils';
 import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
 import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
 import { AppComponent } from 'src/app/app.component';
+import GenericUtils from 'src/app/utils/generic-utils';
+import StringUtils from 'src/app/utils/string-utils';
 
 @Component({
   selector: 'app-expenses-list-details',
@@ -101,6 +103,10 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   timestampToHourString(timestamp: number) {
     return DateUtils.timestampToHourString(timestamp);
+  }
+
+  hasBeenModified(expense: Expense) : boolean {
+    return MathUtils.isMoreThanZero(expense.lastModifiedDateTimestamp) && !StringUtils.isNullOrEmpty(expense.modifiedBy); 
   }
 
   getExpensesListTotal(id: string) {

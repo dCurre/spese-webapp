@@ -6,4 +6,6 @@ export class Expense {
     expenseDateTimestamp: number;
     buyer : string;
     expenseListID: string;
+    lastModifiedDateTimestamp: number;
+    modifiedBy: string;
 }

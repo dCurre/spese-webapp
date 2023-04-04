@@ -1,4 +1,11 @@
+import GenericUtils from "./generic-utils";
+
 export default class MathUtils {
+
+    static isMoreThanZero(n: number){
+        return !GenericUtils.isNullOrUndefined(n) && n > 0;
+    }
+
     static twoDigits(n: number) {
         return ('0'+n).slice(-2);
     }

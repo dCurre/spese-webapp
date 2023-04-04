@@ -45,3 +45,8 @@ body{
     overflow-y:scroll;
     overflow-x:hidden;
 }
+
+.remove-mat-expansion-panel-padding .mat-expansion-panel-content .mat-expansion-panel-body{
+    padding: 0 !important;
+    font-size: medium;
+}
