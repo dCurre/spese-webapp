@@ -7,7 +7,9 @@ import { ExpenseService } from 'src/app/services/firestore/expense/expense.servi
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
 import { UserService } from 'src/app/services/firestore/user/user.service';
 import DateUtils from 'src/app/utils/date-utils';
+import GenericUtils from 'src/app/utils/generic-utils';
 import ListUtils from 'src/app/utils/list-utils';
+import MathUtils from 'src/app/utils/math-utils';
 import StringUtils from 'src/app/utils/string-utils';
 
 @Component({
@@ -44,12 +46,12 @@ export class NewExpenseDialogComponent implements OnInit {
   }
 
   setDefaultFields() {
-    if (this.newExpense.expense == undefined) this.newExpense.expense = "";
-    if (this.newExpense.amount == undefined) this.newExpense.amount = 0;
-    if(this.newExpense.expenseDateTimestamp == undefined || !StringUtils.equalsIgnoreCase("Modifica", this.action)) this.newExpense.expenseDateTimestamp = DateUtils.getNowTimestamp();
+    if(GenericUtils.isNullOrUndefined(this.newExpense.expense)) this.newExpense.expense = "";
+    if(GenericUtils.isNullOrUndefined(this.newExpense.amount)) this.newExpense.amount = 0;
+    if(GenericUtils.isNullOrUndefined(this.newExpense.expenseDateTimestamp) || !StringUtils.equalsIgnoreCase("Modifica", this.action)) this.newExpense.expenseDateTimestamp = DateUtils.getNowTimestamp();
     this.model = DateUtils.dateTongbDateStruct(new Date(this.newExpense.expenseDateTimestamp * 1000));
     this.newExpense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
-    if (this.newExpense.buyer == undefined) this.newExpense.buyer =  "";
+    if(GenericUtils.isNullOrUndefined(this.newExpense.buyer)) this.newExpense.buyer =  "";
   }
 
   selectToday() {
@@ -64,28 +66,19 @@ export class NewExpenseDialogComponent implements OnInit {
   }
 
   isValidAmount(amount: number) {
-    if (amount !== undefined && amount > 0)
-      return true;
-
-    return false;
+    return MathUtils.isMoreThanZero(amount);
   }
 
   isValidExpense(expense: string) {
-    if (expense !== undefined && expense.trim().length <= this.maxInputText && expense.trim().length > 0)
-      return true;
-
-    return false;
+    return !StringUtils.isNullOrEmpty(expense) && expense.trim().length <= this.maxInputText;
   }
 
   isValidBuyer(buyer: string) {
-    if (buyer !== undefined && buyer.trim().length > 0)
-      return true;
-
-    return false;
+    return !StringUtils.isNullOrEmpty(buyer);
   }
 
   isValidDate(date: string) {
-    if (date !== undefined && date.trim().length > 0)
+    if (GenericUtils.isNullOrUndefined(date) && date.trim().length > 0)
       return true;
 
     return false;

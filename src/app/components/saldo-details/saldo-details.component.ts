@@ -4,7 +4,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { ActivatedRoute } from '@angular/router';
 import { ExpenseService } from 'src/app/services/firestore/expense/expense.service';
-import { first, reduce } from 'rxjs';
+import { first } from 'rxjs';
 import MathUtils from 'src/app/utils/math-utils';
 import { SaldoDetails } from './list-details-dialog-fields';
 import { AppComponent } from 'src/app/app.component';

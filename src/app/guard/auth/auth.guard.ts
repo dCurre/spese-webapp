@@ -3,6 +3,7 @@ import { CanActivate, ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTr
 import { Observable } from 'rxjs';
 
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import GenericUtils from 'src/app/utils/generic-utils';
 
 @Injectable({
     providedIn: 'root'
@@ -18,7 +19,7 @@ export class AuthGuard implements CanActivate {
 
         return new Promise((resolve) => {
             this.afAuth.onAuthStateChanged((user) => {
-                if (user == null || user == undefined) {
+                if (GenericUtils.isNullOrUndefined(user)) {
                     console.debug('Auth Guard: user is not logged in');
                     this.router.navigate(['/signin']);
                     resolve(true);
