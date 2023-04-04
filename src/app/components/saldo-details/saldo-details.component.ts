@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { ChartConfiguration, ChartData, ChartEvent, ChartType } from 'chart.js';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { ActivatedRoute } from '@angular/router';
@@ -22,7 +22,7 @@ export class SaldoDetailsComponent implements OnInit {
   public pieChartPlugins = [ChartDataLabels];
   public pieChartOptions: ChartConfiguration['options'];
   public pieChartData: ChartData<'pie', number[], string | string[]>;
-  private listID: string = ""
+  private listID: string = this.route.snapshot.paramMap.get('id')!!;
   private expensesListTotalAmount: number = 0;
   protected mapPagato = new Map<string, number>();
   protected balanceDetails: SaldoDetails[] = [];
@@ -30,15 +30,13 @@ export class SaldoDetailsComponent implements OnInit {
   constructor(
     private appComponent: AppComponent,
     private route: ActivatedRoute,
-    private expenseService: ExpenseService,) { }
+    private expenseService: ExpenseService) { }
 
   ngOnInit(): void {
-    this.listID = this.route.snapshot.paramMap.get('id')!!
     this.getSaldoDetails(this.listID)
 
     this.appComponent.showSpinner = false; //TODO: trovare un modo più intelligente per nascondere lo spinner
   }
-
 
   getSaldoDetails(id: string) {
     try {
@@ -67,7 +65,7 @@ export class SaldoDetailsComponent implements OnInit {
     }
   }
 
-  fillChart() {
+  private fillChart() {
 
     this.pieChartData = {
       labels: Array.from(this.mapPagato.keys()),
