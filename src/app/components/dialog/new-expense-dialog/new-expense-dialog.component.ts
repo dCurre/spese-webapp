@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import Constants from 'src/app/constants/constants';
+import { AuthService } from 'src/app/services/auth/auth.service';
 import { Expense } from 'src/app/services/firestore/expense/expense';
 import { ExpenseService } from 'src/app/services/firestore/expense/expense.service';
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
@@ -31,7 +32,8 @@ export class NewExpenseDialogComponent implements OnInit {
   constructor(public modalService: NgbActiveModal,
     private expensesListService: ExpensesListService,
     private expenseService: ExpenseService,
-    private userService: UserService) { }
+    private userService: UserService,
+    private authService: AuthService) { }
 
   ngOnInit(): void {
     this.newExpense = Object.assign({}, this.expense);
@@ -93,9 +95,15 @@ export class NewExpenseDialogComponent implements OnInit {
     this.newExpense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
     
     if(!StringUtils.equalsIgnoreCase("Modifica", this.action)){
+      this.newExpense.lastModifiedDateTimestamp = 0;
+      this.newExpense.modifiedBy = "";
       this.expenseService.insert(this.newExpense, this.listID);
     } else {
-      this.expenseService.update(this.newExpense);
+      this.authService.getLoggedUser().subscribe(user => {
+        this.newExpense.lastModifiedDateTimestamp = DateUtils.dateToTimestamp(new Date());
+        this.newExpense.modifiedBy = user.fullname
+        this.expenseService.update(this.newExpense);
+      })
     }
     this.modalService.close();
   }

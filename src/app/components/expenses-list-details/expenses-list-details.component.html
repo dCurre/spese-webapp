@@ -49,73 +49,35 @@
             <div *ngIf="(expenses.length <= 0)">
                 <app-not-found subject="spesa"></app-not-found>
             </div>
-            <div class="d-flex justify-content-center mb-1" *ngFor="let expense of expenses | expenseFilter:searchTerm">
+            <div class="pt-1" *ngFor="let expense of expenses | expenseFilter:searchTerm">
                 <div class="list list-row card col-lg-12">
-                    <div class="row">
-                        <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false">
-                            <mat-expansion-panel-header class="row-header">
+                    <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false" class="remove-mat-expansion-panel-padding">
+                        <mat-expansion-panel-header class="row-header">
                             <mat-panel-title>
-                                <a data-abc="true">{{expense.expense}}</a>
+                                <a>{{expense.expense}}</a>
                             </mat-panel-title>
                             <mat-panel-description>
                                 {{formatToEur(expense.amount)}}
                             </mat-panel-description>
-                            </mat-expansion-panel-header>
-                            
-                            <div class="text-muted text-sm h-1x">
-                                {{expense.buyer}}
-                            </div>
-                            <div class="text-muted text-sm h-1x">
-                                {{timestampToDateString(expense.expenseDateTimestamp)}}
-                                {{timestampToHourString(expense.expenseDateTimestamp)}}
-                            </div>
-
-                            <mat-action-row>
-                                <button mat-button color="warn" (click)="openNewExpenseDialog(expense, 'Modifica')">Modfiica</button>
-                                <button mat-button color="primary" (click)="openNewExpenseDialog(expense, 'Ripeti')">Ripeti</button>
-                                <button mat-button color="primary" (click)="delete(expense)">Cancella</button>
-                            </mat-action-row>
-                        </mat-expansion-panel>
-                      
-                      <!-- OLD LIST 
-                        <div class="col-md-12">
-                            <div class="list-item">
-                                <div class="flex">
-                                    <div class="">
-                                        <a data-abc="true">{{expense.expense}}</a>
-                                    </div>
-                                    <div class="text-muted text-sm h-1x">
-                                        {{expense.buyer}}
-                                    </div>
-                                    <div class="text-muted text-sm h-1x">
-                                        {{timestampToDateString(expense.expenseDateTimestamp)}}
-                                        {{timestampToHourString(expense.expenseDateTimestamp)}}
-                                    </div>
-                                </div>
-                                <div id="amount">
-                                    {{formatToEur(expense.amount)}}
-                                </div>
-                                <div class="item-action dropdown">
-                                    <button [disabled]="expensesList.paid" data-toggle="dropdown"
-                                        class="btn btn-link text-muted btn-dropdown-item" data-abc="true">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round" class="feather feather-more-vertical">
-                                            <circle cx="12" cy="12" r="1"></circle>
-                                            <circle cx="12" cy="5" r="1"></circle>
-                                            <circle cx="12" cy="19" r="1"></circle>
-                                        </svg></button>
-                                    <div class="dropdown-menu dropdown-menu-right" role="menu">
-                                        <button class="dropdown-item" (click)="openNewExpenseDialog(expense, 'Modifica')">Modifica</button>
-                                        <button class="dropdown-item" (click)="openNewExpenseDialog(expense, 'Ripeti')">Ripeti</button>
-                                        <div class="dropdown-divider"></div>
-                                        <button class="dropdown-item" (click)="delete(expense)">Cancella</button>
-                                    </div>
-                                </div>
-                            </div>
+                        </mat-expansion-panel-header>
+                        
+                        <div class="h-1x mt-2">
+                            {{expense.buyer}}
                         </div>
-                        -->
-                    </div>
+                        <div class="h-1x mb-4">
+                            {{timestampToDateString(expense.expenseDateTimestamp)}} {{timestampToHourString(expense.expenseDateTimestamp)}}
+                        </div>
+
+                        <div *ngIf="hasBeenModified(expense)" class="text-muted text-sm h-1x font-italic modified-expense">
+                            Modificato da {{expense.modifiedBy}} il {{timestampToDateString(expense.lastModifiedDateTimestamp)}} {{timestampToHourString(expense.lastModifiedDateTimestamp)}}
+                        </div>
+
+                        <mat-action-row class="pr-0">
+                            <button mat-flat-button class="btn btn-success" (click)="openNewExpenseDialog(expense, 'Modifica')"><i class="fa fa-pencil"></i></button>
+                            <button mat-flat-button class="btn btn-primary" (click)="openNewExpenseDialog(expense, 'Ripeti')"><i class="fa fa-repeat"></i></button>
+                            <button mat-flat-button class="btn btn-danger" (click)="delete(expense)"><i class="fa fa-trash"></i></button>
+                        </mat-action-row>
+                    </mat-expansion-panel>
                 </div>
             </div>
         </div>

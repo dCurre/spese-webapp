@@ -142,6 +142,16 @@ a:hover {
 
 .mat-expansion-panel-header{
   padding-left: 0px;
+  padding-right: 2px;
   padding-top: 3px;
   padding-bottom: 2px;
+}
+
+.row-header{
+  font-size: 1.1rem;
+}
+
+.modified-expense{
+  font-size: 0.7rem;
+  text-align: end;
 }
