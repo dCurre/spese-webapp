@@ -78,10 +78,7 @@ export class NewExpenseDialogComponent implements OnInit {
   }
 
   isValidDate(date: string) {
-    if (GenericUtils.isNullOrUndefined(date) && date.trim().length > 0)
-      return true;
-
-    return false;
+    return !GenericUtils.isNullOrUndefined(date) && date.trim().length > 0;
   }
 
   close() {
