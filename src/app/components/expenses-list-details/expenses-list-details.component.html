@@ -38,8 +38,7 @@
                     <button class="dropdown-item" [routerLink]="['/details', expensesList.id]">Dettagli</button>
                     <button class="dropdown-item" (click)="shareLink()">Condividi</button>
                     <div class="dropdown-divider"></div>
-                    <button class="dropdown-item" (click)="salda(expensesList)">{{expensesList.paid ? 'Riapri Saldo' :
-                        'Chiudi Saldo'}}</button>
+                    <button class="dropdown-item" (click)="salda(expensesList)">{{expensesList.paid ? 'Riapri Saldo' : 'Chiudi Saldo'}}</button>
                     <button class="dropdown-item" (click)="leave(expensesList)">Abbandona</button>
                 </div>
             </div>
@@ -73,7 +72,7 @@
                         </div>
 
                         <mat-action-row class="pr-0">
-                            <button mat-flat-button class="btn btn-success" (click)="openNewExpenseDialog(expense, 'Modifica')"><i class="fa fa-pencil"></i></button>
+                            <button mat-flat-button class="btn btn-success" (click)="openNewExpenseDialog(expense, 'Modifica')"><i class="fa fa-pen-to-square"></i></button>
                             <button mat-flat-button class="btn btn-primary" (click)="openNewExpenseDialog(expense, 'Ripeti')"><i class="fa fa-repeat"></i></button>
                             <button mat-flat-button class="btn btn-danger" (click)="delete(expense)"><i class="fa fa-trash"></i></button>
                         </mat-action-row>
