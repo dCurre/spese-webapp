@@ -2,7 +2,7 @@ import GenericUtils from "./generic-utils";
 
 export default class StringUtils {
     static replaceSpecialCharsForLinks(string: string) {
-        if(string === null || string === undefined){
+        if(StringUtils.isNullOrEmpty(string)){
             return "";
         }
 
@@ -15,6 +15,9 @@ export default class StringUtils {
     }
 
     static equalsIgnoreCase(string1: String, string2: String){
+        if(StringUtils.isNullOrEmpty(string1.toString()))
+            return false;
+
         return string1.toUpperCase() === string2.toUpperCase();
     }
     

@@ -5,6 +5,8 @@ import { Observable } from 'rxjs';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
 import ListUtils from 'src/app/utils/list-utils';
+import StringUtils from 'src/app/utils/string-utils';
+import GenericUtils from 'src/app/utils/generic-utils';
 
 @Injectable({
     providedIn: 'root'
@@ -25,7 +27,7 @@ export class ListGuard implements CanActivate {
             const listID = state.url.split("list/")[1] //FA SCHIFO AL CAZZO
 
             //Check validità id lista
-            if (listID == null || listID == undefined || listID.length == 0) {
+            if (StringUtils.isNullOrEmpty(listID)) {
                 console.error("List Guard: url non valido")
                 this.router.navigate(['/accessdenied']);
                 resolve(false);
@@ -33,7 +35,7 @@ export class ListGuard implements CanActivate {
 
             //Check esistenza lista
             this.expensesListService.getById(listID).subscribe(expensesList => {
-                if (expensesList == undefined) {
+                if (GenericUtils.isNullOrUndefined(expensesList)) {
                     console.error('List Guard: list not found');
                     this.router.navigate(['']);
                     resolve(false);

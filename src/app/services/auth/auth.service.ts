@@ -6,6 +6,7 @@ import { Observable, Subject } from 'rxjs';
 import { User } from '../firestore/user/user';
 import { UserService } from '../firestore/user/user.service';
 import { PathService } from '../path/path.service';
+import GenericUtils from 'src/app/utils/generic-utils';
 
 @Injectable({
     providedIn: 'root'
@@ -32,12 +33,12 @@ export class AuthService {
         this.afAuth.signInWithPopup(provider).then((result) => {
             console.log('AuthService.AuthLogin: You have been successfully logged in!')
 
-            if (result == null) {
+            if (GenericUtils.isNullOrUndefined(result)) {
                 return
             }
 
             this.userService.getById(result.user?.uid!).subscribe(user => {
-                if (user == null || user == undefined) {
+                if (GenericUtils.isNullOrUndefined(user)) {
                     this.userService.insertGoogleUser(result.user)
                 }
             });

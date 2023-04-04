@@ -1,10 +1,10 @@
+import GenericUtils from "./generic-utils";
+
 export default class ListUtils {
     static contains(list: any, value: any): boolean {
-        if (list == null || list == undefined)
+        if (GenericUtils.isNullOrUndefined(list) || GenericUtils.isNullOrUndefined(value))
             return false;
 
-        if (value == null || value == undefined)
-            return false;
-        return list.includes(value)
+        return list.includes(value);
     }
 }

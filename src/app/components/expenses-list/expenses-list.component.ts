@@ -15,6 +15,7 @@ import { PathService } from 'src/app/services/path/path.service';
 import { UserService } from 'src/app/services/firestore/user/user.service';
 import { User } from 'src/app/services/firestore/user/user';
 import { AppComponent } from 'src/app/app.component';
+import GenericUtils from 'src/app/utils/generic-utils';
 
 @Component({
   selector: 'app-expenses-list',
@@ -114,7 +115,7 @@ export class ExpensesListComponent implements OnInit {
     const modalNewList = this.modalService.open(NewListDialogComponent, { centered: true });
 
     modalNewList.result.then((response) => {
-      if (response == null) {
+      if (GenericUtils.isNullOrUndefined(response)) {
         return
       }
 

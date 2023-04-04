@@ -3,6 +3,7 @@ import { CanActivate, ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTr
 import { Observable } from 'rxjs';
 
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import GenericUtils from 'src/app/utils/generic-utils';
 
 @Injectable({
     providedIn: 'root'
@@ -16,7 +17,7 @@ export class SignInGuard implements CanActivate {
 
         return new Promise((resolve) => {
             this.afAuth.onAuthStateChanged((user) => {
-                if (user !== null && user !== undefined) {
+                if (!GenericUtils.isNullOrUndefined(user)) {
                     this.router.navigate(['/']);
                 }
                 resolve(true);
