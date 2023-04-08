@@ -1,6 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
 import { SidenavService } from './services/sidenav/sidenav.service';
 import { MatSidenav } from '@angular/material/sidenav';
+import { AuthService } from './services/auth/auth.service';
+import { User } from './services/firestore/user/user';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -10,16 +13,20 @@ import { MatSidenav } from '@angular/material/sidenav';
 export class AppComponent{
   title = 'spese-webapp';
   public showSpinner : boolean;
+  
+  protected loggedUser$: Observable<User>;
 
   @ViewChild(MatSidenav)
   protected sidenav!: MatSidenav;
 
   constructor(
-    private sidenavService: SidenavService) {
+    private sidenavService: SidenavService,
+    private authService: AuthService) {
   }
 
   ngOnInit(): void {
     this.showSpinner = true;
+    this.loggedUser$ = this.authService.getLoggedUser();
   }
 
   ngAfterViewInit(): void {
