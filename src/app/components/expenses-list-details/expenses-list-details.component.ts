@@ -14,8 +14,6 @@ import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fie
 import MathUtils from 'src/app/utils/math-utils';
 import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
 import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
-import { AppComponent } from 'src/app/app.component';
-import GenericUtils from 'src/app/utils/generic-utils';
 import StringUtils from 'src/app/utils/string-utils';
 
 @Component({
@@ -33,7 +31,6 @@ export class ExpenseListDetailsComponent implements OnInit {
   protected panelOpenState = false;
 
   constructor(
-    private appComponent: AppComponent,
     public afAuth: AngularFireAuth,
     private expenseService: ExpenseService,
     protected expensesListService: ExpensesListService,
@@ -47,8 +44,6 @@ export class ExpenseListDetailsComponent implements OnInit {
     this.getExpensesByListId(this.listID)
     this.getExpensesListDetails(this.listID)
     this.getExpensesListTotal(this.listID)
-
-    this.appComponent.showSpinner = false; //TODO: trovare un modo più intelligente per nascondere lo spinner
   }
 
   ngOnDestroy() {

@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute } from '@angular/router';
 import { first, Observable } from 'rxjs';
-import { AppComponent } from 'src/app/app.component';
 import { Constants } from 'src/app/services/firestore/constants/constants';
 import { ConstantsService } from 'src/app/services/firestore/constants/constants.service';
 import { ExpensesList } from 'src/app/services/firestore/expensesList/expenses-list';
@@ -20,7 +19,6 @@ export class JoinComponent implements OnInit {
   protected expensesList$: Observable<ExpensesList>;
 
   constructor(
-    private appComponent: AppComponent,
     private route: ActivatedRoute,
     private constantsService: ConstantsService,
     private expensesListService: ExpensesListService,
@@ -30,8 +28,6 @@ export class JoinComponent implements OnInit {
     this.getParams();
     this.getConstants();
     this.getExpensesListDetails(this.listID)
-    
-    this.appComponent.showSpinner = false; //TODO: trovare un modo più intelligente per nascondere lo spinner
   }
 
   getConstants() {

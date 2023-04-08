@@ -1,9 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service'
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { Observable } from 'rxjs';
-import { User } from 'src/app/services/firestore/user/user';
-import { AppComponent } from 'src/app/app.component';
 
 @Component({
   selector: 'app-sign-in',
@@ -15,8 +12,7 @@ export class SignInComponent implements OnInit {
   loginForm: FormGroup;
   firebaseErrorMessage: string;
 
-  constructor(public authService: AuthService,
-    private appComponent: AppComponent,) {
+  constructor(public authService: AuthService) {
     this.loginForm = new FormGroup({
       'email': new FormControl('', [Validators.required, Validators.email]),
       'password': new FormControl('', Validators.required)
@@ -27,7 +23,6 @@ export class SignInComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.appComponent.showSpinner = false; //TODO: trovare un modo più intelligente per nascondere lo spinner
   }
 
 }
