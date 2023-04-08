@@ -123,10 +123,6 @@ export class ExpensesListComponent implements OnInit {
     }).catch((res) => { });
   }
 
-  navigateToList(expensesList: ExpensesList) {
-    this.router.navigate(['/list', expensesList.id], { state: { example: expensesList } });
-  }
-
   shareLink(listID: string) {
     const modalShare = this.modalService.open(ShareDialogComponent, { centered: true });
     this.constantsService.getConstants().pipe(first()).subscribe(constants => {

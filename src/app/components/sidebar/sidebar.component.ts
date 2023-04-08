@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { User } from 'src/app/services/firestore/user/user';
@@ -11,14 +11,13 @@ import { SidenavService } from 'src/app/services/sidenav/sidenav.service';
 })
 export class SidebarComponent implements OnInit {
 
-  protected loggedUser$: Observable<User>;
+  @Input() loggedUser: Observable<User>;
   
   constructor(
     private sidenavService: SidenavService,
     private authService: AuthService) { }
 
   ngOnInit(): void {
-    this.loggedUser$ = this.authService.getLoggedUser()
   }
 
   closeSidebar(){

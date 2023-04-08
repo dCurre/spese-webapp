@@ -1,6 +1,7 @@
 <mat-sidenav-container>
     <mat-sidenav #sidenav="matSidenav" mode="over" position="end">
-        <app-sidebar></app-sidebar>
+        <app-sidebar
+            [loggedUser] = "loggedUser$"></app-sidebar>
     </mat-sidenav>
     <mat-sidenav-content>
         <!-- CONTENT PAGINA -->

@@ -73,8 +73,6 @@ export class SaldoDetailsComponent implements OnInit {
         //Calcolo il totale di tutte le spese
         this.expensesListTotalAmount = expenseList.reduce((accumulator, current) => { return accumulator + current.amount; }, 0);
 
-        console.log("PROVA STAMPA: ", expenseList);
-
         //Calcolo il totale per utente
         [...new Set(expenseList.map(a => a.buyer))].forEach(user => {
           this.mapPagato.set(user, expenseList.filter(expenseFiltered => expenseFiltered.buyer == user).reduce((accumulator, current) => { return accumulator + current.amount; }, 0));
