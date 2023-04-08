@@ -7,7 +7,6 @@ import { ExpenseService } from 'src/app/services/firestore/expense/expense.servi
 import { first } from 'rxjs';
 import MathUtils from 'src/app/utils/math-utils';
 import { SaldoDetails } from './list-details-dialog-fields';
-import { AppComponent } from 'src/app/app.component';
 import { ExpensesListService } from 'src/app/services/firestore/expensesList/expenses-list.service';
 import { UserService } from 'src/app/services/firestore/user/user.service';
 import { User } from 'src/app/services/firestore/user/user';
@@ -33,7 +32,6 @@ export class SaldoDetailsComponent implements OnInit {
   protected panelOpenState = false;
 
   constructor(
-    private appComponent: AppComponent,
     private route: ActivatedRoute,
     private expenseService: ExpenseService,
     private expensesListService: ExpensesListService,
@@ -42,8 +40,6 @@ export class SaldoDetailsComponent implements OnInit {
   ngOnInit(): void {
     this.getSaldoDetails(this.listID);
     this.getPartecipants(this.listID);
-
-    this.appComponent.showSpinner = false; //TODO: trovare un modo più intelligente per nascondere lo spinner
   }
 
   private getPartecipants(id: string) {

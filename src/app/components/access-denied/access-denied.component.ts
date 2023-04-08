@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { AppComponent } from 'src/app/app.component';
 
 @Component({
   selector: 'app-access-denied',
@@ -8,11 +7,9 @@ import { AppComponent } from 'src/app/app.component';
 })
 export class AccessDeniedComponent implements OnInit{
 
-  constructor(
-    private appComponent: AppComponent,) { }
+  constructor() { }
 
   ngOnInit(): void {
-    this.appComponent.showSpinner = false; //TODO: trovare un modo più intelligente per nascondere lo spinner
   }
 
 }
