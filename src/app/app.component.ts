@@ -21,11 +21,10 @@ export class AppComponent{
   constructor(
     private sidenavService: SidenavService,
     private authService: AuthService,
-    private userService: UserService,
     public pathService: PathService,
     private router: Router) {
 
-      this.userService.setLoggedUser(this.authService.getLoggedUser());
+      this.authService.getLoggedUser(); //Non rimuovere, serve per inizializzare il service coi dati del logged user
       this.router.events.forEach((event) => {
         //Se passo al component successivo spengo lo spinner
         if(event instanceof NavigationEnd) {

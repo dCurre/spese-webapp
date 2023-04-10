@@ -2,7 +2,7 @@
     <i id="sidenav-close-btn" class="fa fa-times fa-2x" (click)="closeSidebar()"></i>
 </div>
 <div class="p-4 pt-5">
-    <div *ngIf="userService.getLoggedUser() | async as user">
+    <div *ngIf="authService.getStoredUser() | async as user">
         <div class="logo">
             <a class="nav-link" routerLink="" (click)="closeSidebar()">
                 <img id="user-img" class='rounded-circle mb-5' [src]="user.profileImage" />

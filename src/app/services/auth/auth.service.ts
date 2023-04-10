@@ -13,6 +13,8 @@ import GenericUtils from 'src/app/utils/generic-utils';
 })
 export class AuthService {
 
+    private loggedUser: Observable<User>;
+
     constructor(
         private afAuth: AngularFireAuth,
         private userService: UserService,
@@ -50,10 +52,11 @@ export class AuthService {
 
     getLoggedUser(): Observable<User> {
         var subject = new Subject<User>();
+        console.debug("PRIMA", this.loggedUser)
         if (!this.pathService.isPath("/signin")) {
             this.afAuth.authState.subscribe(googleUser => {
                 try {
-                    this.userService.getById(googleUser!!.uid).subscribe(user => {
+                    (this.loggedUser = this.userService.getById(googleUser!!.uid)).subscribe(user => {
                         subject.next(user)
                     })
                 } catch (e) {
@@ -63,5 +66,9 @@ export class AuthService {
         }
 
         return subject.asObservable();
+    }
+
+    getStoredUser(){
+        return this.loggedUser;
     }
 }

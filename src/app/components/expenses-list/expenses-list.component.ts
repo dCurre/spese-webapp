@@ -15,6 +15,7 @@ import { PathService } from 'src/app/services/path/path.service';
 import { UserService } from 'src/app/services/firestore/user/user.service';
 import { User } from 'src/app/services/firestore/user/user';
 import GenericUtils from 'src/app/utils/generic-utils';
+import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
   selector: 'app-expenses-list',
@@ -33,6 +34,8 @@ export class ExpensesListComponent implements OnInit {
     private expensesListService: ExpensesListService,
     private userService: UserService,
     private modalService: NgbModal,
+    protected authService: AuthService,
+
     private constantsService: ConstantsService,
     public router: Router,
     private pathService: PathService) { }
@@ -50,8 +53,7 @@ export class ExpensesListComponent implements OnInit {
   private getExpensesListsByLoggedUser() {
     this.afAuth.authState.subscribe(user => {
       try {
-        this.loggedUser$ = this.userService.getById(user!!.uid);
-        this.loggedUser$.subscribe(user => {
+        (this.loggedUser$ = this.authService.getStoredUser()).subscribe(user => {
           this.expensesLists$ = this.expensesListService.getByUserId(user);
         })
         

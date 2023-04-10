@@ -12,8 +12,7 @@ export class SidebarComponent implements OnInit {
 
   constructor(
     public sidenavService: SidenavService,
-    public userService: UserService,
-    private authService: AuthService) { }
+    protected authService: AuthService) { }
 
   ngOnInit(): void {
   }
