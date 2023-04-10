@@ -1,12 +1,11 @@
 <mat-sidenav-container>
     <mat-sidenav #sidenav="matSidenav" mode="over" position="end">
-        <app-sidebar
-            [loggedUser] = "loggedUser$"></app-sidebar>
+        <app-sidebar></app-sidebar>
     </mat-sidenav>
     <mat-sidenav-content>
         <!-- CONTENT PAGINA -->
-        <app-toolbar></app-toolbar>
-        <router-outlet></router-outlet>
+        <app-toolbar *ngIf="isPathSignin()"></app-toolbar>
+        <router-outlet></router-outlet> <!-- redirect to HomeComponent/AccessDenied/ecc... -->
         <div *ngIf="showSpinner">
             <app-spinner></app-spinner>
         </div>

@@ -1,7 +1,6 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { User } from 'src/app/services/firestore/user/user';
+import { UserService } from 'src/app/services/firestore/user/user.service';
 import { SidenavService } from 'src/app/services/sidenav/sidenav.service';
 
 @Component({
@@ -11,10 +10,9 @@ import { SidenavService } from 'src/app/services/sidenav/sidenav.service';
 })
 export class SidebarComponent implements OnInit {
 
-  @Input() loggedUser: Observable<User>;
-  
   constructor(
-    private sidenavService: SidenavService,
+    public sidenavService: SidenavService,
+    public userService: UserService,
     private authService: AuthService) { }
 
   ngOnInit(): void {
@@ -28,12 +26,4 @@ export class SidebarComponent implements OnInit {
     this.authService.signOut();
   }
 
-  onImageLoad(evt: { target: { naturalWidth: any; naturalHeight: any; }; }) {
-    if (evt && evt.target) {
-      const width = evt.target.naturalWidth;
-      const height = evt.target.naturalHeight;
-      const portrait = height > width ? true : false;
-      console.log(width, height, 'portrait: ', portrait);
-    }
-  }
 }
