@@ -12,19 +12,10 @@ import { UserFieldsEnum } from 'src/app/enums/userFieldsEnum';
 export class UserService {
 
   private collection = this.db.collection<User>(TablesEnum.USER);
-  loggedUser$: Observable<User>;
 
   constructor(
     private db: AngularFirestore,
     ) { }
-
-  public setLoggedUser(loggedUser$: Observable<User>){
-    this.loggedUser$ = loggedUser$;
-  }
-
-  public getLoggedUser() : Observable<User>{
-    return this.loggedUser$;
-  }
 
   insert(user: User) {
     try {

@@ -89,7 +89,7 @@ export class NewExpenseDialogComponent implements OnInit {
       this.newExpense.modifiedBy = "";
       this.expenseService.insert(this.newExpense, this.listID);
     } else {
-      this.authService.getLoggedUser().subscribe(user => {
+      this.authService.getStoredUser().subscribe(user => {
         this.newExpense.lastModifiedDateTimestamp = DateUtils.dateToTimestamp(new Date());
         this.newExpense.modifiedBy = user.fullname
         this.expenseService.update(this.newExpense);
