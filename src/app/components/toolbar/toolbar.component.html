@@ -6,6 +6,6 @@
   </a>
     <ul class="navbar-nav mr-auto"></ul>
     <div>
-        <i *ngIf="isSignin()" id="sidenav-btn" class="fa fa-bars fa-2x" (click)="toogleSidebar()"></i>
+        <i id="sidenav-btn" class="fa fa-bars fa-2x" (click)="sidenavService.toggle()"></i>
     </div>
 </nav>

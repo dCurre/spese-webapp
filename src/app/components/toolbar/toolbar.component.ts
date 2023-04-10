@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { PathService } from 'src/app/services/path/path.service';
 import { SidenavService } from 'src/app/services/sidenav/sidenav.service';
 
 @Component({
@@ -10,20 +8,8 @@ import { SidenavService } from 'src/app/services/sidenav/sidenav.service';
 })
 export class ToolbarComponent implements OnInit {
 
-
   constructor(
-    public afAuth: AngularFireAuth,
-    public pathService: PathService,
-    protected sidenavService: SidenavService) { }
+    public sidenavService: SidenavService,) { }
 
-  ngOnInit(): void {
-  }
-
-  toogleSidebar() {
-    this.sidenavService.toggle();
-  }
-
-  isSignin(): boolean {
-    return !this.pathService.isPath('/signin')
-  }
+  ngOnInit(): void {}
 }
