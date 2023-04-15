@@ -35,6 +35,7 @@ export class JoinGuard implements CanActivate {
 
             //Check esistenza lista
             this.expensesListService.getById(listID).subscribe(expensesList => {
+                console.debug("--> expensesListService.getById() called by join guard")
                 if (GenericUtils.isNullOrUndefined(expensesList)) {
                     console.error('Join Guard: list not found');
                     this.router.navigate(['/accessdenied']);

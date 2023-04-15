@@ -35,6 +35,7 @@ export class ListDetailsGuard implements CanActivate {
 
             //Check esistenza lista
             this.expensesListService.getById(listID).subscribe(expensesList => {
+                console.debug("--> expensesListService.getById() called by list-details guard")
                 if (GenericUtils.isNullOrUndefined(expensesList)) {
                     console.error('ListDetails Guard: list not found');
                     this.router.navigate(['']);
