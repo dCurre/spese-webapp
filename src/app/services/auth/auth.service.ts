@@ -52,7 +52,6 @@ export class AuthService {
 
     getLoggedUser(): Observable<User> {
         var subject = new Subject<User>();
-        console.debug("PRIMA", this.loggedUser)
         if (!this.pathService.isPath("/signin")) {
             this.afAuth.authState.subscribe(googleUser => {
                 try {
