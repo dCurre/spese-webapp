@@ -3,7 +3,6 @@ import { SidenavService } from './services/sidenav/sidenav.service';
 import { MatSidenav } from '@angular/material/sidenav';
 import { AuthService } from './services/auth/auth.service';
 import { NavigationEnd, Router } from '@angular/router';
-import { UserService } from './services/firestore/user/user.service';
 import { PathService } from './services/path/path.service';
 
 @Component({

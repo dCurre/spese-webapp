@@ -4,8 +4,8 @@
     </mat-sidenav>
     <mat-sidenav-content>
         <!-- CONTENT PAGINA -->
-        <app-toolbar *ngIf="isPathSignin()"></app-toolbar>
-        <router-outlet></router-outlet> <!-- redirect to HomeComponent/AccessDenied/ecc... -->
+        <app-toolbar class="sticky-top" *ngIf="isPathSignin()"></app-toolbar>
+        <router-outlet></router-outlet> <!-- redirects to HomeComponent/AccessDenied/ecc... -->
         <div *ngIf="showSpinner">
             <app-spinner></app-spinner>
         </div>
