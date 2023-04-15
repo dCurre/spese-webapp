@@ -35,6 +35,7 @@ export class ListGuard implements CanActivate {
 
             //Check esistenza lista
             this.expensesListService.getById(listID).subscribe(expensesList => {
+                console.debug("--> expensesListService.getById() called by list guard")
                 if (GenericUtils.isNullOrUndefined(expensesList)) {
                     console.error('List Guard: list not found');
                     this.router.navigate(['']);
