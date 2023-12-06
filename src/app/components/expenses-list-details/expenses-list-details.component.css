@@ -1,0 +1,157 @@
+.w-40 {
+  width: 40px !important;
+  height: 40px !important
+}
+
+.avatar {
+  position: relative;
+  line-height: 1;
+  border-radius: 500px;
+  white-space: nowrap;
+  font-weight: 700;
+  border-radius: 100%;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-pack: center;
+  justify-content: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -ms-flex-negative: 0;
+  flex-shrink: 0;
+  border-radius: 500px;
+  box-shadow: 0 5px 10px 0 rgba(50, 50, 50, .15)
+}
+
+.avatar img {
+  border-radius: inherit;
+  width: 100%
+}
+
+.gd-saldato {
+  color: #fff;
+  border: none;
+  background: #448bff linear-gradient(45deg, #1e7e34, #44ff98)
+}
+
+.gd-non-saldato {
+  color: #fff;
+  border: none;
+  background: #448bff linear-gradient(45deg, #bd2130, #ff4444)
+}
+
+.flex {
+  -webkit-box-flex: 1;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto
+}
+
+.text-color {
+  color: #5e676f
+}
+
+.text-sm {
+  font-size: .825rem
+}
+
+.h-1x {
+  height: 1.25rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical
+}
+
+.no-wrap {
+  white-space: nowrap
+}
+
+.list-row .list-item {
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -ms-flex-align: center;
+  align-items: center;
+  padding-top: .75rem;
+  padding-bottom: .625rem;
+}
+
+.list-item {
+  position: relative;
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: column;
+  flex-direction: column;
+  min-width: 0;
+  word-wrap: break-word
+}
+
+.list-row .list-item>* {
+  padding-left: .625rem;
+}
+
+a {
+  text-decoration: none
+}
+
+a:focus,
+a:hover {
+  text-decoration: none;
+}
+
+.list-item:hover {
+  background: #f3f0ff !important;
+}
+
+#btn-add {
+  margin-bottom: 4px;
+}
+
+#amount {
+  padding-top: 0.1rem;
+  font-size: 1.1rem;
+  color: black !important;
+}
+
+.input-group-text {
+  height: 38px;
+  margin-left: 4px;
+}
+
+.btn-dropdown-item:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+#saldo{
+  margin-bottom: 0;
+  padding-bottom: 0;
+  margin-top: 0.6rem;
+  font-size: 1.2rem;
+}
+
+#saldo-pallino {
+  width: 20px !important;
+  height: 20px !important;
+  margin-left: 6px;
+  margin-top: 0.3rem;
+}
+
+.mat-expansion-panel-header-description {
+  flex-grow: 0.4;
+  justify-content: flex-end;
+}
+
+.mat-expansion-panel-header{
+  padding-left: 0px;
+  padding-right: 2px;
+  padding-top: 3px;
+  padding-bottom: 2px;
+}
+
+.row-header{
+  font-size: 1.1rem;
+}
+
+.modified-expense{
+  font-size: 0.7rem;
+  text-align: end;
+}

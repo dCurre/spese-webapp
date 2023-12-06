@@ -1,0 +1,35 @@
+<div>
+    <i id="sidenav-close-btn" class="fa fa-times fa-2x" (click)="closeSidebar()"></i>
+</div>
+<div class="p-4 pt-5">
+    <div *ngIf="authService.getStoredUser() | async as user">
+        <div class="logo">
+            <a class="nav-link" routerLink="" (click)="closeSidebar()">
+                <img id="user-img" class='rounded-circle mb-5' [src]="user.profileImage" />
+            </a>
+        </div>
+        <!-- END SIDEBAR USERPIC -->
+
+        <!-- SIDEBAR USER TITLE -->
+        <div class="profile-usertitle">
+            <div class="profile-usertitle-name">
+                <a class="nav-link" routerLink="" (click)="closeSidebar()">{{user.fullname}}</a>
+            </div>
+        </div>
+        <!-- END SIDEBAR USER TITLE -->
+    </div>
+    <!-- SIDEBAR MENU -->
+    <div class="profile-usermenu">
+        <mat-divider></mat-divider>
+        <ul class="list-unstyled side-list">
+            <li class="side-list-elem">
+                <a class="nav-link fa fa-home" routerLink="" (click)="closeSidebar()"><span
+                        class="side-list-span">Home</span></a>
+            </li>
+            <li class="side-list-elem">
+                <a class="nav-link fa fa-sign-out" (click)="closeSidebar();logout()" role="button"><span
+                        class="side-list-span">Esci</span></a>
+            </li>
+        </ul>
+    </div>
+</div>
