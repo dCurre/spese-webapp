@@ -1,0 +1,61 @@
+.logo:focus {
+  outline: none;
+}
+
+.logo {
+  display: block;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+}
+
+.nav-link:focus {
+  outline: 0;
+}
+
+#user-img {
+  width: 120px;
+  height: 120px;
+  background-image: url("../../../assets/loading.gif");
+  background-size: cover;
+}
+
+.profile-usertitle {
+  text-align: center;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.profile-usertitle-name {
+  color: #5a7391;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+#sidenav-close-btn {
+  color: #818896 !important;
+  cursor: pointer;
+  margin-top: 0.3rem;
+  margin-left: 0.4rem;
+}
+
+mat-divider {
+  color: #818896;
+}
+
+.side-list {
+  margin-top: 1rem;
+  font-size: 1.5rem;
+}
+
+.side-list-elem {
+  margin-bottom: 1rem;
+}
+
+.side-list-elem:hover {
+  color: white;
+}
+
+.side-list-span {
+  margin-left: 0.5rem;
+}

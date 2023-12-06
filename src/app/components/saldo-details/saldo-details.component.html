@@ -1,0 +1,45 @@
+<br> <!-- da rimuovere br -->
+<div class="container col-lg-6">
+  <div class="lists-container">   
+    <div class="list list-row card col-lg-12">
+      <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false" class="remove-mat-expansion-panel-padding">
+        <mat-expansion-panel-header class="row-header">
+            <mat-panel-title>
+                <a class="font-weight-bold fs-4 text">Partecipanti</a>
+            </mat-panel-title>
+            <!--<mat-panel-description> n_partecipanti? </mat-panel-description> -->
+        </mat-expansion-panel-header>
+        
+        <div class="h-1x mt-2" *ngFor="let partecipant of partecipantsList; first as isFirst">
+          {{partecipant.fullname}}<i *ngIf="isFirst" class="fa fa-crown ml-2 text-warning"></i>
+        </div>
+      </mat-expansion-panel>
+    </div>
+  </div>
+</div>
+<div class="container">
+  <div id="spese-detail-chart" class="chart">
+    <canvas baseChart [data]="pieChartData" [type]="pieChartType" [options]="pieChartOptions"
+      [plugins]="pieChartPlugins">
+    </canvas>
+  </div>
+</div>
+<div class="bg-white">
+  <table class="table table-condensed table-hover">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Deve a</th>
+        <th>Importo</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let balanceDetail of balanceDetails">
+        <td>{{balanceDetail.buyer}}</td>
+        <td>{{balanceDetail.receiver}}</td>
+        <td class = "text-right" [ngClass]="(balanceDetail.toPay > 0) ? 'text-danger' : 'text-success'">{{formatToEur(balanceDetail.toPay)}}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
