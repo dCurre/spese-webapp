@@ -9,5 +9,6 @@ export const environment = {
     messagingSenderId: "77892010372",
     appId: "1:77892010372:web:0231f38758d7491367ddd1",
     measurementId: "G-PK345EBN7L"
-  }
+  },
+  apiUrl: 'https://spese-ms.onrender.com/api/'
 };

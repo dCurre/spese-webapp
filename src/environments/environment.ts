@@ -13,14 +13,6 @@ export const environment = {
     messagingSenderId: "77892010372",
     appId: "1:77892010372:web:0231f38758d7491367ddd1",
     measurementId: "G-PK345EBN7L"
-  }
+  },
+  apiUrl: 'https://spese-ms.onrender.com/api'
 };
-
-/*
- * For easier debugging in development mode, you can import the following file
- * to ignore zone related error stack frames such as `zone.run`, `zoneDelegate.invokeTask`.
- *
- * This import should be commented out in production mode because it will have a negative impact
- * on performance if an error is thrown.
- */
-// import 'zone.js/plugins/zone-error';  // Included with Angular CLI.
