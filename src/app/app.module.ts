@@ -17,6 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { NgChartsModule } from 'ng2-charts';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { AppRoutingModule } from './app-routing.module';
+import { HttpClientModule } from '@angular/common/http';
 
 //Components
 import { AppComponent } from './app.component';
@@ -84,6 +85,7 @@ import { ExpenseFilterPipe } from './features/components/filter-pipes/expense-fi
     MatIconModule,
     MatDividerModule,
     MatSelectModule,
+    HttpClientModule,
 
     NgbModule,
     NgChartsModule,
