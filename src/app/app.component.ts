@@ -1,9 +1,9 @@
 import { Component, ViewChild } from '@angular/core';
-import { SidenavService } from './services/sidenav/sidenav.service';
 import { MatSidenav } from '@angular/material/sidenav';
-import { AuthService } from './services/auth/auth.service';
 import { NavigationEnd, Router } from '@angular/router';
-import { PathService } from './services/path/path.service';
+import { AuthService } from './core/services/auth/auth.service';
+import { PathService } from './core/services/path/path.service';
+import { SidenavService } from './core/services/sidenav/sidenav.service';
 
 @Component({
   selector: 'app-root',
