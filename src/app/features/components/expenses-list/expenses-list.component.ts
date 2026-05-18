@@ -1,166 +1,144 @@
 import { Component, OnInit } from '@angular/core';
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { first, Observable } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 import { Router } from '@angular/router';
-import { NewListDialogComponent } from '../dialog/new-list-dialog/new-list-dialog.component';
-import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
-import { AuthService } from 'src/app/core/services/auth/auth.service';
-import { ConstantsService } from 'src/app/core/services/firestore/constants/constants.service';
-import { ExpensesList } from 'src/app/core/services/firestore/expensesList/expenses-list';
-import { ExpensesListService } from 'src/app/core/services/firestore/expensesList/expenses-list.service';
-import { PathService } from 'src/app/core/services/path/path.service';
-import DateUtils from 'src/app/shared/utils/date-utils';
-import GenericUtils from 'src/app/shared/utils/generic-utils';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
-import { UserService } from 'src/app/core/services/firestore/user/user.service';
-import { User } from 'src/app/core/services/firestore/user/user';
+import { NewListDialogComponent } from '../dialog/new-list-dialog/new-list-dialog.component';
+import { ExpensesList } from 'src/app/core/services/postgres/expenses-list/expenses-list';
+import { ExpensesListService } from 'src/app/core/services/postgres/expenses-list/expenses-list.service';
+import { ExpensesListParticipantService } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant.service';
+import { User } from 'src/app/core/services/postgres/user/user';
+import { UserService } from 'src/app/core/services/postgres/user/user.service';
+import GenericUtils from 'src/app/shared/utils/generic-utils';
 
 @Component({
   selector: 'app-expenses-list',
   templateUrl: './expenses-list.component.html',
   styleUrls: ['./expenses-list.component.css']
 })
-
 export class ExpensesListComponent implements OnInit {
 
-  protected expensesLists$: Observable<ExpensesList[]>;
-  protected loggedUser$: Observable<User>;
-  public hasLoaded = false;
+  protected allLists: ExpensesList[] = [];
+  protected loggedUser: User | null = null;
+  protected hasLoaded = false;
+
+  get expensesLists(): ExpensesList[] {
+    if (!this.loggedUser?.paid_list_shown) {
+      return this.allLists.filter(l => !l.paid);
+    }
+    return this.allLists;
+  }
 
   constructor(
-    public afAuth: AngularFireAuth,
-    private expensesListService: ExpensesListService,
-    private userService: UserService,
+    private afAuth: AngularFireAuth,
+    private pgExpensesListService: ExpensesListService,
+    private pgParticipantService: ExpensesListParticipantService,
+    private pgUserService: UserService,
     private modalService: NgbModal,
-    protected authService: AuthService,
-
-    private constantsService: ConstantsService,
     public router: Router,
-    private pathService: PathService) { }
+  ) {}
 
   ngOnInit(): void {
-    if (!this.pathService.isPath("/signin")) {
-      this.getExpensesListsByLoggedUser()
-    }
+    this.load();
   }
 
   ngOnDestroy() {
-    this.modalService.dismissAll()
+    this.modalService.dismissAll();
   }
 
-  private getExpensesListsByLoggedUser() {
-    this.afAuth.authState.subscribe(user => {
-      try {
-        (this.loggedUser$ = this.authService.getStoredUser()).subscribe(user => {
-          this.expensesLists$ = this.expensesListService.getByUserId(user);
-        })
-        
-      } catch (e) {
-        console.error("ExpensesListComponent.getExpensesListsByLoggedUser: ", e)
-      }
-    })
+  private load() {
+    this.afAuth.currentUser.then(firebaseUser => {
+      if (!firebaseUser?.email) return;
+      this.pgUserService.getByEmailWithLists(firebaseUser.email).subscribe({
+        next: (res) => {
+          this.loggedUser = res.user;
+          this.allLists = res.expenses_lists;
+          this.hasLoaded = true;
+        },
+        error: (e) => console.error('ExpensesListComponent.load: ', e)
+      });
+    });
   }
 
-  timestampToDateString(timestamp: number) {
-    return DateUtils.timestampToDateString(timestamp);
+  private reloadLists() {
+    if (!this.loggedUser) return;
+    this.pgUserService.getByEmailWithLists(this.loggedUser.email).subscribe({
+      next: (res) => this.allLists = res.expenses_lists,
+      error: (e) => console.error('ExpensesListComponent.reloadLists: ', e)
+    });
   }
 
-  timestampToHourString(timestamp: number) {
-    return DateUtils.timestampToHourString(timestamp);
-  }
+  newList(userId: number) {
+    const modal = this.modalService.open(NewListDialogComponent, { centered: true });
 
-  leave(expensesList: ExpensesList, user: User) {
-    const modalLeave = this.modalService.open(DialogComponent, { centered: true });
-    modalLeave.componentInstance.dialogFields = new ConfirmDialogFields(
-      'Abbandona',
-      'Vuoi veramente abbandonare ' + expensesList.name + '?');
-
-    modalLeave.result.then(response => {
-      console.debug(`Modal response: ${response}`)
-
-      if (!response) {
-        return
+    modal.result.then((response) => {
+      if (GenericUtils.isNullOrUndefined(response)) {
+        return;
       }
 
-      //Controllo che l'utente non sia l'unico della lista
-      //Se il partecipante alla lista è solo 1, allora per abbandonarla deve confermare la cancellazione
-      if (expensesList.partecipants.length == 1) {
-        this.delete(expensesList)
-      } else {
-        //Se non è l'unico in lista, il nuovo owner diventa il primo presente nella lista partecipanti (first-in)
-        this.expensesListService.leave(user.id, expensesList);
-      }
-    }).catch((res) => { })
+      this.pgExpensesListService.create({ name: response, user_id: userId, paid: false }).subscribe({
+        next: (res) => {
+          this.pgParticipantService.add(res.id, userId).subscribe({
+            next: () => this.reloadLists(),
+            error: (e) => console.error('ExpensesListComponent.newList add participant: ', e)
+          });
+        },
+        error: (e) => console.error('ExpensesListComponent.newList: ', e)
+      });
+    }).catch(() => {});
   }
 
   delete(expensesList: ExpensesList) {
-    const modalDelete = this.modalService.open(DialogComponent, { centered: true });
-    modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
+    const modal = this.modalService.open(DialogComponent, { centered: true });
+    modal.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
-      "Sei l'unico componente di " + expensesList.name + ".\nVuoi veramente cancellarla?");
-
-    modalDelete.result.then((response) => {
-      if (!response) {
-        return
-      }
-
-      this.expensesListService.delete(expensesList.id);
-    }).catch((res) => { });
-  }
-
-  newList(userID: string) {
-    const modalNewList = this.modalService.open(NewListDialogComponent, { centered: true });
-
-    modalNewList.result.then((response) => {
-      if (GenericUtils.isNullOrUndefined(response)) {
-        return
-      }
-
-      this.expensesListService.insert(response, userID);
-    }).catch((res) => { });
-  }
-
-  shareLink(listID: string) {
-    const modalShare = this.modalService.open(ShareDialogComponent, { centered: true });
-    this.constantsService.getConstants().pipe(first()).subscribe(constants => {
-      modalShare.componentInstance.shareLink = constants.shareLink.replace("{LIST_ID}", listID)
-    })
-
-    modalShare.result.then((response) => {
-      if (!response) {
-        return
-      }
-
-    }).catch((res) => { });
-  }
-
-  protected changePaidListsVisibility(user: User) {
-    const modalConfirm = this.modalService.open(DialogComponent, { centered: true });
-
-    modalConfirm.componentInstance.dialogFields = new ConfirmDialogFields(
-      'Conferma',
-      user.hidePaidLists
-        ? "Vuoi veramente mostrare le liste saldate?"
-        : "Vuoi veramente nascondere le liste saldate?"
+      'Vuoi veramente cancellare ' + expensesList.name + '?'
     );
 
-    modalConfirm.result.then((response) => {
+    modal.result.then((response) => {
       if (!response) {
-        return
+        return;
       }
 
-      try {
-        user.hidePaidLists = !user.hidePaidLists;
-        this.userService.update(user)
-      } catch (e) {
-        console.error("ExpensesListComponent.hidePaidLists: ", e)
-      }
-    }).catch((res) => { });
+      this.pgExpensesListService.delete(expensesList.id).subscribe({
+        next: () => this.reloadLists(),
+        error: (e) => console.error('ExpensesListComponent.delete: ', e)
+      });
+    }).catch(() => {});
   }
 
-  protected archive() {
-
+  formatDate(dateStr: string): string {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleDateString('it-IT');
   }
+
+  formatTime(dateStr: string): string {
+    if (!dateStr) return '';
+    return new Date(dateStr).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  protected changePaidListsVisibility() {
+    if (!this.loggedUser) return;
+
+    const modal = this.modalService.open(DialogComponent, { centered: true });
+    modal.componentInstance.dialogFields = new ConfirmDialogFields(
+      'Conferma',
+      this.loggedUser.paid_list_shown
+        ? 'Vuoi veramente nascondere le liste saldate?'
+        : 'Vuoi veramente mostrare le liste saldate?'
+    );
+
+    modal.result.then((response) => {
+      if (!response || !this.loggedUser) return;
+
+      this.loggedUser.paid_list_shown = !this.loggedUser.paid_list_shown;
+      this.pgUserService.update(this.loggedUser.id, { paid_list_shown: this.loggedUser.paid_list_shown }).subscribe({
+        next: () => this.reloadLists(),
+        error: (e) => console.error('ExpensesListComponent.changePaidListsVisibility: ', e)
+      });
+    }).catch(() => {});
+  }
+
+  protected archive() {}
 }

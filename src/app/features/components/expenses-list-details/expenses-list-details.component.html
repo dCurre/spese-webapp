@@ -1,13 +1,13 @@
-<div *ngIf="!(expensesList$)">
+<div *ngIf="!expensesList">
     <app-spinner></app-spinner>
 </div>
-<div *ngIf="expensesList$ | async as expensesList">
+<div *ngIf="expensesList">
     <br>
     <h1 class="d-flex justify-content-center">
         {{expensesList.name}}
     </h1>
     <div class="container col-lg-6 mb-5">
-        
+
         <div id="saldo" class="d-inline-flex">
             Saldo:
             <span id="saldo-pallino" class="avatar"
@@ -44,8 +44,8 @@
             </div>
         </div>
 
-        <div *ngIf="expenses$ | async as expenses" class="lists-container">
-            <div *ngIf="(expenses.length <= 0)">
+        <div class="lists-container">
+            <div *ngIf="expensesLoaded && expenses.length <= 0">
                 <app-not-found subject="spesa"></app-not-found>
             </div>
             <div class="pt-1" *ngFor="let expense of expenses | expenseFilter:searchTerm">
@@ -53,28 +53,28 @@
                     <mat-expansion-panel (opened)="panelOpenState = true" (closed)="panelOpenState = false" class="remove-mat-expansion-panel-padding">
                         <mat-expansion-panel-header class="row-header">
                             <mat-panel-title>
-                                <a>{{expense.expense}}</a>
+                                <a>{{expense.name}}</a>
                             </mat-panel-title>
                             <mat-panel-description>
                                 {{formatToEur(expense.amount)}}
                             </mat-panel-description>
                         </mat-expansion-panel-header>
-                        
+
                         <div class="h-1x mt-2">
-                            {{expense.buyer}}
+                            {{expense.owner.name}} {{expense.owner.surname}}
                         </div>
                         <div class="h-1x mb-4">
-                            {{timestampToDateString(expense.expenseDateTimestamp)}} {{timestampToHourString(expense.expenseDateTimestamp)}}
+                            {{expenseDateString(expense)}}
                         </div>
 
                         <div *ngIf="hasBeenModified(expense)" class="text-muted text-sm h-1x font-italic modified-expense">
-                            Modificato da {{expense.modifiedBy}} il {{timestampToDateString(expense.lastModifiedDateTimestamp)}} {{timestampToHourString(expense.lastModifiedDateTimestamp)}}
+                            Modificato il {{expense.updated_at | date:'dd/MM/yyyy HH:mm'}}
                         </div>
 
                         <mat-action-row class="pr-0">
-                            <button mat-flat-button class="btn btn-success" (click)="openNewExpenseDialog(expense, 'Modifica')"><i class="fa fa-pen-to-square"></i></button>
-                            <button mat-flat-button class="btn btn-primary" (click)="openNewExpenseDialog(expense, 'Ripeti')"><i class="fa fa-repeat"></i></button>
-                            <button mat-flat-button class="btn btn-danger" (click)="delete(expense)"><i class="fa fa-trash"></i></button>
+                            <button mat-flat-button class="btn btn-success" (click)="openNewExpenseDialog(expense, 'Modifica')" [disabled]="expensesList.paid"><i class="fa fa-pen-to-square"></i></button>
+                            <button mat-flat-button class="btn btn-primary" (click)="openNewExpenseDialog(expense, 'Ripeti')" [disabled]="expensesList.paid"><i class="fa fa-repeat"></i></button>
+                            <button mat-flat-button class="btn btn-danger" (click)="delete(expense)" [disabled]="expensesList.paid"><i class="fa fa-trash"></i></button>
                         </mat-action-row>
                     </mat-expansion-panel>
                 </div>

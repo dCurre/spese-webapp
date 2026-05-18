@@ -1,14 +1,14 @@
 export const environment = {
   production: true,
   firebaseConfig: {
-    apiKey: "AIzaSyBTbKZWtZaAB_LKOaxKRlgkOg9bj2s_Dok",
-    authDomain: "spese-curreli-bullita.firebaseapp.com",
-    databaseURL: "https://spese-curreli-bullita-default-rtdb.firebaseio.com",
-    projectId: "spese-curreli-bullita",
-    storageBucket: "spese-curreli-bullita.appspot.com",
-    messagingSenderId: "77892010372",
-    appId: "1:77892010372:web:0231f38758d7491367ddd1",
-    measurementId: "G-PK345EBN7L"
+    apiKey: "AIzaSyDhq20qKq16bNdkrk6Gsc5mVp03OXzvL_8",
+    authDomain: "spese-dc.firebaseapp.com",
+    projectId: "spese-dc",
+    storageBucket: "spese-dc.firebasestorage.app",
+    messagingSenderId: "587215754394",
+    appId: "1:587215754394:web:7befe7d1a513110be7bb23",
+    measurementId: "G-J5XK9X00QG"
   },
-  apiUrl: 'https://spese-ms.onrender.com/api/'
+  apiUrl: 'https://spese-ms.onrender.com/api/',
+  pgApiUrl: 'https://spese-ms.onrender.com'
 };

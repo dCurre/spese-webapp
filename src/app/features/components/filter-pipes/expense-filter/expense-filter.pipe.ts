@@ -1,17 +1,19 @@
 import { PipeTransform, Pipe } from '@angular/core';
-import { Expense } from 'src/app/core/services/firestore/expense/expense';
+import { Expense } from 'src/app/core/services/postgres/expense/expense';
 
 @Pipe({
     name: 'expenseFilter'
 })
 export class ExpenseFilterPipe implements PipeTransform {
-    transform(expense: Expense[], searchTerm: string): Expense[] {
-        if (!expense || !searchTerm) {
-            return expense;
+    transform(expenses: Expense[], searchTerm: string): Expense[] {
+        if (!expenses || !searchTerm) {
+            return expenses;
         }
 
-        return expense.filter(expense =>
-            (expense.expense.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1) 
-            || (expense.buyer.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1));
+        const term = searchTerm.toLowerCase();
+        return expenses.filter(e =>
+            e.name?.toLowerCase().includes(term)
+            || e.owner?.name?.toLowerCase().includes(term)
+            || e.owner?.surname?.toLowerCase().includes(term));
     }
 }
