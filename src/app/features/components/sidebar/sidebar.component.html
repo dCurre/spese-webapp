@@ -5,7 +5,7 @@
     <div *ngIf="authService.getStoredUser() | async as user">
         <div class="logo">
             <a class="nav-link" routerLink="" (click)="closeSidebar()">
-                <img id="user-img" class='rounded-circle mb-5' [src]="user.profileImage" />
+                <img id="user-img" class='rounded-circle mb-5' [src]="user.profile_image" />
             </a>
         </div>
         <!-- END SIDEBAR USERPIC -->
@@ -13,7 +13,7 @@
         <!-- SIDEBAR USER TITLE -->
         <div class="profile-usertitle">
             <div class="profile-usertitle-name">
-                <a class="nav-link" routerLink="" (click)="closeSidebar()">{{user.fullname}}</a>
+                <a class="nav-link" routerLink="" (click)="closeSidebar()">{{user.name}} {{user.surname}}</a>
             </div>
         </div>
         <!-- END SIDEBAR USER TITLE -->

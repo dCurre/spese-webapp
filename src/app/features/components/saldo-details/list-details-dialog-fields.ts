@@ -1,4 +1,4 @@
-import { ExpensesList } from "src/app/core/services/firestore/expensesList/expenses-list";
+import { ExpensesList } from "src/app/core/services/postgres/expenses-list/expenses-list";
 
 export class ListDetailsDialogFields{
     title: string;

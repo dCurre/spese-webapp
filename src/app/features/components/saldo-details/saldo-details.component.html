@@ -11,7 +11,7 @@
         </mat-expansion-panel-header>
         
         <div class="h-1x mt-2" *ngFor="let partecipant of partecipantsList; first as isFirst">
-          {{partecipant.fullname}}<i *ngIf="isFirst" class="fa fa-crown ml-2 text-warning"></i>
+          {{partecipant.name}} {{partecipant.surname}}<i *ngIf="isFirst" class="fa fa-crown ml-2 text-warning"></i>
         </div>
       </mat-expansion-panel>
     </div>

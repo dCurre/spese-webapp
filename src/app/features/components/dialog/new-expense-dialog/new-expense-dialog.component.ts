@@ -1,10 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { AuthService } from 'src/app/core/services/auth/auth.service';
-import { Expense } from 'src/app/core/services/firestore/expense/expense';
-import { ExpenseService } from 'src/app/core/services/firestore/expense/expense.service';
-import { ExpensesListService } from 'src/app/core/services/firestore/expensesList/expenses-list.service';
-import { UserService } from 'src/app/core/services/firestore/user/user.service';
+import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { Expense } from 'src/app/core/services/postgres/expense/expense';
+import { ExpenseService } from 'src/app/core/services/postgres/expense/expense.service';
+import { ExpensesListParticipant } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant';
+import { ExpensesListParticipantService } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant.service';
+import { UserService } from 'src/app/core/services/postgres/user/user.service';
 import Constants from 'src/app/shared/constants/constants';
 import DateUtils from 'src/app/shared/utils/date-utils';
 import GenericUtils from 'src/app/shared/utils/generic-utils';
@@ -17,117 +18,120 @@ import StringUtils from 'src/app/shared/utils/string-utils';
   templateUrl: './new-expense-dialog.component.html',
   styleUrls: ['./new-expense-dialog.component.css']
 })
-
 export class NewExpenseDialogComponent implements OnInit {
 
-  @Input() listID: string;
-  @Input() action: String;
+  @Input() listID: number;
+  @Input() action: string;
   @Input() expense: Expense;
 
-  protected newExpense: Expense;
-  protected partecipantsTooltip: string[] = [];
+  protected newExpense: Partial<Expense> = {};
+  protected participants: ExpensesListParticipant[] = [];
   protected expenseTooltip: string[] = [];
   protected maxInputText = Constants.maxInputText;
-  
+  protected selectedBuyerName: string = '';
+  protected touched = { name: false, amount: false, buyer: false, date: false };
+
   model: NgbDateStruct;
 
-  constructor(public modalService: NgbActiveModal,
-    private expensesListService: ExpensesListService,
-    private expenseService: ExpenseService,
-    private userService: UserService,
-    private authService: AuthService) { }
+  constructor(
+    public modalService: NgbActiveModal,
+    private pgExpenseService: ExpenseService,
+    private pgParticipantService: ExpensesListParticipantService,
+    private pgUserService: UserService,
+    private afAuth: AngularFireAuth,
+  ) {}
 
   ngOnInit(): void {
-    this.newExpense = Object.assign({}, this.expense);
-
-    this.getUserList(this.listID);
-    this.getExpensesList(this.listID);
-    this.setDefaultFields()
+    this.newExpense = this.expense ? Object.assign({}, this.expense) : {};
+    this.getParticipants(this.listID);
+    this.getExpenseTooltip(this.listID);
+    this.setDefaultFields();
   }
 
   setDefaultFields() {
-    if(GenericUtils.isNullOrUndefined(this.newExpense.expense)) this.newExpense.expense = "";
-    if(GenericUtils.isNullOrUndefined(this.newExpense.amount)) this.newExpense.amount = 0;
-    if(GenericUtils.isNullOrUndefined(this.newExpense.expenseDateTimestamp) || !StringUtils.equalsIgnoreCase("Modifica", this.action)) this.newExpense.expenseDateTimestamp = DateUtils.getNowTimestamp();
-    this.model = DateUtils.dateTongbDateStruct(new Date(this.newExpense.expenseDateTimestamp * 1000));
-    this.newExpense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
-    if(GenericUtils.isNullOrUndefined(this.newExpense.buyer)) this.newExpense.buyer =  "";
+    if (GenericUtils.isNullOrUndefined(this.newExpense.name)) this.newExpense.name = '';
+    if (GenericUtils.isNullOrUndefined(this.newExpense.amount)) this.newExpense.amount = 0;
+
+    const date = this.newExpense.expense_date && StringUtils.equalsIgnoreCase('Modifica', this.action)
+      ? new Date(this.newExpense.expense_date)
+      : new Date();
+
+    this.model = DateUtils.dateTongbDateStruct(date);
+
+    if (this.expense?.owner) {
+      this.selectedBuyerName = `${this.expense.owner.name} ${this.expense.owner.surname}`;
+    }
   }
 
   selectToday() {
     this.model = DateUtils.dateTongbDateStruct(new Date());
   }
 
-  isValid(expense: Expense) {
-    return this.isValidExpense(expense.expense)
-      && this.isValidAmount(expense.amount)
-      && this.isValidDate(expense.expenseDate)
-      && this.isValidBuyer(expense.buyer);
+  getParticipants(listId: number) {
+    this.pgParticipantService.getByListId(listId).subscribe({
+      next: (res) => this.participants = res.participants,
+      error: (e) => console.error('NewExpenseDialogComponent.getParticipants: ', e)
+    });
   }
 
-  isValidAmount(amount: number) {
-    return MathUtils.isMoreThanZero(amount);
-  }
-
-  isValidExpense(expense: string) {
-    return !StringUtils.isNullOrEmpty(expense) && expense.trim().length <= this.maxInputText;
-  }
-
-  isValidBuyer(buyer: string) {
-    return !StringUtils.isNullOrEmpty(buyer);
-  }
-
-  isValidDate(date: string) {
-    return !GenericUtils.isNullOrUndefined(date) && date.trim().length > 0;
-  }
-
-  close() {
-    this.newExpense.expenseDate = DateUtils.ngbDateStructToDateString(this.model);
-    
-    if(!StringUtils.equalsIgnoreCase("Modifica", this.action)){
-      this.newExpense.lastModifiedDateTimestamp = 0;
-      this.newExpense.modifiedBy = "";
-      this.expenseService.insert(this.newExpense, this.listID);
-    } else {
-      this.authService.getStoredUser().subscribe(user => {
-        this.newExpense.lastModifiedDateTimestamp = DateUtils.dateToTimestamp(new Date());
-        this.newExpense.modifiedBy = user.fullname
-        this.expenseService.update(this.newExpense);
-      })
-    }
-    this.modalService.close();
-  }
-
-  async getUserList(id: string) {
-    try {
-      this.expensesListService.getById(id).subscribe(expensesList => {
-        this.partecipantsTooltip = []
-        expensesList.partecipants.forEach(partecipantID => {
-          this.userService.getById(partecipantID).subscribe(user => {
-            if (!ListUtils.contains(this.partecipantsTooltip, user.fullname)) {
-              this.partecipantsTooltip.push(user.fullname)
-            }
-          });
-        });
-      })
-    } catch (e) {
-      console.error("NewExpenseDialogComponent.getUserList: ", e)
-    }
-  }
-
-  async getExpensesList(id: string) {
-    try {
-      this.expenseService.getExpensesByListID(id).subscribe(expensesList => {
-        this.expenseTooltip = []
-        expensesList.forEach(expense => {
-          //Se non è già presente, aggiungo
-          if (!ListUtils.contains(this.expenseTooltip, expense.expense)) {
-            this.expenseTooltip.push(expense.expense)
+  getExpenseTooltip(listId: number) {
+    this.pgExpenseService.getByListId(listId).subscribe({
+      next: (res) => {
+        this.expenseTooltip = [];
+        res.expenses.forEach(e => {
+          if (!ListUtils.contains(this.expenseTooltip, e.name)) {
+            this.expenseTooltip.push(e.name);
           }
         });
-      })
-    } catch (e) {
-      console.error("NewExpenseDialogComponent.getExpensesList: ", e)
+      },
+      error: (e) => console.error('NewExpenseDialogComponent.getExpenseTooltip: ', e)
+    });
+  }
+
+  isValid(): boolean {
+    return this.isValidExpense(this.newExpense.name!)
+      && this.isValidAmount(this.newExpense.amount!)
+      && !!this.selectedBuyerName
+      && !!this.model;
+  }
+
+  isValidAmount(amount: number) { return MathUtils.isMoreThanZero(amount); }
+  isValidExpense(name: string) { return !StringUtils.isNullOrEmpty(name) && name.trim().length <= this.maxInputText; }
+
+  async close() {
+    const expenseDate = DateUtils.ngbDateStructToDateString(this.model);
+    const buyer = this.participants.find(p => `${p.name} ${p.surname}` === this.selectedBuyerName);
+    if (!buyer) return;
+
+    if (!StringUtils.equalsIgnoreCase('Modifica', this.action)) {
+      this.pgExpenseService.create({
+        name: this.newExpense.name,
+        amount: this.newExpense.amount,
+        expense_owner_user_id: buyer.user_id,
+        expense_list_id: this.listID,
+        expense_date: expenseDate,
+      }).subscribe({
+        next: () => this.modalService.close(),
+        error: (e) => console.error('NewExpenseDialogComponent.close insert: ', e)
+      });
+    } else {
+      const firebaseUser = await this.afAuth.currentUser;
+      let modifiedById: number | undefined;
+      if (firebaseUser?.email) {
+        const pgUser = await this.pgUserService.getByEmail(firebaseUser.email).toPromise();
+        modifiedById = pgUser?.id;
+      }
+
+      this.pgExpenseService.update(this.newExpense.id!, {
+        name: this.newExpense.name,
+        amount: this.newExpense.amount,
+        expense_date: expenseDate,
+        expense_owner_user_id: buyer.user_id,
+        modified_by: modifiedById,
+      }).subscribe({
+        next: () => this.modalService.close(),
+        error: (e) => console.error('NewExpenseDialogComponent.close update: ', e)
+      });
     }
   }
 }

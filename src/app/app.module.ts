@@ -36,6 +36,9 @@ import { SidebarComponent } from './features/components/sidebar/sidebar.componen
 import { SaldoDetailsComponent } from './features/components/saldo-details/saldo-details.component';
 import { NotFoundComponent } from './features/components/not-found/not-found.component';
 import { DialogComponent } from './features/components/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastComponent } from './features/components/toast/toast.component';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { ErrorInterceptor } from './core/interceptors/error.interceptor';
 
 // Firebase
 import { AngularFireModule } from '@angular/fire/compat';
@@ -67,6 +70,7 @@ import { ExpenseFilterPipe } from './features/components/filter-pipes/expense-fi
     SaldoDetailsComponent,
     NotFoundComponent,
     ExpenseFilterPipe,
+    ToastComponent,
   ],
   imports: [
     BrowserModule,
@@ -93,7 +97,10 @@ import { ExpenseFilterPipe } from './features/components/filter-pipes/expense-fi
     FormsModule,
     ReactiveFormsModule,
   ],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+  ],
   bootstrap: [AppComponent]
 })
 

@@ -1,11 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute } from '@angular/router';
-import { first, Observable } from 'rxjs';
-import { Constants } from 'src/app/core/services/firestore/constants/constants';
-import { ConstantsService } from 'src/app/core/services/firestore/constants/constants.service';
-import { ExpensesList } from 'src/app/core/services/firestore/expensesList/expenses-list';
-import { ExpensesListService } from 'src/app/core/services/firestore/expensesList/expenses-list.service';
+import { ExpensesList } from 'src/app/core/services/postgres/expenses-list/expenses-list';
+import { ExpensesListService } from 'src/app/core/services/postgres/expenses-list/expenses-list.service';
+import { ExpensesListParticipantService } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant.service';
+import { UserService } from 'src/app/core/services/postgres/user/user.service';
 
 @Component({
   selector: 'app-join',
@@ -14,58 +13,54 @@ import { ExpensesListService } from 'src/app/core/services/firestore/expensesLis
 })
 export class JoinComponent implements OnInit {
 
-  protected listID: string;
-  protected constants$: Observable<Constants>;
-  protected expensesList$: Observable<ExpensesList>;
+  protected listID: number;
+  protected expensesList: ExpensesList | null = null;
+  protected maxUsers = 10;
 
   constructor(
     private route: ActivatedRoute,
-    private constantsService: ConstantsService,
-    private expensesListService: ExpensesListService,
-    public afAuth: AngularFireAuth,) { }
+    private pgExpensesListService: ExpensesListService,
+    private pgParticipantService: ExpensesListParticipantService,
+    private pgUserService: UserService,
+    public afAuth: AngularFireAuth,
+  ) {}
 
   ngOnInit(): void {
     this.getParams();
-    this.getConstants();
-    this.getExpensesListDetails(this.listID)
+    this.getExpensesListDetails(this.listID);
   }
 
-  getConstants() {
+  getExpensesListDetails(id: number) {
     try {
-      this.constants$ = this.constantsService.getConstants();
-    } catch (e) {
-      console.error("JoinComponent.getConstants: ", e)
-    }
-  }
-
-  getExpensesListDetails(id: string) {
-    try {
-      this.expensesList$ = this.expensesListService.getById(id);
-    } catch (e) {
-      console.error("JoinComponent.getExpensesListDetails: ", e)
-    }
-  }
-
-  addUserToList(id: string) {
-    this.expensesListService.getById(id).pipe(first()).subscribe(expensesList => {
-      this.afAuth.authState.pipe(first()).subscribe(user => {
-        try {
-          expensesList.partecipants.push(user!!.uid)
-          this.expensesListService.update(expensesList)
-          window.alert("Benvenuto nella lista " + expensesList.name)
-        } catch (e) {
-          console.error("JoinComponent.addUserToList: ", e)
-        }
+      this.pgExpensesListService.getById(id).subscribe({
+        next: (list) => this.expensesList = list,
+        error: (e) => console.error('JoinComponent.getExpensesListDetails: ', e)
       });
+    } catch (e) {
+      console.error('JoinComponent.getExpensesListDetails: ', e);
+    }
+  }
 
-    })
+  async addUserToList(id: number) {
+    try {
+      const firebaseUser = await this.afAuth.currentUser;
+      if (!firebaseUser?.email) return;
+
+      const pgUser = await this.pgUserService.getByEmail(firebaseUser.email).toPromise();
+      if (!pgUser) return;
+
+      this.pgParticipantService.add(id, pgUser.id).subscribe({
+        next: () => window.alert('Benvenuto nella lista ' + this.expensesList?.name),
+        error: (e) => console.error('JoinComponent.addUserToList: ', e)
+      });
+    } catch (e) {
+      console.error('JoinComponent.addUserToList: ', e);
+    }
   }
 
   private getParams() {
-    this.route.queryParams
-      .subscribe(params => {
-        this.listID = params['list']
-      });
+    this.route.queryParams.subscribe(params => {
+      this.listID = Number(params['list']);
+    });
   }
-
 }

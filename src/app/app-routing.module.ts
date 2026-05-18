@@ -15,7 +15,6 @@ import { HomeComponent } from './features/components/home/home.component';
 import { JoinComponent } from './features/components/join/join.component';
 import { SaldoDetailsComponent } from './features/components/saldo-details/saldo-details.component';
 import { SignInComponent } from './features/components/sign-in/sign-in.component';
-
 const routes: Routes = [
   { path: 'join', component: JoinComponent, canActivate: [AuthGuard, JoinGuard] },
   { path: 'signin', component: SignInComponent, canActivate: [SignInGuard] },

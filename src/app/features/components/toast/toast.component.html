@@ -1,0 +1,8 @@
+<ngb-toast
+  *ngFor="let toast of toastService.toasts; trackBy: trackToast"
+  [autohide]="true"
+  [delay]="5000"
+  (hidden)="toastService.remove(toast)"
+  [class]="toast.type === 'error' ? 'bg-danger text-white' : 'bg-success text-white'">
+  {{ toast.message }}
+</ngb-toast>

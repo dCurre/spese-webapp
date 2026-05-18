@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { ExpensesList } from 'src/app/core/services/firestore/expensesList/expenses-list';
+import { ExpensesList } from 'src/app/core/services/postgres/expenses-list/expenses-list';
 import Constants from 'src/app/shared/constants/constants';
 import StringUtils from 'src/app/shared/utils/string-utils';
 
@@ -11,14 +11,14 @@ import StringUtils from 'src/app/shared/utils/string-utils';
 })
 export class NewListDialogComponent implements OnInit {
 
-public expensesList: ExpensesList
+public expensesList: Partial<ExpensesList>
 
   public maxInputText = Constants.maxInputText;
 
   constructor(public modalService: NgbActiveModal) { }
 
   ngOnInit(): void {
-    this.expensesList = new ExpensesList()
+    this.expensesList = {}
   }
 
   isValidListName(listName: string) {

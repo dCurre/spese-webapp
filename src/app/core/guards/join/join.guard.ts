@@ -3,10 +3,8 @@ import { CanActivate, ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTr
 import { Observable } from 'rxjs';
 
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import GenericUtils from 'src/app/shared/utils/generic-utils';
-import ListUtils from 'src/app/shared/utils/list-utils';
-import StringUtils from 'src/app/shared/utils/string-utils';
-import { ExpensesListService } from '../../services/firestore/expensesList/expenses-list.service';
+import { ExpensesListService } from '../../services/postgres/expenses-list/expenses-list.service';
+import { UserService } from '../../services/postgres/user/user.service';
 
 @Injectable({
     providedIn: 'root'
@@ -14,7 +12,8 @@ import { ExpensesListService } from '../../services/firestore/expensesList/expen
 export class JoinGuard implements CanActivate {
     constructor(
         private router: Router,
-        private expensesListService: ExpensesListService,
+        private pgExpensesListService: ExpensesListService,
+        private pgUserService: UserService,
         private afAuth: AngularFireAuth
     ) { }
 
@@ -22,37 +21,42 @@ export class JoinGuard implements CanActivate {
         route: ActivatedRouteSnapshot,
         state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
 
-        return new Promise((resolve) => {
-            //Estraggo id lista
-            const listID = state.url.split("list=")[1] //FA SCHIFO AL CAZZO
+        return new Promise(async (resolve) => {
+            const listID = Number(state.url.split("list=")[1]);
 
-            //Check validità id lista
-            if (StringUtils.isNullOrEmpty(listID)) {
-                console.error("Url non valido")
+            if (!listID) {
+                console.error("Join Guard: url non valido");
                 this.router.navigate(['/accessdenied']);
-                resolve(false);
+                return resolve(false);
             }
 
-            //Check esistenza lista
-            this.expensesListService.getById(listID).subscribe(expensesList => {
-                console.debug("--> expensesListService.getById() called by join guard")
-                if (GenericUtils.isNullOrUndefined(expensesList)) {
+            const firebaseUser = await this.afAuth.currentUser;
+            if (!firebaseUser?.email) {
+                this.router.navigate(['']);
+                return resolve(false);
+            }
+
+            const pgUser = await this.pgUserService.getByEmail(firebaseUser.email).toPromise();
+            if (!pgUser) {
+                this.router.navigate(['']);
+                return resolve(false);
+            }
+
+            this.pgExpensesListService.getById(listID).subscribe({
+                next: (expensesList) => {
+                    const alreadyParticipant = expensesList.participants?.some(p => p.user_id === pgUser.id);
+                    if (alreadyParticipant) {
+                        this.router.navigate(['/list/' + expensesList.id]);
+                        return resolve(false);
+                    }
+                    resolve(true);
+                },
+                error: () => {
                     console.error('Join Guard: list not found');
                     this.router.navigate(['/accessdenied']);
                     resolve(false);
                 }
-
-                //Se l'utente fa già parte della lista --> redirect alla lista stessa
-                this.afAuth.onAuthStateChanged((user) => {
-                    if (ListUtils.contains(expensesList.partecipants, user?.uid)) {
-                        this.router.navigate(['/list/'+ expensesList.id]);
-                        resolve(false);
-                    }
-
-                    resolve(true);
-                });
-            })
+            });
         });
     }
 }
-

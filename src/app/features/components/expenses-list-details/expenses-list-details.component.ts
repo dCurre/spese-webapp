@@ -1,20 +1,20 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { first, Observable } from 'rxjs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expense-dialog.component';
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
-import { ConstantsService } from 'src/app/core/services/firestore/constants/constants.service';
-import { Expense } from 'src/app/core/services/firestore/expense/expense';
-import { ExpenseService } from 'src/app/core/services/firestore/expense/expense.service';
-import { ExpensesList } from 'src/app/core/services/firestore/expensesList/expenses-list';
-import { ExpensesListService } from 'src/app/core/services/firestore/expensesList/expenses-list.service';
+import { Expense } from 'src/app/core/services/postgres/expense/expense';
+import { ExpenseService } from 'src/app/core/services/postgres/expense/expense.service';
+import { ExpensesList } from 'src/app/core/services/postgres/expenses-list/expenses-list';
+import { ExpensesListService } from 'src/app/core/services/postgres/expenses-list/expenses-list.service';
+import { ExpensesListParticipantService } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant.service';
+import { UserService } from 'src/app/core/services/postgres/user/user.service';
+import { environment } from 'src/environments/environment';
 import DateUtils from 'src/app/shared/utils/date-utils';
 import MathUtils from 'src/app/shared/utils/math-utils';
-import StringUtils from 'src/app/shared/utils/string-utils';
 
 @Component({
   selector: 'app-expenses-list-details',
@@ -23,98 +23,89 @@ import StringUtils from 'src/app/shared/utils/string-utils';
 })
 export class ExpenseListDetailsComponent implements OnInit {
 
-  protected expenses$: Observable<Expense[]>;
-  protected expensesList$: Observable<ExpensesList>;
+  protected expenses: Expense[] = [];
+  protected expensesList: ExpensesList | null = null;
   protected expensesListTotalAmount: number = 0;
-  private listID: string;
+  protected expensesLoaded = false;
+  private listID: number;
   protected searchTerm: string;
   protected panelOpenState = false;
 
   constructor(
     public afAuth: AngularFireAuth,
-    private expenseService: ExpenseService,
-    protected expensesListService: ExpensesListService,
-    private constantsService: ConstantsService,
+    private pgExpenseService: ExpenseService,
+    private pgExpensesListService: ExpensesListService,
+    private pgParticipantService: ExpensesListParticipantService,
+    private pgUserService: UserService,
     private modalService: NgbModal,
     private route: ActivatedRoute,
     public router: Router) { }
 
   ngOnInit(): void {
-    this.listID = this.route.snapshot.paramMap.get('id')!!
-    this.getExpensesByListId(this.listID)
-    this.getExpensesListDetails(this.listID)
-    this.getExpensesListTotal(this.listID)
+    this.listID = Number(this.route.snapshot.paramMap.get('id'));
+    this.getExpensesListDetails(this.listID);
+    this.getExpensesByListId(this.listID);
   }
 
   ngOnDestroy() {
     this.modalService.dismissAll();
   }
 
-  getExpensesByListId(id: string) {
-    try {
-      this.expenses$ = this.expenseService.getExpensesByListID(id);
-    } catch (e) {
-      console.error("ExpenseListDetailsComponent.getExpensesByListId: ", e)
-    }
+  getExpensesByListId(id: number) {
+    this.pgExpenseService.getByListId(id).subscribe({
+      next: (res) => {
+        this.expenses = res.expenses;
+        this.expensesListTotalAmount = res.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+        this.expensesLoaded = true;
+      },
+      error: (e) => console.error('ExpenseListDetailsComponent.getExpensesByListId: ', e)
+    });
   }
 
-  async getExpensesListDetails(id: string) {
-    try {
-      this.expensesList$ = this.expensesListService.getById(id).pipe(first());
-    } catch (e) {
-      console.error("ExpenseListDetailsComponent.getExpensesListDetails: ", e)
-    }
+  getExpensesListDetails(id: number) {
+    this.pgExpensesListService.getById(id).subscribe({
+      next: (list) => this.expensesList = list,
+      error: (e) => console.error('ExpenseListDetailsComponent.getExpensesListDetails: ', e)
+    });
   }
 
-  newExpense() {
-    return new Expense(); //Sbrocco
+  newExpense(): Expense {
+    return new Expense();
   }
 
-  openNewExpenseDialog(expense: Expense, action: String) {
+  openNewExpenseDialog(expense: Expense, action: string) {
     const modalInsert = this.modalService.open(NewExpenseDialogComponent, { centered: true });
     modalInsert.componentInstance.listID = this.listID;
-    modalInsert.componentInstance.action = action
-    modalInsert.componentInstance.expense = expense
+    modalInsert.componentInstance.action = action;
+    modalInsert.componentInstance.expense = expense;
+    modalInsert.result.then(() => this.getExpensesByListId(this.listID)).catch(() => {});
   }
 
   delete(expense: Expense) {
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
     modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
-      "Vuoi veramente eliminare la spesa " + expense.expense);
+      'Vuoi veramente eliminare la spesa ' + expense.name);
 
     modalDelete.result.then((response) => {
-      if (!response) {
-        return
-      }
-
-      this.expenseService.delete(expense.id);
-    }).catch((res) => { });
-  }
-
-  timestampToDateString(timestamp: number) {
-    return DateUtils.timestampToDateString(timestamp);
-  }
-
-  timestampToHourString(timestamp: number) {
-    return DateUtils.timestampToHourString(timestamp);
-  }
-
-  hasBeenModified(expense: Expense) : boolean {
-    return MathUtils.isMoreThanZero(expense.lastModifiedDateTimestamp) && !StringUtils.isNullOrEmpty(expense.modifiedBy); 
-  }
-
-  getExpensesListTotal(id: string) {
-    try {
-      this.expenseService.getExpensesByListID(id).subscribe(expenseList => {
-        this.expensesListTotalAmount = 0;
-        expenseList.forEach(expense => {
-          this.expensesListTotalAmount += expense.amount;
-        })
+      if (!response) return;
+      this.pgExpenseService.delete(expense.id).subscribe({
+        next: () => this.getExpensesByListId(this.listID),
+        error: (e) => console.error('ExpenseListDetailsComponent.delete: ', e)
       });
-    } catch (e) {
-      console.error("ExpenseListDetailsComponent.getExpensesListTotal: ", e)
-    }
+    }).catch(() => {});
+  }
+
+  expenseDateString(expense: Expense): string {
+    return expense.expense_date ? DateUtils.dateToString(new Date(expense.expense_date)) : '';
+  }
+
+  hasBeenModified(expense: Expense): boolean {
+    return !!expense.updated_at && !!expense.modified_by;
+  }
+
+  modifiedByName(expense: Expense): string {
+    return expense.modified_by ? String(expense.modified_by) : '';
   }
 
   formatToEur(amount: number) {
@@ -122,80 +113,67 @@ export class ExpenseListDetailsComponent implements OnInit {
   }
 
   shareLink() {
-    const listID = this.listID;
+    const link = `${environment.pgApiUrl.replace('localhost:5000', location.host)}/join?list=${this.listID}`;
     const modalShare = this.modalService.open(ShareDialogComponent, { centered: true });
-    this.constantsService.getConstants().pipe(first()).subscribe(constants => {
-      modalShare.componentInstance.shareLink = constants.shareLink.replace("{LIST_ID}", listID)
-    })
-
-    modalShare.result.then((response) => {
-      if (!response) {
-        return
-      }
-
-    }).catch((res) => { });
+    modalShare.componentInstance.shareLink = link;
+    modalShare.result.then(() => {}).catch(() => {});
   }
 
-  leave(expensesList: ExpensesList) {
+  async leave(expensesList: ExpensesList) {
     const modalLeave = this.modalService.open(DialogComponent, { centered: true });
     modalLeave.componentInstance.dialogFields = new ConfirmDialogFields(
       'Abbandona',
       'Vuoi veramente abbandonare ' + expensesList.name + '?');
 
-    modalLeave.result.then(response => {
-      console.debug(`Modal response: ${response}`)
+    modalLeave.result.then(async response => {
+      if (!response) return;
 
-      if (!response) {
-        return
-      }
-
-      //Controllo che l'utente non sia l'unico della lista
-      //Se il partecipante alla lista è solo 1, allora per abbandonarla deve confermare la cancellazione
-      if (expensesList.partecipants.length == 1) {
-        this.deleteList(expensesList)
+      if (expensesList.participants.length == 1) {
+        this.deleteList(expensesList);
       } else {
-        //Se non è l'unico in lista, il nuovo owner diventa il primo presente nella lista partecipanti (first-in)
-        this.afAuth.authState.subscribe(user => {
-          this.expensesListService.leave(user!!.uid, expensesList)
-        })
+        const firebaseUser = await this.afAuth.currentUser;
+        if (!firebaseUser?.email) return;
+        const pgUser = await this.pgUserService.getByEmail(firebaseUser.email).toPromise();
+        if (!pgUser) return;
+        this.pgParticipantService.remove(expensesList.id, pgUser.id).subscribe({
+          next: () => this.router.navigate(['']),
+          error: (e) => console.error('ExpenseListDetailsComponent.leave: ', e)
+        });
       }
-    }).catch((res) => { })
+    }).catch(() => {});
   }
 
   deleteList(expensesList: ExpensesList) {
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
     modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
-      "Sei l'unico componente di " + expensesList.name + ".\nVuoi veramente cancellarla?"
-      );
+      'Sei l\'unico componente di ' + expensesList.name + '.\nVuoi veramente cancellarla?'
+    );
 
     modalDelete.result.then((response) => {
-      if (!response) {
-        return
-      }
-
-      this.expensesListService.delete(expensesList.id);
-    }).catch((res) => { });
+      if (!response) return;
+      this.pgExpensesListService.delete(expensesList.id).subscribe({
+        next: () => this.router.navigate(['']),
+        error: (e) => console.error('ExpenseListDetailsComponent.deleteList: ', e)
+      });
+    }).catch(() => {});
   }
 
   salda(expensesList: ExpensesList) {
     const modalSaldo = this.modalService.open(DialogComponent, { centered: true });
-    const saldoMessage = expensesList.paid ? "Vuoi riaprire la lista " : "Vuoi chiudere la lista "
+    const saldoMessage = expensesList.paid ? 'Vuoi riaprire la lista ' : 'Vuoi chiudere la lista ';
 
-    modalSaldo.componentInstance.dialogFields =
-      new ConfirmDialogFields(
-        'Conferma saldo',
-        saldoMessage + expensesList.name + "?"
-      );
+    modalSaldo.componentInstance.dialogFields = new ConfirmDialogFields(
+      'Conferma saldo',
+      saldoMessage + expensesList.name + '?'
+    );
 
     modalSaldo.result.then((response) => {
-      if (!response) {
-        return
-      }
-
-      expensesList.paid = !expensesList.paid
-      this.expensesListService.update(expensesList);
-
-    }).catch((res) => { });
+      if (!response) return;
+      expensesList.paid = !expensesList.paid;
+      this.pgExpensesListService.update(expensesList.id, { paid: expensesList.paid }).subscribe({
+        error: (e) => console.error('ExpenseListDetailsComponent.salda: ', e)
+      });
+    }).catch(() => {});
   }
 }
