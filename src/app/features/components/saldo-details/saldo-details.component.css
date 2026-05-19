@@ -1,16 +1,25 @@
-canvas{
+canvas {
     margin-bottom: -70px;
 }
 
-.mat-expansion-panel-header-description {
-    flex-grow: 0.4;
-    justify-content: flex-end;
-  }
-  
-  .mat-expansion-panel-header{
-    padding-left: 0px;
-    padding-right: 2px;
-    padding-top: 3px;
-    padding-bottom: 2px;
-  }
-  
+.expense-header {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0.4rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    user-select: none;
+}
+
+.expense-header:hover {
+    background: #f8f5ff;
+}
+
+.expense-body {
+    display: none;
+    padding: 0.25rem 0.4rem 0.75rem;
+}
+
+.expense-body.open {
+    display: block;
+}

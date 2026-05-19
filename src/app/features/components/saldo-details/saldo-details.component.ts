@@ -29,6 +29,7 @@ export class SaldoDetailsComponent implements OnInit {
   protected balanceDetails: SaldoDetails[] = [];
   protected partecipantsList: ExpensesListParticipant[] = [];
   protected panelOpenState = false;
+  protected partecipantiOpen = false;
 
   constructor(
     private route: ActivatedRoute,
