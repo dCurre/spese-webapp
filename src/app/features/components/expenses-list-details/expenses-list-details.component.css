@@ -121,7 +121,7 @@ a:hover {
   box-shadow: none;
 }
 
-#saldo{
+#saldo {
   margin-bottom: 0;
   padding-bottom: 0;
   margin-top: 0.6rem;
@@ -135,23 +135,38 @@ a:hover {
   margin-top: 0.3rem;
 }
 
-.mat-expansion-panel-header-description {
-  flex-grow: 0.4;
-  justify-content: flex-end;
+.expense-header {
+  display: flex;
+  align-items: center;
+  padding: 0.4rem 0.4rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  user-select: none;
 }
 
-.mat-expansion-panel-header{
-  padding-left: 0px;
-  padding-right: 2px;
-  padding-top: 3px;
-  padding-bottom: 2px;
+.expense-header:hover {
+  background: #f8f5ff;
 }
 
-.row-header{
+.expense-amount {
+  font-size: 1rem;
+  color: #555;
+}
+
+.expense-body {
+  display: none;
+  padding: 0.25rem 0.4rem 0.75rem;
+}
+
+.expense-body.open {
+  display: block;
+}
+
+.row-header {
   font-size: 1.1rem;
 }
 
-.modified-expense{
+.modified-expense {
   font-size: 0.7rem;
   text-align: end;
 }

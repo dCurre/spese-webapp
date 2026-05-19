@@ -30,6 +30,8 @@ export class ExpenseListDetailsComponent implements OnInit {
   private listID: number;
   protected searchTerm: string;
   protected panelOpenState = false;
+  protected openPanel: number | null = null;
+  togglePanel(i: number) { this.openPanel = this.openPanel === i ? null : i; }
 
   constructor(
     public afAuth: AngularFireAuth,
