@@ -1,41 +1,52 @@
-<br>
-<div class="container col-lg-6">
-  <div class="lists-container">
-    <div class="list list-row card col-lg-12">
-      <div class="expense-header row-header" (click)="partecipantiOpen = !partecipantiOpen">
-        <a class="font-weight-bold fs-4 text flex">Partecipanti</a>
-        <i class="fa" [ngClass]="partecipantiOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-      </div>
-      <div class="expense-body" [class.open]="partecipantiOpen">
-        <div class="h-1x mt-2" *ngFor="let partecipant of partecipantsList; first as isFirst">
-          {{partecipant.name}} {{partecipant.surname}}<i *ngIf="isFirst" class="fa fa-crown ml-2 text-warning"></i>
+<div class="saldo-wrapper">
+
+    <!-- Partecipanti -->
+    <div class="saldo-card">
+        <div class="saldo-card-header" (click)="partecipantiOpen = !partecipantiOpen">
+            <div class="saldo-card-title">
+                <i class="fa fa-users"></i>
+                Partecipanti
+            </div>
+            <i class="fa" [ngClass]="partecipantiOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
         </div>
-      </div>
+        <div class="saldo-card-body" [class.open]="partecipantiOpen">
+            <div class="participant-row" *ngFor="let p of partecipantsList">
+                <div class="participant-avatar">{{p.name[0].toUpperCase()}}</div>
+                <span class="participant-name">{{p.name}} {{p.surname}}</span>
+                <span class="badge-owner" *ngIf="p.user_id === ownerUserId">
+                    <i class="fa fa-crown"></i> Proprietario
+                </span>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-<div class="container">
-  <div id="spese-detail-chart" class="chart">
-    <canvas baseChart [data]="pieChartData" [type]="pieChartType" [options]="pieChartOptions"
-      [plugins]="pieChartPlugins">
-    </canvas>
-  </div>
-</div>
-<div class="bg-white">
-  <table class="table table-condensed table-hover">
-    <thead>
-      <tr>
-        <th></th>
-        <th>Deve a</th>
-        <th>Importo</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let balanceDetail of balanceDetails">
-        <td>{{balanceDetail.buyer}}</td>
-        <td>{{balanceDetail.receiver}}</td>
-        <td class="text-right" [ngClass]="(balanceDetail.toPay > 0) ? 'text-danger' : 'text-success'">{{formatToEur(balanceDetail.toPay)}}</td>
-      </tr>
-    </tbody>
-  </table>
+
+    <!-- Grafico -->
+    <div class="saldo-card">
+        <div class="saldo-card-header" (click)="chartOpen = !chartOpen">
+            <div class="saldo-card-title">
+                <i class="fa fa-chart-pie"></i>
+                Spese per persona
+            </div>
+            <i class="fa" [ngClass]="chartOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="saldo-chart-body" [class.open]="chartOpen">
+            <div *ngIf="dataLoaded && mapPagato.size === 0" class="chart-empty">
+                <i class="fa fa-receipt"></i>
+                Nessuna spesa registrata
+            </div>
+            <ng-container *ngIf="mapPagato.size > 0">
+                <canvas baseChart [data]="pieChartData" [type]="pieChartType"
+                    [options]="pieChartOptions" [plugins]="pieChartPlugins">
+                </canvas>
+                <div class="chart-legend">
+                    <div class="chart-legend-item" *ngFor="let label of pieChartData.labels; let i = index">
+                        <span class="chart-legend-dot" [style.background]="chartColors[i]"></span>
+                        <span class="chart-legend-name">{{label}}</span>
+                        <span class="chart-legend-value">{{formatToEur(pieChartData.datasets[0].data[i])}}</span>
+                    </div>
+                </div>
+            </ng-container>
+        </div>
+    </div>
+
 </div>

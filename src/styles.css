@@ -1,6 +1,7 @@
 @import url("//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-body{
+body {
   font-family: "Poppins", Arial, sans-serif;
 }
 
@@ -9,29 +10,19 @@ body{
     z-index: 9999 !important;
 }
 
-.modal-header {
-    background: #7C4DFF !important;
-    color: white !important;
-    font-weight: bold;
-}
-
-.close {
-    color: white !important;
-}
-
 .bg-spese {
-    background: #7C4DFF !important;
+    background: #00b37e !important;
     padding-left: 10px;
     padding-right: 10px;
     font-weight: bold;
     color: white !important;
 }
 
-.accordion-item{
+.accordion-item {
     border: none
 }
 
-.wa-icon{
+.wa-icon {
     color: white;
     width: 52px;
     height: 52px;
@@ -40,7 +31,163 @@ body{
     padding-top: 0.45rem;
 }
 
-.remove-mat-expansion-panel-padding .mat-expansion-panel-content .mat-expansion-panel-body{
-    padding: 0 !important;
-    font-size: medium;
+/* ── Dialog / Modal moderno ── */
+.modal-content {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 1.5rem 1rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.dialog-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1f2e;
+    margin: 0;
+}
+
+.dialog-close {
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0.25rem;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+.dialog-close:hover {
+    color: #374151;
+}
+
+.dialog-body {
+    padding: 1.25rem 1.5rem;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem 1.25rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.field-group {
+    margin-bottom: 1rem;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4rem;
+}
+
+.field-input {
+    width: 100%;
+    padding: 0.6rem 0.875rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    color: #1a1f2e;
+    background: #fafafa;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    appearance: none;
+}
+
+.field-input:focus {
+    border-color: #00b37e;
+    box-shadow: 0 0 0 3px rgba(0,179,126,0.12);
+    background: white;
+}
+
+.field-input.is-invalid {
+    border-color: #ef4444;
+}
+
+.field-input.is-valid {
+    border-color: #00b37e;
+}
+
+.field-input-prefix {
+    position: relative;
+}
+
+.field-prefix {
+    position: absolute;
+    left: 0.875rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.9rem;
+    pointer-events: none;
+}
+
+.field-input.with-prefix {
+    padding-left: 1.75rem;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.875rem;
+}
+
+.field-error {
+    display: block;
+    font-size: 0.775rem;
+    color: #ef4444;
+    margin-top: 0.3rem;
+}
+
+.btn-cancel {
+    background: white;
+    border: 1.5px solid #e5e7eb;
+    color: #6b7280;
+    border-radius: 8px;
+    padding: 0.55rem 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.btn-cancel:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.btn-confirm {
+    background: #00b37e;
+    border: none;
+    color: white;
+    border-radius: 8px;
+    padding: 0.55rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-confirm:hover:not(:disabled) {
+    background: #009e6e;
+}
+
+.btn-confirm:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
 }

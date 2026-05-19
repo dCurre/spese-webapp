@@ -1,8 +1,8 @@
 .spese-spinner{
-    color: #7C4DFF;
+    color: #00b37e;
     width: 5rem;
     height: 5rem;
-    --bs-spinner-border-width: 0.5rem;
+    --bs-spinner-border-width: 0.4rem;
     position: absolute !important;
     top: 30% !important;
 }

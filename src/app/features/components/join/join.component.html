@@ -1,23 +1,22 @@
-<div class="card_padding spese-background bg-light">
-    <div class="d-flex justify-content-center h-100">
-        <div class="user_card">
-            <div class="d-flex justify-content-center">
-                <div class="brand_logo_container bg-light">
-                    <img src="https://firebasestorage.googleapis.com/v0/b/spese-curreli-bullita.appspot.com/o/ic_logo_purple.png?alt=media&token=4b6b2a65-3feb-4061-b9b6-e4872ba756fd"
-                        referrerpolicy="no-referrer" class="brand_logo">
-                </div>
-            </div>
-            <div *ngIf="expensesList" class="form_container">
-                <form>
-                    <div class="d-flex justify-content-center">
-                        {{expensesList.participants.length}} / {{maxUsers}} Partecipanti
-                    </div>
-                    <div class="d-flex justify-content-center mt-3">
-                        <button type="button" name="button" class="btn join_btn" [disabled]="expensesList.participants.length >= maxUsers"
-                            (click)="addUserToList(listID)">Partecipa</button>
-                    </div>
-                </form>
-            </div>
+<div class="join-page">
+    <div class="join-card" *ngIf="expensesList">
+        <div class="join-icon">
+            <i class="fa fa-users"></i>
         </div>
+        <h2 class="join-title">Unisciti alla lista</h2>
+        <p class="join-list-name">{{ expensesList.name }}</p>
+        <p class="join-participants">
+            <i class="fa fa-user"></i>
+            {{ expensesList.participants?.length ?? 0 }} / {{ maxUsers }} partecipanti
+        </p>
+        <button class="join-btn"
+            [disabled]="(expensesList.participants?.length ?? 0) >= maxUsers"
+            (click)="addUserToList(listID)">
+            <i class="fa fa-right-to-bracket"></i> Partecipa
+        </button>
+        <p class="join-full" *ngIf="(expensesList.participants?.length ?? 0) >= maxUsers">
+            La lista ha raggiunto il numero massimo di partecipanti.
+        </p>
     </div>
+    <app-spinner *ngIf="!expensesList"></app-spinner>
 </div>

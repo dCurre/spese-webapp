@@ -1,0 +1,29 @@
+.home-layout {
+    display: flex;
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.home-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.home-header {
+    margin-bottom: 1.5rem;
+}
+
+.home-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1a1f2e;
+    margin: 0;
+}
+
+@media (max-width: 768px) {
+    .home-layout {
+        padding: 1rem 1rem 1.5rem;
+    }
+}

@@ -11,18 +11,16 @@ import StringUtils from 'src/app/shared/utils/string-utils';
 export class ShareDialogComponent implements OnInit {
 
   @Input() shareLink: string;
-  protected linkCopiato = "";
+  protected copied = false;
 
-  constructor(public modalService: NgbActiveModal,
-    private clipboard: Clipboard,) { }
+  constructor(public modalService: NgbActiveModal, private clipboard: Clipboard) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   copyLinkToClipboard() {
-    this.linkCopiato = "";
     this.clipboard.copy(this.shareLink);
-    this.linkCopiato = "LinkCopiato";
+    this.copied = true;
+    setTimeout(() => this.copied = false, 2000);
   }
 
   replaceChars(string: string) {

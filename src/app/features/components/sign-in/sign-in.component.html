@@ -1,47 +1,44 @@
-<div class="card_padding spese-background bg-light">
-    <div class="d-flex justify-content-center h-100">
-        <div class="user_card">
-            <div class="d-flex justify-content-center">
-                <div class="brand_logo_container bg-light">
-                    <img src="https://firebasestorage.googleapis.com/v0/b/spese-curreli-bullita.appspot.com/o/ic_logo_purple.png?alt=media&token=4b6b2a65-3feb-4061-b9b6-e4872ba756fd"
-                         referrerpolicy="no-referrer" class="brand_logo">
-                </div>
-            </div>
-            
-            <div class="d-flex justify-content-center form_container">
-                <form>
-                    <div class="input-group mb-3">
-                        <div class="input-group-append">
-                            <span class="input-group-text"><i class="fas fa-user"></i></span>
-                        </div>
-                        <input type="text" name="" class="form-control input_user" value="" placeholder="Username">
-                    </div>
-                    <div class="input-group mb-2">
-                        <div class="input-group-append">
-                            <span class="input-group-text"><i class="fas fa-key"></i></span>
-                        </div>
-                        <input type="password" name="" class="form-control input_pass" value="" placeholder="Password">
-                    </div>
-                    <div class="custom-control"></div><!-- spazio tra label e bottoni -->
-                    <div class="d-flex justify-content-center mt-3 login_container">
-                        <button type="button" name="button" class="btn login_btn">Login</button>
-                    </div>
-                    <div class="d-flex justify-content-center mt-3 login_container">
-                        <button type="button" (click)="authService.GoogleAuth()" class="btn btn-google">
-                            <img src="https://img.icons8.com/color/16/000000/google-logo.png"> Entra con Google
-                        </button>
-                    </div>
-                </form>
+<div class="signin-page" [class.leaving-left]="leaving">
+
+    <div class="signin-left">
+        <div class="signin-brand">
+            <i class="fa fa-money-bill-wave signin-brand-icon"></i>
+            <span class="signin-brand-name">Spese</span>
+        </div>
+        <h1 class="signin-tagline">Tieni traccia delle spese condivise,<br>senza stress.</h1>
+        <p class="signin-sub">Crea liste, aggiungi spese e scopri chi deve cosa a chi — in pochi tap.</p>
+    </div>
+
+    <div class="signin-right">
+        <div class="signin-card">
+            <h2 class="signin-title">Bentornato</h2>
+            <p class="signin-desc">Accedi al tuo account</p>
+
+            <button class="btn-google-signin" (click)="authService.GoogleAuth()">
+                <img src="https://img.icons8.com/color/20/000000/google-logo.png" alt="Google">
+                Continua con Google
+            </button>
+
+            <div class="signin-divider">
+                <span>oppure</span>
             </div>
 
-            <div class="mt-4">
-                <div class="d-flex justify-content-center links">
-                    Non hai un account?<a class="ml-2">Registrati</a>
+            <form [formGroup]="loginForm">
+                <div class="field-group">
+                    <label class="field-label">Email</label>
+                    <input type="email" formControlName="email" class="field-input" placeholder="nome@email.com">
                 </div>
-                <div class="d-flex justify-content-center links">
-                    <a>Password dimenticata?</a>
+                <div class="field-group">
+                    <label class="field-label">Password</label>
+                    <input type="password" formControlName="password" class="field-input" placeholder="••••••••">
                 </div>
-            </div>
+                <button type="submit" class="btn-signin" [disabled]="loginForm.invalid">Accedi</button>
+            </form>
+
+            <p class="signin-footer">
+                Non hai un account? <a (click)="goToSignup()" style="cursor:pointer">Registrati</a>
+            </p>
         </div>
     </div>
+
 </div>

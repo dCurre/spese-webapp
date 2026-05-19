@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ExpensesList } from 'src/app/core/services/postgres/expenses-list/expenses-list';
 import { ExpensesListService } from 'src/app/core/services/postgres/expenses-list/expenses-list.service';
 import { ExpensesListParticipantService } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant.service';
@@ -19,6 +19,7 @@ export class JoinComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private pgExpensesListService: ExpensesListService,
     private pgParticipantService: ExpensesListParticipantService,
     private pgUserService: UserService,
@@ -26,19 +27,20 @@ export class JoinComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.getParams();
-    this.getExpensesListDetails(this.listID);
+    this.route.queryParams.subscribe(params => {
+      this.listID = Number(params['list']);
+      this.checkAndLoad();
+    });
   }
 
-  getExpensesListDetails(id: number) {
-    try {
-      this.pgExpensesListService.getById(id).subscribe({
-        next: (list) => this.expensesList = list,
-        error: (e) => console.error('JoinComponent.getExpensesListDetails: ', e)
-      });
-    } catch (e) {
-      console.error('JoinComponent.getExpensesListDetails: ', e);
-    }
+  private checkAndLoad() {
+    this.pgExpensesListService.getById(this.listID).subscribe({
+      next: (list) => {
+        this.expensesList = list;
+        this.maxUsers = list.max_participants ?? 10;
+      },
+      error: (e) => console.error('JoinComponent.checkAndLoad:', e)
+    });
   }
 
   async addUserToList(id: number) {
@@ -50,17 +52,11 @@ export class JoinComponent implements OnInit {
       if (!pgUser) return;
 
       this.pgParticipantService.add(id, pgUser.id).subscribe({
-        next: () => window.alert('Benvenuto nella lista ' + this.expensesList?.name),
-        error: (e) => console.error('JoinComponent.addUserToList: ', e)
+        next: () => this.router.navigate(['/list', id]),
+        error: (e) => console.error('JoinComponent.addUserToList:', e)
       });
     } catch (e) {
-      console.error('JoinComponent.addUserToList: ', e);
+      console.error('JoinComponent.addUserToList:', e);
     }
-  }
-
-  private getParams() {
-    this.route.queryParams.subscribe(params => {
-      this.listID = Number(params['list']);
-    });
   }
 }
