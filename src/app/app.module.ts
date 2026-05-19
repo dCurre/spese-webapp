@@ -50,6 +50,12 @@ import { AuthService } from './core/services/auth/auth.service';
 
 // Pipe
 import { ExpenseFilterPipe } from './features/components/filter-pipes/expense-filter/expense-filter.pipe';
+import { ChecklistComponent } from './features/components/checklist/checklist.component';
+import { ProfileComponent } from './features/components/profile/profile.component';
+import { SignUpComponent } from './features/components/sign-up/sign-up.component';
+import { ExpensesListPersonalComponent } from './features/components/expenses-list-personal/expenses-list-personal.component';
+import { AdminComponent } from './features/components/admin/admin.component';
+import { ExpenseTypeChartComponent } from './features/components/expense-type-chart/expense-type-chart.component';
 
 @NgModule({
   declarations: [
@@ -71,6 +77,12 @@ import { ExpenseFilterPipe } from './features/components/filter-pipes/expense-fi
     NotFoundComponent,
     ExpenseFilterPipe,
     ToastComponent,
+    ChecklistComponent,
+    ProfileComponent,
+    SignUpComponent,
+    ExpensesListPersonalComponent,
+    AdminComponent,
+    ExpenseTypeChartComponent,
   ],
   imports: [
     BrowserModule,

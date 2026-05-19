@@ -1,0 +1,128 @@
+<div class="admin-page">
+    <h2 class="admin-title"><i class="fa fa-shield-halved"></i> Admin</h2>
+
+    <div class="admin-grid">
+
+        <!-- Ruoli utente -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <i class="fa fa-user-tag"></i>
+                <h3>Ruoli utente</h3>
+            </div>
+
+            <div class="admin-list">
+                <div class="admin-list-item" *ngFor="let role of roles">
+                    <ng-container *ngIf="editingRoleId !== role.id">
+                        <span class="item-name">
+                            {{role.name}}
+                            <span class="badge-protected" *ngIf="role.protected">predefinito</span>
+                        </span>
+                        <div class="item-actions">
+                            <button class="action-btn edit" (click)="startEditRole(role)" [disabled]="role.protected" title="Modifica">
+                                <i class="fa fa-pen"></i>
+                            </button>
+                            <button class="action-btn delete" (click)="deleteRole(role)" [disabled]="role.protected" title="Elimina">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="editingRoleId === role.id">
+                        <input class="edit-input" [(ngModel)]="editingRoleName" (keyup.enter)="saveRole(role)" (keyup.escape)="cancelEditRole()" autofocus>
+                        <div class="item-actions">
+                            <button class="action-btn save" (click)="saveRole(role)" title="Salva">
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button class="action-btn cancel" (click)="cancelEditRole()" title="Annulla">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+
+            <div class="add-row">
+                <input class="add-input" [(ngModel)]="newRoleName" placeholder="Nome nuovo ruolo..." (keyup.enter)="addRole()">
+                <button class="btn-add" (click)="addRole()" [disabled]="!newRoleName.trim()">
+                    <i class="fa fa-plus"></i> Aggiungi
+                </button>
+            </div>
+        </div>
+
+        <!-- Tipologie spesa -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <i class="fa fa-tag"></i>
+                <h3>Tipologie spesa</h3>
+            </div>
+
+            <div class="admin-list">
+                <div class="admin-list-item" *ngFor="let t of expenseTypes">
+                    <ng-container *ngIf="editingTypeId !== t.id">
+                        <span class="item-name">
+                            {{t.name}}
+                            <span class="badge-protected" *ngIf="t.protected">predefinito</span>
+                        </span>
+                        <div class="item-actions">
+                            <button class="action-btn edit" (click)="startEditType(t)" title="Modifica">
+                                <i class="fa fa-pen"></i>
+                            </button>
+                            <button class="action-btn delete" (click)="deleteType(t)" [disabled]="t.protected" title="Elimina">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="editingTypeId === t.id">
+                        <input class="edit-input" [(ngModel)]="editingTypeName" (keyup.enter)="saveType(t)" (keyup.escape)="cancelEditType()" autofocus>
+                        <div class="item-actions">
+                            <button class="action-btn save" (click)="saveType(t)" title="Salva">
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button class="action-btn cancel" (click)="cancelEditType()" title="Annulla">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+
+            <div class="add-row">
+                <input class="add-input" [(ngModel)]="newExpenseTypeName" placeholder="Nome nuova tipologia..." (keyup.enter)="addExpenseType()">
+                <button class="btn-add" (click)="addExpenseType()" [disabled]="!newExpenseTypeName.trim()">
+                    <i class="fa fa-plus"></i> Aggiungi
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Gestione ruoli utenti -->
+    <div class="admin-card admin-card-full">
+        <div class="admin-card-header">
+            <i class="fa fa-users"></i>
+            <h3>Gestione utenti</h3>
+        </div>
+
+        <div class="admin-list">
+            <div class="admin-list-item" [class.user-self]="user.id === loggedUser?.id" *ngFor="let user of users">
+                <div class="user-avatar" [class.user-avatar-img]="user.profile_image">
+                    <img *ngIf="user.profile_image" [src]="user.profile_image" [alt]="user.name">
+                    <span *ngIf="!user.profile_image">{{ userInitials(user) }}</span>
+                </div>
+                <span class="item-name user-info">
+                    <span class="user-fullname">
+                        {{ user.name }} {{ user.surname }}
+                        <span class="badge-protected" *ngIf="user.id === loggedUser?.id">tu</span>
+                    </span>
+                    <span class="user-email">{{ user.email }}</span>
+                </span>
+                <select class="role-select"
+                    [ngModel]="roleIdByName(user.role)"
+                    (ngModelChange)="changeUserRole(user, $event)"
+                    [disabled]="!canEditUser(user)">
+                    <option *ngFor="let role of assignableRoles()" [value]="role.id">{{ role.name }}</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+</div>

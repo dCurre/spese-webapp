@@ -11,4 +11,6 @@ export class Expense {
     expense_list_id: number;
     expense_date: string;
     created_at: string;
+    expense_type_id: number | null;
+    expense_type: string | null;
 }

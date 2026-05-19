@@ -2,10 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { forkJoin } from 'rxjs';
 import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expense-dialog.component';
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
+import { SaldoDetails } from '../saldo-details/list-details-dialog-fields';
 import { Expense } from 'src/app/core/services/postgres/expense/expense';
 import { ExpenseService } from 'src/app/core/services/postgres/expense/expense.service';
 import { ExpensesList } from 'src/app/core/services/postgres/expenses-list/expenses-list';
@@ -31,7 +33,44 @@ export class ExpenseListDetailsComponent implements OnInit {
   protected searchTerm: string;
   protected panelOpenState = false;
   protected openPanel: number | null = null;
+  protected sortBy: 'name' | 'date' | 'amount' = 'date';
+  protected sortAsc = false;
+
+  protected balanceDetails: SaldoDetails[] = [];
+  protected mapPagato = new Map<string, number>();
+  protected balanceOpen = true;
+
+  protected readonly expenseTypeIcons: Record<string, string> = {
+    'Alimentari':   'fa-basket-shopping',
+    'Ristorante':   'fa-utensils',
+    'Trasporti':    'fa-car',
+    'Alloggio':     'fa-house',
+    'Svago':        'fa-masks-theater',
+    'Salute':       'fa-heart-pulse',
+    'Abbigliamento':'fa-shirt',
+    'Utenze':       'fa-bolt',
+    'Altro':        'fa-circle-question',
+  };
+
+  expenseTypeIcon(type: string | null): string {
+    return type ? (this.expenseTypeIcons[type] ?? 'fa-tag') : 'fa-tag';
+  }
+
   togglePanel(i: number) { this.openPanel = this.openPanel === i ? null : i; }
+
+  get sortedExpenses(): Expense[] {
+    let list = this.searchTerm?.trim()
+      ? this.expenses.filter(e => e.name.toLowerCase().includes(this.searchTerm.trim().toLowerCase()))
+      : [...this.expenses];
+    list = list.sort((a, b) => {
+      let cmp = 0;
+      if (this.sortBy === 'name') cmp = a.name.localeCompare(b.name);
+      else if (this.sortBy === 'amount') cmp = Number(a.amount) - Number(b.amount);
+      else cmp = new Date(a.expense_date).getTime() - new Date(b.expense_date).getTime();
+      return this.sortAsc ? cmp : -cmp;
+    });
+    return list;
+  }
 
   constructor(
     public afAuth: AngularFireAuth,
@@ -59,6 +98,7 @@ export class ExpenseListDetailsComponent implements OnInit {
         this.expenses = res.expenses;
         this.expensesListTotalAmount = res.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
         this.expensesLoaded = true;
+        this.computeBalance(res.expenses);
       },
       error: (e) => console.error('ExpenseListDetailsComponent.getExpensesByListId: ', e)
     });
@@ -68,6 +108,23 @@ export class ExpenseListDetailsComponent implements OnInit {
     this.pgExpensesListService.getById(id).subscribe({
       next: (list) => this.expensesList = list,
       error: (e) => console.error('ExpenseListDetailsComponent.getExpensesListDetails: ', e)
+    });
+  }
+
+  private computeBalance(expenses: Expense[]) {
+    this.mapPagato = new Map();
+    expenses.forEach(e => {
+      const buyer = `${e.owner.name} ${e.owner.surname}`;
+      this.mapPagato.set(buyer, (this.mapPagato.get(buyer) ?? 0) + Number(e.amount));
+    });
+
+    this.balanceDetails = [];
+    this.mapPagato.forEach((buyerPaid, buyer) => {
+      this.mapPagato.forEach((receiverPaid, receiver) => {
+        if (buyer !== receiver) {
+          this.balanceDetails.push(new SaldoDetails(buyer, receiver, (receiverPaid - buyerPaid) / this.mapPagato.size));
+        }
+      });
     });
   }
 
@@ -106,10 +163,6 @@ export class ExpenseListDetailsComponent implements OnInit {
     return !!expense.updated_at && !!expense.modified_by;
   }
 
-  modifiedByName(expense: Expense): string {
-    return expense.modified_by ? String(expense.modified_by) : '';
-  }
-
   formatToEur(amount: number) {
     return MathUtils.formatToEur(amount);
   }
@@ -130,7 +183,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     modalLeave.result.then(async response => {
       if (!response) return;
 
-      if (expensesList.participants.length == 1) {
+      if ((expensesList.participants?.length ?? 0) == 1) {
         this.deleteList(expensesList);
       } else {
         const firebaseUser = await this.afAuth.currentUser;
@@ -149,7 +202,9 @@ export class ExpenseListDetailsComponent implements OnInit {
     const modalDelete = this.modalService.open(DialogComponent, { centered: true });
     modalDelete.componentInstance.dialogFields = new ConfirmDialogFields(
       'Elimina',
-      'Sei l\'unico componente di ' + expensesList.name + '.\nVuoi veramente cancellarla?'
+      expensesList.list_type === 'personal'
+        ? 'Vuoi veramente eliminare ' + expensesList.name + '?'
+        : 'Sei l\'unico componente di ' + expensesList.name + '.\nVuoi veramente cancellarla?'
     );
 
     modalDelete.result.then((response) => {

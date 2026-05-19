@@ -1,68 +1,84 @@
-<div class="modal-header">
-    <h5 class="modal-title">Crea una nuova spesa</h5>
-    <button type="button" (click)="modalService.close(null)" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
+<div class="dialog-header">
+    <h5 class="dialog-title">{{action}} spesa</h5>
+    <button class="dialog-close" (click)="modalService.close(null)" aria-label="Close">
+        <i class="fa fa-times"></i>
     </button>
 </div>
-<div class="modal-body">
-    <form #newListForm="ngForm">
-        <div class="input-group mb-2">
-            <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-shopping-cart"></i></span>
-            </div>
-            <input type="text" name='name' [(ngModel)]="newExpense.name" class="form-control input_pass" required
+
+<div class="dialog-body">
+    <form #newExpenseForm="ngForm">
+
+        <div class="field-group">
+            <label class="field-label">Descrizione</label>
+            <input type="text" name="name" [(ngModel)]="newExpense.name" class="field-input"
                 list="expensesList" (blur)="touched.name = true"
-                [ngClass]="touched.name ? (isValidExpense(newExpense.name!) ? 'is-valid' : 'is-invalid') : ''"
-                onfocus="this.select();" placeholder="Nome nuova spesa">
-            <div class="invalid-feedback">Deve contenere 1-{{maxInputText}} caratteri.</div>
+                [class.is-invalid]="touched.name && !isValidExpense(newExpense.name!)"
+                [class.is-valid]="touched.name && isValidExpense(newExpense.name!)"
+                onfocus="this.select();" placeholder="Es. Cena al ristorante">
+            <datalist id="expensesList">
+                <option *ngFor="let expense of expenseTooltip">{{expense}}</option>
+            </datalist>
+            <span class="field-error" *ngIf="touched.name && !isValidExpense(newExpense.name!)">
+                Deve contenere 1-{{maxInputText}} caratteri.
+            </span>
         </div>
-        <datalist id="expensesList">
-            <option *ngFor="let expense of expenseTooltip">{{expense}}</option>
-        </datalist>
-        <div class="input-group mb-2">
-            <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
+
+        <div class="field-row">
+            <div class="field-group">
+                <label class="field-label">Importo</label>
+                <div class="field-input-prefix">
+                    <span class="field-prefix">€</span>
+                    <input type="number" name="amount" [(ngModel)]="newExpense.amount" class="field-input with-prefix"
+                        (blur)="touched.amount = true"
+                        [class.is-invalid]="touched.amount && !isValidAmount(newExpense.amount!)"
+                        [class.is-valid]="touched.amount && isValidAmount(newExpense.amount!)"
+                        onfocus="this.select();" placeholder="0,00">
+                </div>
+                <span class="field-error" *ngIf="touched.amount && !isValidAmount(newExpense.amount!)">
+                    Importo maggiore di 0.
+                </span>
             </div>
-            <input type="number" name='amount' [(ngModel)]="newExpense.amount" class="form-control input_pass" required
-                (blur)="touched.amount = true"
-                [ngClass]="touched.amount ? (isValidAmount(newExpense.amount!) ? 'is-valid' : 'is-invalid') : ''"
-                onfocus="this.select();" placeholder="Importo">
-            <div class="invalid-feedback">Inserire importo maggiore di 0.</div>
+
+            <div class="field-group">
+                <label class="field-label">Data</label>
+                <input type="date" class="field-input" name="date" [(ngModel)]="selectedDate"
+                    lang="en-US"
+                    (blur)="touched.date = true"
+                    [class.is-invalid]="touched.date && !selectedDate"
+                    [class.is-valid]="touched.date && !!selectedDate">
+                <span class="field-error" *ngIf="touched.date && !selectedDate">
+                    Selezionare una data.
+                </span>
+            </div>
         </div>
-        <div class="input-group mb-2">
-            <div class="input-group-append">
-                <span (click)="d.toggle()" class="input-group-text"><i class="fas fa-clock"></i></span>
-            </div>
-            <input class="form-control" name="date" [(ngModel)]="model" ngbDatepicker [footerTemplate]="footerTemplate" onfocus="this.select();"
-            [ngClass]="touched.date ? (model ? 'is-valid' : 'is-invalid') : ''" #d="ngbDatepicker" required readonly="readonly" (blur)="touched.date = true">
-            <button class="btn btn-outline-secondary calendar" (click)="d.toggle()" type="button">
-                <i class="fas fa-calendar"></i></button>
-        </div>
-        <div class="input-group mb-2">
-            <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-user"></i></span>
-            </div>
-            <select name='buyer' [(ngModel)]="selectedBuyerName" class="form-control"
+
+        <div class="field-group">
+            <label class="field-label">Pagato da</label>
+            <select name="buyer" [(ngModel)]="selectedBuyerName" class="field-input"
                 (blur)="touched.buyer = true" (change)="touched.buyer = true"
-                [ngClass]="touched.buyer ? (selectedBuyerName ? 'is-valid' : 'is-invalid') : ''" required>
-                <option value="" disabled>Pagato da</option>
+                [class.is-invalid]="touched.buyer && !selectedBuyerName"
+                [class.is-valid]="touched.buyer && !!selectedBuyerName">
+                <option value="" disabled>Seleziona partecipante</option>
                 <option *ngFor="let p of participants" [value]="p.name + ' ' + p.surname">
                     {{p.name}} {{p.surname}}
                 </option>
             </select>
-            <div class="invalid-feedback">Deve essere popolato.</div>
+            <span class="field-error" *ngIf="touched.buyer && !selectedBuyerName">
+                Selezionare chi ha pagato.
+            </span>
         </div>
+
+        <div class="field-group">
+            <label class="field-label">Tipologia</label>
+            <select name="expenseType" [(ngModel)]="selectedTypeId" class="field-input">
+                <option *ngFor="let t of expenseTypes" [ngValue]="t.id">{{t.name}}</option>
+            </select>
+        </div>
+
     </form>
 </div>
-<div class="modal-footer">
-    <button type="button" (click)="modalService.close(null)" class="btn btn-danger"
-        data-dismiss="modal">Annulla</button>
-    <button type="button" class="btn btn-success" [disabled]="!isValid()" (click)="close()">{{action}}</button>
-</div>
 
-<!-- Bottoni per calendario -->
-<ng-template #footerTemplate>
-    <hr class="my-0">
-    <button class="btn btn-primary btn-sm m-2 float-start" (click)="selectToday(); d.close()">Oggi</button>
-    <button class="btn btn-secondary btn-sm m-2 float-end" (click)="d.close()">Chiudi</button>
-</ng-template>
+<div class="dialog-footer">
+    <button class="btn-cancel" (click)="modalService.close(null)">Annulla</button>
+    <button class="btn-confirm" [disabled]="!isValid()" (click)="close()">{{action}}</button>
+</div>

@@ -1,11 +1,35 @@
-mat-sidenav {
-    min-width: 300px;
-    max-width: 300px;
-    max-height: 100%;
-    background: #1e2229;
-    color: #818896;
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    background: #f4f5f7;
 }
 
-mat-sidenav-container {
-    height: calc(100vh);
+.app-layout.signin-layout {
+    display: block;
+}
+
+.app-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .app-sidebar {
+        width: 0;
+    }
+
+    .app-main {
+        padding-bottom: 60px;
+    }
+}
+
+.app-main {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    position: relative;
+}
+
+.route-container {
+    position: relative;
 }

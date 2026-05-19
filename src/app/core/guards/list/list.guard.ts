@@ -3,6 +3,7 @@ import { CanActivate, ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTr
 import { Observable } from 'rxjs';
 
 import { AngularFireAuth } from '@angular/fire/compat/auth';
+import { filter, first } from 'rxjs/operators';
 import StringUtils from 'src/app/shared/utils/string-utils';
 import { ExpensesListService } from '../../services/postgres/expenses-list/expenses-list.service';
 import { UserService } from '../../services/postgres/user/user.service';
@@ -31,7 +32,10 @@ export class ListGuard implements CanActivate {
                 return resolve(false);
             }
 
-            const firebaseUser = await this.afAuth.currentUser;
+            const firebaseUser = await this.afAuth.authState.pipe(
+                filter((u): u is any => u !== undefined),
+                first()
+            ).toPromise();
             if (!firebaseUser?.email) {
                 this.router.navigate(['']);
                 return resolve(false);
@@ -45,8 +49,9 @@ export class ListGuard implements CanActivate {
 
             this.pgExpensesListService.getById(listID).subscribe({
                 next: (expensesList) => {
-                    const isParticipant = expensesList.participants?.some(p => p.user_id === pgUser.id);
-                    if (!isParticipant) {
+                    const isOwner = expensesList.user_id === pgUser.id;
+                    const isParticipant = expensesList.participants?.some(p => p.user_id === pgUser.id) ?? false;
+                    if (!isOwner && !isParticipant) {
                         this.router.navigate(['']);
                         return resolve(false);
                     }

@@ -10,6 +10,7 @@ import { ExpensesListService } from 'src/app/core/services/postgres/expenses-lis
 import { ExpensesListParticipantService } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant.service';
 import { User } from 'src/app/core/services/postgres/user/user';
 import { UserService } from 'src/app/core/services/postgres/user/user.service';
+import { AuthService } from 'src/app/core/services/auth/auth.service';
 import GenericUtils from 'src/app/shared/utils/generic-utils';
 
 @Component({
@@ -22,12 +23,25 @@ export class ExpensesListComponent implements OnInit {
   protected allLists: ExpensesList[] = [];
   protected loggedUser: User | null = null;
   protected hasLoaded = false;
+  protected loadError = false;
+  private userEmail: string | null = null;
+  protected searchTerm = '';
+  protected sortBy: 'name' | 'date' = 'date';
+  protected sortAsc = false;
 
   get expensesLists(): ExpensesList[] {
-    if (!this.loggedUser?.paid_list_shown) {
-      return this.allLists.filter(l => !l.paid);
+    let lists = this.loggedUser?.paid_list_shown ? this.allLists : this.allLists.filter(l => !l.paid);
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.trim().toLowerCase();
+      lists = lists.filter(l => l.name.toLowerCase().includes(term));
     }
-    return this.allLists;
+    lists = [...lists].sort((a, b) => {
+      let cmp = this.sortBy === 'name'
+        ? a.name.localeCompare(b.name)
+        : new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+      return this.sortAsc ? cmp : -cmp;
+    });
+    return lists;
   }
 
   constructor(
@@ -35,6 +49,7 @@ export class ExpensesListComponent implements OnInit {
     private pgExpensesListService: ExpensesListService,
     private pgParticipantService: ExpensesListParticipantService,
     private pgUserService: UserService,
+    private authService: AuthService,
     private modalService: NgbModal,
     public router: Router,
   ) {}
@@ -50,14 +65,29 @@ export class ExpensesListComponent implements OnInit {
   private load() {
     this.afAuth.currentUser.then(firebaseUser => {
       if (!firebaseUser?.email) return;
-      this.pgUserService.getByEmailWithLists(firebaseUser.email).subscribe({
-        next: (res) => {
-          this.loggedUser = res.user;
-          this.allLists = res.expenses_lists;
-          this.hasLoaded = true;
-        },
-        error: (e) => console.error('ExpensesListComponent.load: ', e)
-      });
+      this.userEmail = firebaseUser.email;
+      this.loadLists();
+    }).catch(() => {
+      this.hasLoaded = true;
+      this.loadError = true;
+    });
+  }
+
+  private loadLists() {
+    if (!this.userEmail) return;
+    this.pgUserService.getByEmailWithLists(this.userEmail).subscribe({
+      next: (res) => {
+        this.loggedUser = res.user;
+        this.allLists = res.expenses_lists;
+        this.hasLoaded = true;
+        this.loadError = false;
+        this.authService.refreshUser();
+      },
+      error: (e) => {
+        console.error('ExpensesListComponent.load: ', e);
+        this.hasLoaded = true;
+        this.loadError = true;
+      }
     });
   }
 
@@ -77,12 +107,17 @@ export class ExpensesListComponent implements OnInit {
         return;
       }
 
-      this.pgExpensesListService.create({ name: response, user_id: userId, paid: false }).subscribe({
+      const { name, list_type } = response;
+      this.pgExpensesListService.create({ name, user_id: userId, paid: false, list_type }).subscribe({
         next: (res) => {
-          this.pgParticipantService.add(res.id, userId).subscribe({
-            next: () => this.reloadLists(),
-            error: (e) => console.error('ExpensesListComponent.newList add participant: ', e)
-          });
+          if (list_type === 'shared') {
+            this.pgParticipantService.add(res.id, userId).subscribe({
+              next: () => this.reloadLists(),
+              error: (e) => console.error('ExpensesListComponent.newList add participant: ', e)
+            });
+          } else {
+            this.reloadLists();
+          }
         },
         error: (e) => console.error('ExpensesListComponent.newList: ', e)
       });
@@ -90,17 +125,20 @@ export class ExpensesListComponent implements OnInit {
   }
 
   delete(expensesList: ExpensesList) {
+    const isPersonal = expensesList.list_type === 'personal';
+    const isLastParticipant = (expensesList.participants?.length ?? 0) <= 1;
+
+    const message = isPersonal
+      ? 'Vuoi veramente eliminare ' + expensesList.name + '?'
+      : isLastParticipant
+        ? 'Sei l\'unico componente di ' + expensesList.name + '.\nVuoi veramente cancellarla?'
+        : 'Vuoi veramente cancellare ' + expensesList.name + '?';
+
     const modal = this.modalService.open(DialogComponent, { centered: true });
-    modal.componentInstance.dialogFields = new ConfirmDialogFields(
-      'Elimina',
-      'Vuoi veramente cancellare ' + expensesList.name + '?'
-    );
+    modal.componentInstance.dialogFields = new ConfirmDialogFields('Elimina', message);
 
     modal.result.then((response) => {
-      if (!response) {
-        return;
-      }
-
+      if (!response) return;
       this.pgExpensesListService.delete(expensesList.id).subscribe({
         next: () => this.reloadLists(),
         error: (e) => console.error('ExpensesListComponent.delete: ', e)
@@ -120,25 +158,19 @@ export class ExpensesListComponent implements OnInit {
 
   protected changePaidListsVisibility() {
     if (!this.loggedUser) return;
-
-    const modal = this.modalService.open(DialogComponent, { centered: true });
-    modal.componentInstance.dialogFields = new ConfirmDialogFields(
-      'Conferma',
-      this.loggedUser.paid_list_shown
-        ? 'Vuoi veramente nascondere le liste saldate?'
-        : 'Vuoi veramente mostrare le liste saldate?'
-    );
-
-    modal.result.then((response) => {
-      if (!response || !this.loggedUser) return;
-
-      this.loggedUser.paid_list_shown = !this.loggedUser.paid_list_shown;
-      this.pgUserService.update(this.loggedUser.id, { paid_list_shown: this.loggedUser.paid_list_shown }).subscribe({
-        next: () => this.reloadLists(),
-        error: (e) => console.error('ExpensesListComponent.changePaidListsVisibility: ', e)
-      });
-    }).catch(() => {});
+    this.loggedUser.paid_list_shown = !this.loggedUser.paid_list_shown;
+    this.pgUserService.update(this.loggedUser.id, { paid_list_shown: this.loggedUser.paid_list_shown }).subscribe({
+      next: () => this.reloadLists(),
+      error: (e) => console.error('ExpensesListComponent.changePaidListsVisibility: ', e)
+    });
   }
 
   protected archive() {}
+
+  protected retry() {
+    this.hasLoaded = false;
+    this.loadError = false;
+    this.authService.refreshUser();
+    this.loadLists();
+  }
 }

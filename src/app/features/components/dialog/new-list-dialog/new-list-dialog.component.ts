@@ -11,14 +11,14 @@ import StringUtils from 'src/app/shared/utils/string-utils';
 })
 export class NewListDialogComponent implements OnInit {
 
-public expensesList: Partial<ExpensesList>
-
+  public expensesList: Partial<ExpensesList> = {};
   public maxInputText = Constants.maxInputText;
+  public selectedType: 'shared' | 'personal' = 'shared';
 
-  constructor(public modalService: NgbActiveModal) { }
+  constructor(public modalService: NgbActiveModal) {}
 
   ngOnInit(): void {
-    this.expensesList = {}
+    this.expensesList = {};
   }
 
   isValidListName(listName: string) {

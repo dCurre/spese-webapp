@@ -1,73 +1,99 @@
-<br>
-<h3 class="d-flex justify-content-center">Le tue liste</h3>
-<br>
-<div *ngIf="!hasLoaded">
-    <app-spinner></app-spinner>
+<div class="section-header">
+    <h3 class="section-title">Le tue liste spese</h3>
+    <div class="section-actions">
+        <button class="btn-icon" (click)="archive()" title="Archivio">
+            <i class="fa fa-box-archive"></i>
+        </button>
+        <button class="btn-toggle-paid" (click)="changePaidListsVisibility()" *ngIf="loggedUser"
+            [class.active]="!loggedUser.paid_list_shown" title="Nascondi saldate">
+            <i class="fa fa-eye-slash"></i>
+            <span>Nascondi saldate</span>
+        </button>
+        <button class="btn-new-group" (click)="newList(loggedUser!.id); $any($event.target).blur()" [disabled]="!loggedUser">
+            <i class="fa fa-plus"></i> Nuova Lista
+        </button>
+    </div>
 </div>
-<div *ngIf="hasLoaded" class="container col-lg-6">
-    <div class="d-flex justify-content-end">
-        <button id="btn-add" (click)="newList(loggedUser!.id)" class="btn btn-success ml-1" type="button"><i class="fa fa-plus"></i>
-            Nuova lista</button>
-        <div class="btn-group dropdown" *ngIf="loggedUser">
-            <a href="#" data-toggle="dropdown" class="text-muted" data-abc="true">
-                <span class="input-group-text btn btn-outline-secondary"><i class="fas fa-cog"></i></span>
-            </a>
-            <div class="dropdown-menu dropdown-menu-right" role="menu">
-                <button class="dropdown-item" (click)="changePaidListsVisibility()">
-                    {{loggedUser.paid_list_shown ? 'Nascondi liste saldate' : 'Mostra liste saldate'}}
-                </button>
-                <div class="dropdown-divider"></div>
-                <button class="dropdown-item" (click)="archive()">Archivio</button>
-            </div>
+
+<div class="toolbar">
+    <div class="search-input-wrap">
+        <i class="fa fa-search search-icon"></i>
+        <input type="text" class="search-input" placeholder="Cerca lista..." [(ngModel)]="searchTerm"/>
+        <button *ngIf="searchTerm" class="search-clear" (click)="searchTerm = ''">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+    <div class="sort-wrap">
+        <i class="fa fa-arrow-up-wide-short sort-icon"></i>
+        <select class="sort-select" [(ngModel)]="sortBy">
+            <option value="date">Data</option>
+            <option value="name">Nome</option>
+        </select>
+    </div>
+    <button class="sort-dir-btn" (click)="sortAsc = !sortAsc" [title]="sortAsc ? 'Crescente' : 'Decrescente'">
+        <i class="fa" [ngClass]="sortAsc ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+    </button>
+</div>
+
+<!-- Skeleton while loading -->
+<div *ngIf="!hasLoaded" class="groups-grid">
+    <div class="group-card skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+        <div class="skeleton-avatar-lg"></div>
+        <div class="skeleton-info">
+            <div class="skeleton-line skeleton-line-medium"></div>
+            <div class="skeleton-line skeleton-line-short"></div>
         </div>
     </div>
-    <div *ngIf="expensesLists.length === 0">
-        <app-not-found subject="lista"></app-not-found>
-    </div>
-    <div *ngIf="expensesLists.length > 0" class="d-flex justify-content-center mb-5">
-        <div class="list list-row card col-lg-12">
-            <div class="row">
-                <div class="col-md-12" *ngFor="let expensesList of expensesLists">
-                    <div class="list-item">
-                        <div>
-                            <a [routerLink]="['/list', expensesList.id]" data-abc="true">
-                                <span class="w-40 avatar"
-                                    [ngClass]="expensesList.paid ? 'gd-saldato' : 'gd-non-saldato'">
-                                    {{expensesList.name[0].toUpperCase()}}
-                                </span>
-                            </a>
-                        </div>
-                        <div class="flex">
-                            <a [routerLink]="['/list', expensesList.id]" data-abc="true">
-                                <div class="text-color">
-                                    {{expensesList.name}}
-                                    <div class="item-except text-muted text-sm h-1x">
-                                        Creata il {{formatDate(expensesList.created_at)}} alle
-                                        {{formatTime(expensesList.created_at)}}
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                        <div class="item-action dropdown">
-                            <a data-toggle="dropdown" class="text-muted" data-abc="true">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                    class="feather feather-more-vertical">
-                                    <circle cx="12" cy="12" r="1"></circle>
-                                    <circle cx="12" cy="5" r="1"></circle>
-                                    <circle cx="12" cy="19" r="1"></circle>
-                                </svg>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-right" role="menu">
-                                <a [routerLink]="['/list', expensesList.id]" class="dropdown-item"
-                                    data-abc="true">Apri</a>
-                                <div class="dropdown-divider"></div>
-                                <button class="dropdown-item" (click)="delete(expensesList)">Elimina</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+</div>
+
+<!-- Errore -->
+<div *ngIf="hasLoaded && loadError" class="load-error">
+    <i class="fa fa-triangle-exclamation"></i>
+    <span>Impossibile caricare le liste. Riprova più tardi.</span>
+    <button class="btn-retry" (click)="retry()">
+        <i class="fa fa-rotate-right"></i> Riprova
+    </button>
+</div>
+
+<div *ngIf="hasLoaded && !loadError && expensesLists.length === 0">
+    <app-not-found subject="lista"></app-not-found>
+</div>
+
+<div class="groups-grid" *ngIf="hasLoaded && !loadError">
+    <div class="group-card" *ngFor="let expensesList of expensesLists"
+         [routerLink]="[expensesList.list_type === 'personal' ? '/list-personal' : '/list', expensesList.id]">
+        <div class="group-card-top">
+            <div class="group-avatar" [ngClass]="expensesList.paid ? 'avatar-paid' : 'avatar-active'">
+                {{expensesList.name[0].toUpperCase()}}
             </div>
+            <button class="btn-icon btn-icon-delete" (click)="$event.stopPropagation(); delete(expensesList)" title="Elimina">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+        <div class="group-name">{{expensesList.name}}</div>
+        <div class="group-card-badges">
+            <span class="badge-type badge-type-personal" *ngIf="expensesList.list_type === 'personal'">
+                <i class="fa fa-user"></i> Personale
+            </span>
+            <span class="badge-type badge-type-shared" *ngIf="expensesList.list_type === 'shared'">
+                <i class="fa fa-users"></i> Condivisa
+            </span>
+            <span class="badge-type badge-type-unknown" *ngIf="expensesList.list_type !== 'personal' && expensesList.list_type !== 'shared'">
+                <i class="fa fa-question"></i> Non taggato
+            </span>
+            <span *ngIf="expensesList.paid" class="badge-paid"><i class="fa fa-lock"></i> Saldato</span>
+        </div>
+        <div class="group-card-footer">
+            <span class="group-date" *ngIf="!expensesList.paid">Creato il {{formatDate(expensesList.created_at)}}</span>
+            <ng-container *ngIf="expensesList.list_type === 'shared'">
+                <span class="badge-owner" *ngIf="expensesList.user_id === loggedUser?.id">
+                    <i class="fa fa-crown"></i> Proprietario
+                </span>
+                <span class="group-participants">
+                    <i class="fa fa-users"></i>
+                    {{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}
+                </span>
+            </ng-container>
         </div>
     </div>
 </div>

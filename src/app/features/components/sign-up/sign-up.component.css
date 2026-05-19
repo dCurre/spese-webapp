@@ -1,0 +1,123 @@
+.signup-page {
+    display: flex;
+    min-height: 100vh;
+    animation: fadeSlideInLeft 0.3s ease;
+}
+
+@keyframes fadeSlideInLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+.signup-page.leaving-right {
+    animation: fadeSlideOutRight 0.28s ease forwards;
+}
+
+@keyframes fadeSlideOutRight {
+    from { opacity: 1; transform: translateX(0); }
+    to   { opacity: 0; transform: translateX(40px); }
+}
+
+.signup-left {
+    width: 320px;
+    flex-shrink: 0;
+    background: linear-gradient(145deg, #0f1623 0%, #1a2e1f 60%, #00b37e 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem 2.5rem;
+    color: white;
+}
+
+.signup-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 3rem;
+}
+
+.signup-brand-icon {
+    font-size: 1.75rem;
+    color: #00b37e;
+}
+
+.signup-brand-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+}
+
+.signup-tagline {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 1rem;
+    color: white;
+}
+
+.signup-sub {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6;
+}
+
+.signup-right {
+    flex: 1;
+    background: #f4f5f7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+.signup-card {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+}
+
+.signup-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1f2e;
+    margin-bottom: 0.25rem;
+}
+
+.signup-desc {
+    font-size: 0.875rem;
+    color: #9ca3af;
+    margin-bottom: 1.75rem;
+}
+
+.signup-back {
+    font-size: 0.875rem;
+    color: #00b37e;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 500;
+}
+
+.signup-back:hover {
+    color: #009e6e;
+}
+
+@media (max-width: 768px) {
+    .signup-page {
+        flex-direction: column;
+    }
+
+    .signup-left {
+        width: 100%;
+        padding: 2rem 1.5rem;
+        flex: none;
+    }
+
+    .signup-right {
+        padding: 1.5rem;
+    }
+}

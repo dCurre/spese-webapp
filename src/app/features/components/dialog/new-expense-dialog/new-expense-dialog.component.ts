@@ -1,8 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { NgbActiveModal, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { Expense } from 'src/app/core/services/postgres/expense/expense';
 import { ExpenseService } from 'src/app/core/services/postgres/expense/expense.service';
+import { ExpenseType, ExpenseTypeService } from 'src/app/core/services/postgres/expense-type/expense-type.service';
 import { ExpensesListParticipant } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant';
 import { ExpensesListParticipantService } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant.service';
 import { UserService } from 'src/app/core/services/postgres/user/user.service';
@@ -26,16 +27,18 @@ export class NewExpenseDialogComponent implements OnInit {
 
   protected newExpense: Partial<Expense> = {};
   protected participants: ExpensesListParticipant[] = [];
+  protected expenseTypes: ExpenseType[] = [];
   protected expenseTooltip: string[] = [];
   protected maxInputText = Constants.maxInputText;
   protected selectedBuyerName: string = '';
   protected touched = { name: false, amount: false, buyer: false, date: false };
-
-  model: NgbDateStruct;
+  protected selectedDate: string = '';
+  protected selectedTypeId: number | null = null;
 
   constructor(
     public modalService: NgbActiveModal,
     private pgExpenseService: ExpenseService,
+    private pgExpenseTypeService: ExpenseTypeService,
     private pgParticipantService: ExpensesListParticipantService,
     private pgUserService: UserService,
     private afAuth: AngularFireAuth,
@@ -46,6 +49,10 @@ export class NewExpenseDialogComponent implements OnInit {
     this.getParticipants(this.listID);
     this.getExpenseTooltip(this.listID);
     this.setDefaultFields();
+    this.pgExpenseTypeService.getAll().subscribe({
+      next: (res) => this.expenseTypes = res.expense_types,
+      error: (e) => console.error('NewExpenseDialogComponent.getExpenseTypes: ', e)
+    });
   }
 
   setDefaultFields() {
@@ -56,15 +63,13 @@ export class NewExpenseDialogComponent implements OnInit {
       ? new Date(this.newExpense.expense_date)
       : new Date();
 
-    this.model = DateUtils.dateTongbDateStruct(date);
+    this.selectedDate = DateUtils.dateToIsoString(date);
 
     if (this.expense?.owner) {
       this.selectedBuyerName = `${this.expense.owner.name} ${this.expense.owner.surname}`;
     }
-  }
 
-  selectToday() {
-    this.model = DateUtils.dateTongbDateStruct(new Date());
+    this.selectedTypeId = this.expense?.expense_type_id ?? 1;
   }
 
   getParticipants(listId: number) {
@@ -92,14 +97,14 @@ export class NewExpenseDialogComponent implements OnInit {
     return this.isValidExpense(this.newExpense.name!)
       && this.isValidAmount(this.newExpense.amount!)
       && !!this.selectedBuyerName
-      && !!this.model;
+      && !!this.selectedDate;
   }
 
   isValidAmount(amount: number) { return MathUtils.isMoreThanZero(amount); }
   isValidExpense(name: string) { return !StringUtils.isNullOrEmpty(name) && name.trim().length <= this.maxInputText; }
 
   async close() {
-    const expenseDate = DateUtils.ngbDateStructToDateString(this.model);
+    const expenseDate = DateUtils.isoStringToDateString(this.selectedDate);
     const buyer = this.participants.find(p => `${p.name} ${p.surname}` === this.selectedBuyerName);
     if (!buyer) return;
 
@@ -110,6 +115,7 @@ export class NewExpenseDialogComponent implements OnInit {
         expense_owner_user_id: buyer.user_id,
         expense_list_id: this.listID,
         expense_date: expenseDate,
+        expense_type_id: this.selectedTypeId,
       }).subscribe({
         next: () => this.modalService.close(),
         error: (e) => console.error('NewExpenseDialogComponent.close insert: ', e)
@@ -128,6 +134,7 @@ export class NewExpenseDialogComponent implements OnInit {
         expense_date: expenseDate,
         expense_owner_user_id: buyer.user_id,
         modified_by: modifiedById,
+        expense_type_id: this.selectedTypeId,
       }).subscribe({
         next: () => this.modalService.close(),
         error: (e) => console.error('NewExpenseDialogComponent.close update: ', e)

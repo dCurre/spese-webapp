@@ -1,35 +1,52 @@
-<div>
-    <i id="sidenav-close-btn" class="fa fa-times fa-2x" (click)="closeSidebar()"></i>
-</div>
-<div class="p-4 pt-5">
-    <div *ngIf="authService.getStoredUser() | async as user">
-        <div class="logo">
-            <a class="nav-link" routerLink="" (click)="closeSidebar()">
-                <img id="user-img" class='rounded-circle mb-5' [src]="user.profile_image" />
-            </a>
-        </div>
-        <!-- END SIDEBAR USERPIC -->
+<!-- Sidebar desktop -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <i class="fa fa-money-bill-wave sidebar-logo-icon"></i>
+        <span class="sidebar-logo-text">Spese</span>
+    </div>
 
-        <!-- SIDEBAR USER TITLE -->
-        <div class="profile-usertitle">
-            <div class="profile-usertitle-name">
-                <a class="nav-link" routerLink="" (click)="closeSidebar()">{{user.name}} {{user.surname}}</a>
+    <nav class="sidebar-nav">
+        <a class="sidebar-item" routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+            <i class="fa fa-receipt"></i>
+            <span>Liste Spese</span>
+        </a>
+        <a class="sidebar-item" routerLink="/checklist" routerLinkActive="active">
+            <i class="fa fa-list-check"></i>
+            <span>Checklist spesa</span>
+        </a>
+        <ng-container *ngIf="authService.getStoredUser() | async as user">
+            <a class="sidebar-item sidebar-item-admin" routerLink="/admin" routerLinkActive="active" *ngIf="user.role === 'admin' || user.role === 'superadmin'">
+                <i class="fa fa-shield-halved"></i>
+                <span>Admin</span>
+            </a>
+        </ng-container>
+    </nav>
+
+    <div class="sidebar-footer" *ngIf="authService.getStoredUser() | async as user">
+        <a routerLink="/profile" class="sidebar-user-link">
+            <img [src]="user.profile_image" class="sidebar-user-avatar" />
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-name">{{user.name}} {{user.surname}}</div>
             </div>
-        </div>
-        <!-- END SIDEBAR USER TITLE -->
+        </a>
+        <button class="sidebar-logout-btn" (click)="logout()" title="Esci">
+            <i class="fa fa-sign-out"></i>
+        </button>
     </div>
-    <!-- SIDEBAR MENU -->
-    <div class="profile-usermenu">
-        <hr>
-        <ul class="list-unstyled side-list">
-            <li class="side-list-elem">
-                <a class="nav-link fa fa-home" routerLink="" (click)="closeSidebar()"><span
-                        class="side-list-span">Home</span></a>
-            </li>
-            <li class="side-list-elem">
-                <a class="nav-link fa fa-sign-out" (click)="closeSidebar();logout()" role="button"><span
-                        class="side-list-span">Esci</span></a>
-            </li>
-        </ul>
-    </div>
-</div>
+</aside>
+
+<!-- Bottom nav mobile -->
+<nav class="bottom-nav">
+    <a class="bottom-nav-item" routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+        <i class="fa fa-receipt"></i>
+        <span>Liste Spese</span>
+    </a>
+    <a class="bottom-nav-item" routerLink="/checklist" routerLinkActive="active">
+        <i class="fa fa-list-check"></i>
+        <span>Checklist</span>
+    </a>
+    <a class="bottom-nav-item" routerLink="/profile" routerLinkActive="active">
+        <i class="fa fa-user"></i>
+        <span>Profilo</span>
+    </a>
+</nav>

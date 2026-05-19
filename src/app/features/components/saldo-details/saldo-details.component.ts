@@ -1,8 +1,7 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { ActivatedRoute } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { SaldoDetails } from './list-details-dialog-fields';
 import { ExpenseService } from 'src/app/core/services/postgres/expense/expense.service';
@@ -23,23 +22,28 @@ export class SaldoDetailsComponent implements OnInit {
   public pieChartPlugins = [ChartDataLabels];
   public pieChartOptions: ChartConfiguration['options'];
   public pieChartData: ChartData<'pie', number[], string | string[]>;
-  private listID: number = Number(this.route.snapshot.paramMap.get('id'));
+  private listID: number;
   private expensesListTotalAmount: number = 0;
   protected mapPagato = new Map<string, number>();
   protected balanceDetails: SaldoDetails[] = [];
   protected partecipantsList: ExpensesListParticipant[] = [];
+  protected ownerUserId: number | null = null;
   protected panelOpenState = false;
   protected partecipantiOpen = false;
+  protected chartOpen = true;
+  protected dataLoaded = false;
+  protected chartColors = ['#00b37e', '#1a1f2e', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6'];
+
+  @Input() set listId(id: number) {
+    if (id) this.loadData(id);
+  }
 
   constructor(
-    private route: ActivatedRoute,
     private pgExpenseService: ExpenseService,
     private pgExpensesListService: ExpensesListService,
   ) {}
 
-  ngOnInit(): void {
-    this.loadData(this.listID);
-  }
+  ngOnInit(): void {}
 
   private loadData(id: number) {
     forkJoin({
@@ -47,9 +51,13 @@ export class SaldoDetailsComponent implements OnInit {
       expenses: this.pgExpenseService.getByListId(id),
     }).subscribe({
       next: ({ list, expenses: res }) => {
-        this.partecipantsList = (list.participants ?? []).sort((a, b) =>
+        this.ownerUserId = list.user_id;
+        const sorted = (list.participants ?? []).sort((a, b) =>
           `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`)
         );
+        const owner = sorted.find(p => p.user_id === list.user_id);
+        const others = sorted.filter(p => p.user_id !== list.user_id);
+        this.partecipantsList = owner ? [owner, ...others] : others;
 
         const expenseList = res.expenses;
 
@@ -72,6 +80,7 @@ export class SaldoDetailsComponent implements OnInit {
           });
         });
 
+        this.dataLoaded = true;
         this.fillChart();
       },
       error: (e) => console.error('SaldoDetailsComponent.getSaldoDetails: ', e)
@@ -85,11 +94,12 @@ export class SaldoDetailsComponent implements OnInit {
         data: Array.from(this.mapPagato.values()),
         borderWidth: 1,
         backgroundColor: [
-          '#7C4DFF',
-          '#69A197',
-          '#8BBCCC',
-          '#4C6793',
-          '#ADDDD0',
+          '#00b37e',
+          '#1a1f2e',
+          '#6366f1',
+          '#f59e0b',
+          '#ef4444',
+          '#8b5cf6',
         ],
       }]
     };
@@ -98,16 +108,10 @@ export class SaldoDetailsComponent implements OnInit {
       responsive: true,
       plugins: {
         title: {
-          display: true,
-          text: 'Totale: ' + MathUtils.formatToEur(this.expensesListTotalAmount),
-          font: { weight: 'bold', size: 24 },
-          color: '',
-          padding: { top: 30, bottom: -1000 },
+          display: false,
         },
         legend: {
-          display: true,
-          position: 'right',
-          labels: { font: { size: 16 }, color: 'black' }
+          display: false,
         },
         datalabels: {
           color: ['white'],

@@ -1,24 +1,45 @@
-<div class="modal-header">
-    <h5 class="modal-title">Crea una nuova lista</h5>
-    <button type="button" (click)="modalService.close(null)" class="close" data-dismiss="modal" aria-label="Close">
-        <span aria-hidden="true">&times;</span>
+<div class="dialog-header">
+    <h5 class="dialog-title">Nuova lista</h5>
+    <button class="dialog-close" (click)="modalService.close(null)" aria-label="Close">
+        <i class="fa fa-times"></i>
     </button>
 </div>
-<div class="modal-body">
+
+<div class="dialog-body">
     <form #newListForm="ngForm">
-        <div class="input-group mb-2">
-            <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-list-ul"></i></span>
+
+        <div class="field-group">
+            <label class="field-label">Tipo</label>
+            <div class="type-selector">
+                <button type="button" class="type-btn" [class.active]="selectedType === 'shared'" (click)="selectedType = 'shared'">
+                    <i class="fa fa-users"></i>
+                    <span class="type-btn-label">Condivisa</span>
+                    <span class="type-btn-desc">Con partecipanti e saldi</span>
+                </button>
+                <button type="button" class="type-btn" [class.active]="selectedType === 'personal'" (click)="selectedType = 'personal'">
+                    <i class="fa fa-user"></i>
+                    <span class="type-btn-label">Personale</span>
+                    <span class="type-btn-desc">Solo per te</span>
+                </button>
             </div>
-            <input type="text" name='listName' [(ngModel)]="expensesList.name" class="form-control input_pass" required
-            [ngClass]="isValidListName(expensesList.name!) ? 'is-valid' : 'is-invalid'" placeholder="Nome nuova lista">
-            <div class="invalid-feedback">Deve contenere 1-{{maxInputText}} caratteri</div>
         </div>
+
+        <div class="field-group">
+            <label class="field-label">Nome della lista</label>
+            <input type="text" name="listName" [(ngModel)]="expensesList.name" class="field-input"
+                [class.is-invalid]="expensesList.name !== undefined && !isValidListName(expensesList.name!)"
+                [class.is-valid]="expensesList.name !== undefined && isValidListName(expensesList.name!)"
+                placeholder="Es. Vacanza Mare 2025">
+            <span class="field-error" *ngIf="expensesList.name !== undefined && !isValidListName(expensesList.name!)">
+                Deve contenere 1-{{maxInputText}} caratteri.
+            </span>
+        </div>
+
     </form>
 </div>
-<div class="modal-footer">
-    <button type="button" (click)="modalService.close(null)" class="btn btn-danger"
-        data-dismiss="modal">Annulla</button>
-    <button type="button" [disabled]="!isValidListName(expensesList.name!)"
-            (click)="modalService.close(expensesList.name)" class="btn btn-success">Crea</button>
+
+<div class="dialog-footer">
+    <button class="btn-cancel" (click)="modalService.close(null)">Annulla</button>
+    <button class="btn-confirm" [disabled]="!isValidListName(expensesList.name!)"
+        (click)="modalService.close({ name: expensesList.name, list_type: selectedType })">Crea</button>
 </div>

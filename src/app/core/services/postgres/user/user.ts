@@ -6,4 +6,5 @@ export class User {
     profile_image: string;
     paid_list_shown: boolean;
     created_at: string;
+    role: 'user' | 'admin' | 'superadmin' | null;
 }
