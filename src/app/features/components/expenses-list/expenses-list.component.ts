@@ -30,18 +30,26 @@ export class ExpensesListComponent implements OnInit {
   protected sortAsc = false;
 
   get expensesLists(): ExpensesList[] {
-    let lists = this.loggedUser?.paid_list_shown ? this.allLists : this.allLists.filter(l => !l.paid);
+    let lists = [...this.allLists];
     if (this.searchTerm.trim()) {
       const term = this.searchTerm.trim().toLowerCase();
       lists = lists.filter(l => l.name.toLowerCase().includes(term));
     }
-    lists = [...lists].sort((a, b) => {
+    lists.sort((a, b) => {
       let cmp = this.sortBy === 'name'
         ? a.name.localeCompare(b.name)
         : new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       return this.sortAsc ? cmp : -cmp;
     });
     return lists;
+  }
+
+  get activeLists(): ExpensesList[] {
+    return this.expensesLists.filter(l => !l.paid);
+  }
+
+  get settledLists(): ExpensesList[] {
+    return this.expensesLists.filter(l => l.paid);
   }
 
   constructor(
@@ -81,7 +89,7 @@ export class ExpensesListComponent implements OnInit {
         this.allLists = res.expenses_lists;
         this.hasLoaded = true;
         this.loadError = false;
-        this.authService.refreshUser();
+        this.authService.setUser(res.user);
       },
       error: (e) => {
         console.error('ExpensesListComponent.load: ', e);

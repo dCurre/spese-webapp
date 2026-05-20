@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { GoogleAuthProvider } from 'firebase/auth';
 import firebase from 'firebase/compat';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
+import { filter } from 'rxjs/operators';
 import { User } from '../postgres/user/user';
 import { UserService } from '../postgres/user/user.service';
 import { PathService } from '../path/path.service';
@@ -53,6 +54,17 @@ export class AuthService {
 
     getStoredUser(): Observable<User | null> {
         return this.loggedUser$.asObservable();
+    }
+
+    setUser(user: User): void {
+        this.loggedUser$.next(user);
+    }
+
+    /** Attende che l'utente sia caricato da Firebase+DB e lo restituisce. Non fa nuove HTTP request. */
+    getUser(): Promise<User | null> {
+        return firstValueFrom(
+            this.loggedUser$.pipe(filter((u): u is User | null => u !== undefined))
+        );
     }
 
     async refreshUser(): Promise<void> {

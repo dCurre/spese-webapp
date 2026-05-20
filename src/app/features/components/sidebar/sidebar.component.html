@@ -27,6 +27,7 @@
             <img [src]="user.profile_image" class="sidebar-user-avatar" />
             <div class="sidebar-user-info">
                 <div class="sidebar-user-name">{{user.name}} {{user.surname}}</div>
+                <div class="sidebar-user-role">{{user.role}}</div>
             </div>
         </a>
         <button class="sidebar-logout-btn" (click)="logout()" title="Esci">
@@ -45,6 +46,12 @@
         <i class="fa fa-list-check"></i>
         <span>Checklist</span>
     </a>
+    <ng-container *ngIf="authService.getStoredUser() | async as user">
+        <a class="bottom-nav-item" routerLink="/admin" routerLinkActive="active" *ngIf="user.role === 'admin' || user.role === 'superadmin'">
+            <i class="fa fa-shield-halved"></i>
+            <span>Admin</span>
+        </a>
+    </ng-container>
     <a class="bottom-nav-item" routerLink="/profile" routerLinkActive="active">
         <i class="fa fa-user"></i>
         <span>Profilo</span>

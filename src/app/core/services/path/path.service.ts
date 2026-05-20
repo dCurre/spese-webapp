@@ -7,7 +7,6 @@ import { Injectable } from '@angular/core';
 export class PathService {
 
   isPath(string: String) {
-    console.debug("PATH: " + location.pathname)
     return location.pathname === string;
   };
 

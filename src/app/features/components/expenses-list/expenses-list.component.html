@@ -1,39 +1,43 @@
-<div class="section-header">
-    <h3 class="section-title">Le tue liste spese</h3>
-    <div class="section-actions">
-        <button class="btn-icon" (click)="archive()" title="Archivio">
-            <i class="fa fa-box-archive"></i>
-        </button>
-        <button class="btn-toggle-paid" (click)="changePaidListsVisibility()" *ngIf="loggedUser"
-            [class.active]="!loggedUser.paid_list_shown" title="Nascondi saldate">
-            <i class="fa fa-eye-slash"></i>
-            <span>Nascondi saldate</span>
-        </button>
-        <button class="btn-new-group" (click)="newList(loggedUser!.id); $any($event.target).blur()" [disabled]="!loggedUser">
-            <i class="fa fa-plus"></i> Nuova Lista
+<div class="list-sticky-header">
+    <div class="section-header">
+        <h3 class="section-title">Le tue liste spese</h3>
+        <div class="section-actions">
+            <button class="btn-icon" (click)="archive()" title="Archivio">
+                <i class="fa fa-box-archive"></i>
+            </button>
+            <button class="btn-toggle-paid" (click)="changePaidListsVisibility()" *ngIf="loggedUser"
+                [class.active]="!loggedUser.paid_list_shown" title="Nascondi saldate">
+                <i class="fa fa-eye-slash"></i>
+                <span>Nascondi saldate</span>
+            </button>
+            <button class="btn-new-group" (click)="newList(loggedUser!.id); $any($event.target).blur()" [disabled]="!loggedUser">
+                <i class="fa fa-plus"></i> Nuova Lista
+            </button>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="search-input-wrap">
+            <i class="fa fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Cerca lista..." [(ngModel)]="searchTerm"/>
+            <button *ngIf="searchTerm" class="search-clear" (click)="searchTerm = ''">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="sort-wrap">
+            <i class="fa fa-arrow-up-wide-short sort-icon"></i>
+            <select class="sort-select" [(ngModel)]="sortBy">
+                <option value="date">Data</option>
+                <option value="name">Nome</option>
+            </select>
+        </div>
+        <button class="sort-dir-btn" (click)="sortAsc = !sortAsc; $any($event.target).blur()" [title]="sortAsc ? 'Crescente' : 'Decrescente'">
+            <i class="fa" [ngClass]="sortAsc ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
         </button>
     </div>
 </div>
 
-<div class="toolbar">
-    <div class="search-input-wrap">
-        <i class="fa fa-search search-icon"></i>
-        <input type="text" class="search-input" placeholder="Cerca lista..." [(ngModel)]="searchTerm"/>
-        <button *ngIf="searchTerm" class="search-clear" (click)="searchTerm = ''">
-            <i class="fa fa-times"></i>
-        </button>
-    </div>
-    <div class="sort-wrap">
-        <i class="fa fa-arrow-up-wide-short sort-icon"></i>
-        <select class="sort-select" [(ngModel)]="sortBy">
-            <option value="date">Data</option>
-            <option value="name">Nome</option>
-        </select>
-    </div>
-    <button class="sort-dir-btn" (click)="sortAsc = !sortAsc" [title]="sortAsc ? 'Crescente' : 'Decrescente'">
-        <i class="fa" [ngClass]="sortAsc ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
-    </button>
-</div>
+<div class="groups-scroll">
 
 <!-- Skeleton while loading -->
 <div *ngIf="!hasLoaded" class="groups-grid">
@@ -59,41 +63,90 @@
     <app-not-found subject="lista"></app-not-found>
 </div>
 
-<div class="groups-grid" *ngIf="hasLoaded && !loadError">
-    <div class="group-card" *ngFor="let expensesList of expensesLists"
-         [routerLink]="[expensesList.list_type === 'personal' ? '/list-personal' : '/list', expensesList.id]">
-        <div class="group-card-top">
-            <div class="group-avatar" [ngClass]="expensesList.paid ? 'avatar-paid' : 'avatar-active'">
-                {{expensesList.name[0].toUpperCase()}}
+<ng-container *ngIf="hasLoaded && !loadError && expensesLists.length > 0">
+
+    <ng-template #cardTemplate let-expensesList="expensesList">
+    </ng-template>
+
+    <div class="section-wrap" *ngIf="activeLists.length > 0">
+        <div class="section-label">
+            Attive <span class="section-badge">{{activeLists.length}}</span>
+        </div>
+        <div class="groups-grid">
+            <div class="group-card" *ngFor="let expensesList of activeLists"
+                 [class.card-paid]="expensesList.paid"
+                 [routerLink]="[expensesList.list_type === 'personal' ? '/list-personal' : '/list', expensesList.id]">
+                <div class="group-card-top">
+                    <div class="group-card-title">
+                        <div class="group-avatar" [ngClass]="expensesList.paid ? 'avatar-paid' : 'avatar-active'">
+                            {{expensesList.name[0].toUpperCase()}}
+                        </div>
+                        <div class="group-name">{{expensesList.name}}</div>
+                    </div>
+                    <button class="btn-icon-delete" (click)="$event.stopPropagation(); delete(expensesList)" title="Elimina">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
+                <div class="group-card-badges">
+                    <app-badge variant="personal" *ngIf="expensesList.list_type === 'personal'"></app-badge>
+                    <app-badge variant="shared" *ngIf="expensesList.list_type === 'shared'"></app-badge>
+                    <app-badge variant="unknown" *ngIf="expensesList.list_type !== 'personal' && expensesList.list_type !== 'shared'"></app-badge>
+                    <app-badge variant="paid" *ngIf="expensesList.paid"></app-badge>
+                    <app-badge variant="owner" *ngIf="expensesList.list_type === 'shared' && expensesList.user_id === loggedUser?.id"></app-badge>
+                </div>
+                <span class="group-date" *ngIf="!expensesList.paid">Creato il {{formatDate(expensesList.created_at)}}</span>
+                <div class="group-progress-row" *ngIf="expensesList.list_type === 'shared'">
+                    <div class="group-progress-bar">
+                        <div class="group-progress-fill" [style.width.%]="((expensesList.participants?.length ?? 0) / (expensesList.max_participants ?? 8)) * 100"></div>
+                    </div>
+                    <span class="group-progress-text">{{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
+                </div>
+                <div class="group-card-footer">
+                    <span class="group-expenses-count"><i class="fa fa-receipt"></i> {{expensesList.expenses_count ?? 0}}</span>
+                    <span class="group-participants" *ngIf="expensesList.list_type === 'shared'"><i class="fa fa-users"></i> {{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
+                </div>
             </div>
-            <button class="btn-icon btn-icon-delete" (click)="$event.stopPropagation(); delete(expensesList)" title="Elimina">
-                <i class="fa fa-trash"></i>
-            </button>
-        </div>
-        <div class="group-name">{{expensesList.name}}</div>
-        <div class="group-card-badges">
-            <span class="badge-type badge-type-personal" *ngIf="expensesList.list_type === 'personal'">
-                <i class="fa fa-user"></i> Personale
-            </span>
-            <span class="badge-type badge-type-shared" *ngIf="expensesList.list_type === 'shared'">
-                <i class="fa fa-users"></i> Condivisa
-            </span>
-            <span class="badge-type badge-type-unknown" *ngIf="expensesList.list_type !== 'personal' && expensesList.list_type !== 'shared'">
-                <i class="fa fa-question"></i> Non taggato
-            </span>
-            <span *ngIf="expensesList.paid" class="badge-paid"><i class="fa fa-lock"></i> Saldato</span>
-        </div>
-        <div class="group-card-footer">
-            <span class="group-date" *ngIf="!expensesList.paid">Creato il {{formatDate(expensesList.created_at)}}</span>
-            <ng-container *ngIf="expensesList.list_type === 'shared'">
-                <span class="badge-owner" *ngIf="expensesList.user_id === loggedUser?.id">
-                    <i class="fa fa-crown"></i> Proprietario
-                </span>
-                <span class="group-participants">
-                    <i class="fa fa-users"></i>
-                    {{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}
-                </span>
-            </ng-container>
         </div>
     </div>
-</div>
+
+    <div class="section-wrap" *ngIf="loggedUser?.paid_list_shown && settledLists.length > 0">
+        <div class="section-label">
+            Saldate <span class="section-badge">{{settledLists.length}}</span>
+        </div>
+        <div class="groups-grid">
+            <div class="group-card card-paid" *ngFor="let expensesList of settledLists"
+                 [routerLink]="[expensesList.list_type === 'personal' ? '/list-personal' : '/list', expensesList.id]">
+                <div class="group-card-top">
+                    <div class="group-card-title">
+                        <div class="group-avatar avatar-paid">
+                            {{expensesList.name[0].toUpperCase()}}
+                        </div>
+                        <div class="group-name">{{expensesList.name}}</div>
+                    </div>
+                    <button class="btn-icon-delete" (click)="$event.stopPropagation(); delete(expensesList)" title="Elimina">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
+                <div class="group-card-badges">
+                    <app-badge variant="personal" *ngIf="expensesList.list_type === 'personal'"></app-badge>
+                    <app-badge variant="shared" *ngIf="expensesList.list_type === 'shared'"></app-badge>
+                    <app-badge variant="paid"></app-badge>
+                    <app-badge variant="owner" *ngIf="expensesList.list_type === 'shared' && expensesList.user_id === loggedUser?.id"></app-badge>
+                </div>
+                <div class="group-progress-row" *ngIf="expensesList.list_type === 'shared'">
+                    <div class="group-progress-bar">
+                        <div class="group-progress-fill" [style.width.%]="((expensesList.participants?.length ?? 0) / (expensesList.max_participants ?? 8)) * 100"></div>
+                    </div>
+                    <span class="group-progress-text">{{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
+                </div>
+                <div class="group-card-footer">
+                    <span class="group-expenses-count"><i class="fa fa-receipt"></i> {{expensesList.expenses_count ?? 0}}</span>
+                    <span class="group-participants" *ngIf="expensesList.list_type === 'shared'"><i class="fa fa-users"></i> {{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</ng-container>
+
+</div><!-- end groups-scroll -->

@@ -55,7 +55,8 @@ import { ProfileComponent } from './features/components/profile/profile.componen
 import { SignUpComponent } from './features/components/sign-up/sign-up.component';
 import { ExpensesListPersonalComponent } from './features/components/expenses-list-personal/expenses-list-personal.component';
 import { AdminComponent } from './features/components/admin/admin.component';
-import { ExpenseTypeChartComponent } from './features/components/expense-type-chart/expense-type-chart.component';
+import { BadgeComponent } from './features/components/badge/badge.component';
+import { ExpenseListViewComponent } from './features/components/expense-list-view/expense-list-view.component';
 
 @NgModule({
   declarations: [
@@ -82,7 +83,8 @@ import { ExpenseTypeChartComponent } from './features/components/expense-type-ch
     SignUpComponent,
     ExpensesListPersonalComponent,
     AdminComponent,
-    ExpenseTypeChartComponent,
+    BadgeComponent,
+    ExpenseListViewComponent,
   ],
   imports: [
     BrowserModule,

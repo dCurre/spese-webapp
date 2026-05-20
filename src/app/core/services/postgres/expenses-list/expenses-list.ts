@@ -11,4 +11,5 @@ export class ExpensesList {
     list_type: ListType;
     max_participants?: number;
     participants?: ExpensesListParticipant[];
+    expenses_count?: number;
 }

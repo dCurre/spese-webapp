@@ -4,10 +4,11 @@
     <div class="admin-grid">
 
         <!-- Ruoli utente -->
-        <div class="admin-card">
-            <div class="admin-card-header">
+        <div class="admin-card" [class.collapsed]="collapsed.roles">
+            <div class="admin-card-header" (click)="collapsed.roles = !collapsed.roles">
                 <i class="fa fa-user-tag"></i>
                 <h3>Ruoli utente</h3>
+                <i class="fa fa-chevron-down collapse-icon" [class.rotated]="collapsed.roles"></i>
             </div>
 
             <div class="admin-list">
@@ -49,10 +50,11 @@
         </div>
 
         <!-- Tipologie spesa -->
-        <div class="admin-card">
-            <div class="admin-card-header">
+        <div class="admin-card" [class.collapsed]="collapsed.types">
+            <div class="admin-card-header" (click)="collapsed.types = !collapsed.types">
                 <i class="fa fa-tag"></i>
                 <h3>Tipologie spesa</h3>
+                <i class="fa fa-chevron-down collapse-icon" [class.rotated]="collapsed.types"></i>
             </div>
 
             <div class="admin-list">
@@ -96,10 +98,11 @@
     </div>
 
     <!-- Gestione ruoli utenti -->
-    <div class="admin-card admin-card-full">
-        <div class="admin-card-header">
+    <div class="admin-card admin-card-full" [class.collapsed]="collapsed.users">
+        <div class="admin-card-header" (click)="collapsed.users = !collapsed.users">
             <i class="fa fa-users"></i>
             <h3>Gestione utenti</h3>
+            <i class="fa fa-chevron-down collapse-icon" [class.rotated]="collapsed.users"></i>
         </div>
 
         <div class="admin-list">
@@ -113,7 +116,12 @@
                         {{ user.name }} {{ user.surname }}
                         <span class="badge-protected" *ngIf="user.id === loggedUser?.id">tu</span>
                     </span>
-                    <span class="user-email">{{ user.email }}</span>
+                    <span class="user-email">
+                        <span>{{ user.email }}</span>
+                        <button class="btn-copy-email" (click)="copyUserEmail(user)" [title]="copiedUserId === user.id ? 'Copiata!' : 'Copia email'">
+                            <i class="fa" [ngClass]="copiedUserId === user.id ? 'fa-check' : 'fa-copy'"></i>
+                        </button>
+                    </span>
                 </span>
                 <select class="role-select"
                     [ngModel]="roleIdByName(user.role)"

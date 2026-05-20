@@ -21,6 +21,10 @@ export class AdminComponent implements OnInit {
   newRoleName = '';
   newExpenseTypeName = '';
 
+  copiedUserId: number | null = null;
+
+  collapsed = { roles: false, types: false, users: false };
+
   editingRoleId: number | null = null;
   editingRoleName = '';
 
@@ -135,6 +139,13 @@ export class AdminComponent implements OnInit {
     const firebaseUser = await this.afAuth.currentUser;
     this.userService.update(user.id, { role_id: roleId, caller_email: firebaseUser?.email } as any).subscribe({
       next: () => { user.role = this.roles.find(r => r.id === roleId)?.name as any ?? user.role; }
+    });
+  }
+
+  copyUserEmail(user: User): void {
+    navigator.clipboard.writeText(user.email).then(() => {
+      this.copiedUserId = user.id;
+      setTimeout(() => this.copiedUserId = null, 2000);
     });
   }
 

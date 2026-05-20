@@ -109,7 +109,7 @@
     color: #ef4444;
 }
 .drawer-spacer {
-    height: 20px;
+    height: 60px;
 }
 
 .list-details-aside {
@@ -771,17 +771,23 @@
         max-width: 160px;
     }
 
-    /* totale nella seconda riga, allineato a destra */
-    .total-badge.show-mobile {
-        width: 100%;
-        align-items: flex-end;
-        padding: 0.2rem 0;
-        background: none;
-        border: none;
-        border-radius: 0;
-    }
     .total-label { font-size: 0.6rem; }
     .total-amount { font-size: 0.88rem; }
+
+    /* riga bottoni + totale, allineati a destra */
+    .header-actions-mobile {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+    }
+
+    .header-actions-mobile-right {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
 
     /* nasconde il bottone nell'header su mobile */
     .btn-add-expense { display: none; }
