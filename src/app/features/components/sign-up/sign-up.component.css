@@ -63,7 +63,7 @@
 
 .signup-right {
     flex: 1;
-    background: #f4f5f7;
+    background: var(--color-bg-page);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,24 +71,24 @@
 }
 
 .signup-card {
-    background: white;
+    background: var(--color-bg-card);
     border-radius: 20px;
     padding: 2.5rem;
     width: 100%;
     max-width: 480px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    box-shadow: 0 4px 24px var(--color-shadow-card-hover);
 }
 
 .signup-title {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1a1f2e;
+    color: var(--color-text-primary);
     margin-bottom: 0.25rem;
 }
 
 .signup-desc {
     font-size: 0.875rem;
-    color: #9ca3af;
+    color: var(--color-text-muted);
     margin-bottom: 1.75rem;
 }
 
@@ -109,15 +109,40 @@
 @media (max-width: 768px) {
     .signup-page {
         flex-direction: column;
+        height: 100dvh;
+        overflow: hidden;
     }
 
     .signup-left {
         width: 100%;
-        padding: 2rem 1.5rem;
-        flex: none;
+        padding: 1.5rem;
+        flex: 0 0 27dvh;
+        overflow: hidden;
+        justify-content: flex-start;
+        padding-top: 1.25rem;
+    }
+
+    .signup-brand {
+        margin-bottom: 1rem;
+    }
+
+    .signup-tagline {
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .signup-sub {
+        font-size: 0.85rem;
     }
 
     .signup-right {
+        padding: 1rem 1.5rem;
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+    }
+
+    .signup-card {
         padding: 1.5rem;
     }
 }

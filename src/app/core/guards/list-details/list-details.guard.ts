@@ -1,11 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable } from 'rxjs';
-
-import { AngularFireAuth } from '@angular/fire/compat/auth';
-import StringUtils from 'src/app/shared/utils/string-utils';
+import { AuthService } from '../../services/auth/auth.service';
 import { ExpensesListService } from '../../services/postgres/expenses-list/expenses-list.service';
-import { UserService } from '../../services/postgres/user/user.service';
 
 @Injectable({
     providedIn: 'root'
@@ -14,8 +11,7 @@ export class ListDetailsGuard implements CanActivate {
     constructor(
         private router: Router,
         private pgExpensesListService: ExpensesListService,
-        private pgUserService: UserService,
-        private afAuth: AngularFireAuth
+        private authService: AuthService,
     ) { }
 
     canActivate(
@@ -31,13 +27,7 @@ export class ListDetailsGuard implements CanActivate {
                 return resolve(false);
             }
 
-            const firebaseUser = await this.afAuth.currentUser;
-            if (!firebaseUser?.email) {
-                this.router.navigate(['']);
-                return resolve(false);
-            }
-
-            const pgUser = await this.pgUserService.getByEmail(firebaseUser.email).toPromise();
+            const pgUser = await this.authService.getUser();
             if (!pgUser) {
                 this.router.navigate(['']);
                 return resolve(false);

@@ -1,0 +1,208 @@
+<div *ngIf="!expensesList">
+    <app-spinner></app-spinner>
+</div>
+<div *ngIf="expensesList" class="list-details-page">
+
+    <!-- Header -->
+    <div class="list-details-header">
+        <a routerLink="" class="back-btn"><i class="fa fa-arrow-left"></i></a>
+        <div class="list-details-title-group">
+            <h2 class="list-details-title">{{expensesList.name}}</h2>
+            <app-badge [variant]="expensesList.paid ? 'paid' : 'active'"></app-badge>
+            <app-badge variant="shared" *ngIf="expensesList.list_type === 'shared'" class="hide-mobile"></app-badge>
+            <app-badge variant="personal" *ngIf="expensesList.list_type === 'personal'" class="hide-mobile"></app-badge>
+            <app-badge variant="unknown" *ngIf="expensesList.list_type !== 'shared' && expensesList.list_type !== 'personal'" class="hide-mobile"></app-badge>
+        </div>
+        <div class="list-details-actions">
+            <button id="btn-add" (click)="newExpense.emit(); $any($event.target).blur()"
+                class="btn-add-expense" [disabled]="expensesList.paid">
+                <i class="fa fa-plus"></i> <span class="btn-add-label">Nuova spesa</span>
+            </button>
+            <button class="btn-icon hide-mobile" (click)="shareLink.emit()" *ngIf="expensesList.list_type !== 'personal'" title="Condividi">
+                <i class="fa fa-share-nodes"></i>
+            </button>
+            <button class="btn-icon hide-mobile" (click)="salda.emit()" [title]="expensesList.paid ? 'Riapri Saldo' : 'Chiudi Saldo'">
+                <i class="fa" [ngClass]="expensesList.paid ? 'fa-lock-open' : 'fa-lock'"></i>
+            </button>
+            <button class="btn-icon btn-icon-danger hide-mobile" *ngIf="expensesList.list_type !== 'personal'" (click)="leave.emit()" title="Abbandona">
+                <i class="fa fa-right-from-bracket"></i>
+            </button>
+            <button class="btn-icon btn-icon-danger hide-mobile" *ngIf="expensesList.list_type === 'personal'" (click)="deleteList.emit()" title="Elimina lista">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+        <!-- mobile: riga bottoni + totale -->
+        <div class="header-actions-mobile show-mobile">
+            <button class="btn-icon" (click)="drawerOpen = true" title="Riepilogo">
+                <i class="fa fa-chart-pie"></i>
+            </button>
+            <button class="btn-icon" (click)="salda.emit()" [title]="expensesList.paid ? 'Riapri lista' : 'Chiudi lista'">
+                <i class="fa" [ngClass]="expensesList.paid ? 'fa-lock-open' : 'fa-lock'"></i>
+            </button>
+            <button class="btn-icon" (click)="shareLink.emit()" *ngIf="expensesList.list_type !== 'personal'" title="Condividi">
+                <i class="fa fa-share-nodes"></i>
+            </button>
+            <button class="btn-icon btn-icon-danger" *ngIf="expensesList.list_type !== 'personal'" (click)="leave.emit()" title="Abbandona">
+                <i class="fa fa-right-from-bracket"></i>
+            </button>
+            <button class="btn-icon btn-icon-danger" *ngIf="expensesList.list_type === 'personal'" (click)="deleteList.emit()" title="Elimina lista">
+                <i class="fa fa-trash"></i>
+            </button>
+            <div class="total-badge">
+                <span class="total-label">Totale</span>
+                <span class="total-amount">{{formatToEur(expensesListTotalAmount)}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layout principale -->
+    <div class="list-details-body">
+
+        <!-- Colonna sinistra: pannello desktop -->
+        <div class="list-details-aside" *ngIf="expensesList.list_type === 'personal'">
+            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses" [showParticipants]="false" [groupBy]="'type'"></app-saldo-details>
+        </div>
+
+        <div class="list-details-aside" *ngIf="expensesList.list_type !== 'personal'">
+            <div class="balance-card">
+                <div class="balance-card-header" (click)="balanceOpen = !balanceOpen">
+                    <div class="balance-card-title">
+                        <i class="fa fa-balance-scale"></i> Riepilogo Generale
+                    </div>
+                    <i class="fa" [ngClass]="balanceOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                </div>
+                <div class="balance-rows" [class.open]="balanceOpen">
+                    <div *ngIf="!expensesLoaded" class="skeleton-rows">
+                        <div class="skeleton-row" *ngFor="let i of [1,2,3]"></div>
+                    </div>
+                    <div *ngIf="expensesLoaded && balanceDetails.length === 0" class="balance-empty">
+                        <i class="fa fa-check-circle"></i> Nessun saldo da regolare
+                    </div>
+                    <div class="balance-row" *ngFor="let b of balanceDetails">
+                        <span class="balance-name">{{b.buyer}}</span>
+                        <span class="balance-arrow"><i class="fa fa-arrow-right"></i></span>
+                        <span class="balance-name">{{b.receiver}}</span>
+                        <span class="balance-amount" [ngClass]="b.toPay > 0 ? 'amount-negative' : 'amount-positive'">
+                            {{formatToEur(b.toPay)}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses"></app-saldo-details>
+        </div>
+
+        <!-- Colonna destra: toolbar + grid -->
+        <div class="list-details-main">
+            <div class="toolbar">
+                <div class="search-input-wrap">
+                    <i class="fa fa-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Cerca spesa..." [(ngModel)]="searchTerm"/>
+                    <button *ngIf="searchTerm" class="search-clear" (click)="searchTerm = ''">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <div class="sort-wrap">
+                    <i class="fa fa-arrow-up-wide-short sort-icon"></i>
+                    <select class="sort-select" [(ngModel)]="sortBy">
+                        <option value="date">Data</option>
+                        <option value="name">Nome</option>
+                        <option value="amount">Importo</option>
+                    </select>
+                </div>
+                <button class="sort-dir-btn" (click)="sortAsc = !sortAsc" [title]="sortAsc ? 'Crescente' : 'Decrescente'">
+                    <i class="fa" [ngClass]="sortAsc ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+                </button>
+            </div>
+
+            <div class="expenses-area">
+                <div *ngIf="!expensesLoaded" class="expenses-grid">
+                    <div class="expense-card skeleton-card" *ngFor="let i of [1,2,3,4]">
+                        <div class="skeleton-line skeleton-line-short"></div>
+                        <div class="skeleton-line skeleton-line-long"></div>
+                        <div class="skeleton-line skeleton-line-medium"></div>
+                    </div>
+                </div>
+                <div *ngIf="expensesLoaded && expenses.length <= 0">
+                    <app-not-found subject="spesa"></app-not-found>
+                </div>
+                <div class="expenses-grid" *ngIf="expensesLoaded">
+                    <div class="expense-card-add show-mobile" *ngIf="!expensesList.paid" (click)="newExpense.emit()">
+                        <i class="fa fa-plus"></i>
+                        <span>Nuova spesa</span>
+                    </div>
+                    <div class="expense-card" *ngFor="let expense of sortedExpenses; let i = index" [style.--c-accent]="expenseTypeAccent(expense.expense_type)">
+                        <div class="expense-card-header">
+                            <span class="expense-card-name">{{expense.name}}</span>
+                            <span class="expense-card-amount">{{formatToEur(expense.amount)}}</span>
+                        </div>
+                        <div class="expense-card-meta">
+                            <span>
+                                <img *ngIf="expense.owner.profile_image" class="owner-avatar" [src]="expense.owner.profile_image" [alt]="expense.owner.name"/>
+                                <span *ngIf="!expense.owner.profile_image" class="owner-avatar owner-avatar-fallback">{{expense.owner.name[0].toUpperCase()}}</span>
+                                {{expense.owner.name}} {{expense.owner.surname}}
+                            </span>
+                            <span><i class="fa fa-calendar"></i> {{expenseDateString(expense)}}</span>
+                            <span *ngIf="expense.expense_type">
+                                <i class="fa" [ngClass]="expenseTypeIcon(expense.expense_type)"></i> {{expense.expense_type}}
+                            </span>
+                        </div>
+                        <div *ngIf="hasBeenModified(expense)" class="expense-modified">
+                            <i class="fa fa-pen fa-xs"></i> {{expense.updated_at | date:'dd/MM/yyyy HH:mm'}}
+                        </div>
+                        <div class="expense-card-actions">
+                            <button class="action-btn edit" (click)="editExpense.emit(expense)" [disabled]="expensesList.paid" title="Modifica">
+                                <i class="fa fa-pen-to-square"></i>
+                            </button>
+                            <button class="action-btn repeat" (click)="repeatExpense.emit(expense)" [disabled]="expensesList.paid" title="Ripeti">
+                                <i class="fa fa-repeat"></i>
+                            </button>
+                            <button class="action-btn delete" (click)="deleteExpense.emit(expense)" [disabled]="expensesList.paid" title="Elimina">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- end expenses-area -->
+        </div>
+
+    </div>
+
+    <!-- Drawer mobile: info panel (balance + saldo) -->
+    <div class="drawer-overlay" [class.open]="drawerOpen" (click)="drawerOpen = false"></div>
+    <div class="drawer" [class.open]="drawerOpen">
+        <div class="drawer-handle"></div>
+        <div class="drawer-title">{{expensesList.name}}</div>
+
+        <ng-container *ngIf="expensesList.list_type === 'personal'">
+            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses" [showParticipants]="false" [groupBy]="'type'"></app-saldo-details>
+        </ng-container>
+
+        <ng-container *ngIf="expensesList.list_type !== 'personal'">
+            <div class="balance-card">
+                <div class="balance-card-header" (click)="balanceOpen = !balanceOpen">
+                    <div class="balance-card-title">
+                        <i class="fa fa-balance-scale"></i> Riepilogo Generale
+                    </div>
+                    <i class="fa" [ngClass]="balanceOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                </div>
+                <div class="balance-rows" [class.open]="balanceOpen">
+                    <div *ngIf="expensesLoaded && balanceDetails.length === 0" class="balance-empty">
+                        <i class="fa fa-check-circle"></i> Nessun saldo da regolare
+                    </div>
+                    <div class="balance-row" *ngFor="let b of balanceDetails">
+                        <span class="balance-name">{{b.buyer}}</span>
+                        <span class="balance-arrow"><i class="fa fa-arrow-right"></i></span>
+                        <span class="balance-name">{{b.receiver}}</span>
+                        <span class="balance-amount" [ngClass]="b.toPay > 0 ? 'amount-negative' : 'amount-positive'">
+                            {{formatToEur(b.toPay)}}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses"></app-saldo-details>
+        </ng-container>
+
+        <div class="drawer-spacer"></div>
+    </div>
+
+</div>

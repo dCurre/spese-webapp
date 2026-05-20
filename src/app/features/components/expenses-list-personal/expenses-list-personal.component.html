@@ -1,98 +1,15 @@
-<div *ngIf="!expensesList">
-    <app-spinner></app-spinner>
-</div>
-<div *ngIf="expensesList" class="list-details-page">
-
-    <div class="list-details-header">
-        <a routerLink="" class="back-btn"><i class="fa fa-arrow-left"></i></a>
-        <div class="list-details-title-group">
-            <h2 class="list-details-title">{{expensesList.name}}</h2>
-            <span class="badge-status" [ngClass]="expensesList.paid ? 'badge-paid' : 'badge-active'">
-                {{expensesList.paid ? 'Chiusa' : 'Attiva'}}
-            </span>
-            <span class="badge-personal"><i class="fa fa-user"></i> Personale</span>
-        </div>
-        <div class="total-badge">
-            <span class="total-label">Totale</span>
-            <span class="total-amount">{{formatToEur(expensesListTotalAmount)}}</span>
-        </div>
-        <div class="list-details-actions">
-            <button (click)="openNewExpenseDialog(newExpense(), 'Crea'); $any($event.target).blur()"
-                class="btn-add-expense" [disabled]="expensesList.paid">
-                <i class="fa fa-plus"></i> Nuova spesa
-            </button>
-            <div class="dropdown">
-                <a class="btn-icon" data-toggle="dropdown">
-                    <i class="fa fa-ellipsis-v"></i>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" role="menu">
-                    <button class="dropdown-item" (click)="salda(expensesList)">
-                        {{expensesList.paid ? 'Riapri' : 'Chiudi'}}
-                    </button>
-                    <button class="dropdown-item text-danger" (click)="leave(expensesList)">Elimina lista</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="list-details-main">
-
-        <div class="toolbar">
-            <div class="search-input-wrap">
-                <i class="fa fa-search search-icon"></i>
-                <input type="text" class="search-input" placeholder="Cerca spesa..." [(ngModel)]="searchTerm"/>
-                <button *ngIf="searchTerm" class="search-clear" (click)="searchTerm = ''">
-                    <i class="fa fa-times"></i>
-                </button>
-            </div>
-            <div class="sort-wrap">
-                <i class="fa fa-arrow-up-wide-short sort-icon"></i>
-                <select class="sort-select" [(ngModel)]="sortBy">
-                    <option value="date">Data</option>
-                    <option value="name">Nome</option>
-                    <option value="amount">Importo</option>
-                </select>
-            </div>
-            <button class="sort-dir-btn" (click)="sortAsc = !sortAsc" [title]="sortAsc ? 'Crescente' : 'Decrescente'">
-                <i class="fa" [ngClass]="sortAsc ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
-            </button>
-        </div>
-
-        <div *ngIf="!expensesLoaded" class="expenses-grid">
-            <div class="expense-card skeleton-card" *ngFor="let i of [1,2,3,4]">
-                <div class="skeleton-line skeleton-line-short"></div>
-                <div class="skeleton-line skeleton-line-long"></div>
-                <div class="skeleton-line skeleton-line-medium"></div>
-            </div>
-        </div>
-        <div *ngIf="expensesLoaded && expenses.length <= 0">
-            <app-not-found subject="spesa"></app-not-found>
-        </div>
-        <div class="expenses-grid" *ngIf="expensesLoaded">
-            <div class="expense-card" *ngFor="let expense of sortedExpenses">
-                <div class="expense-card-header">
-                    <span class="expense-card-name">{{expense.name}}</span>
-                    <span class="expense-card-amount">{{formatToEur(expense.amount)}}</span>
-                </div>
-                <div class="expense-card-meta">
-                    <span><i class="fa fa-calendar"></i> {{expenseDateString(expense)}}</span>
-                </div>
-                <div *ngIf="hasBeenModified(expense)" class="expense-modified">
-                    <i class="fa fa-pen fa-xs"></i> {{expense.updated_at | date:'dd/MM/yyyy HH:mm'}}
-                </div>
-                <div class="expense-card-actions">
-                    <button class="action-btn edit" (click)="openNewExpenseDialog(expense, 'Modifica')" [disabled]="expensesList.paid" title="Modifica">
-                        <i class="fa fa-pen-to-square"></i>
-                    </button>
-                    <button class="action-btn repeat" (click)="openNewExpenseDialog(expense, 'Ripeti')" [disabled]="expensesList.paid" title="Ripeti">
-                        <i class="fa fa-repeat"></i>
-                    </button>
-                    <button class="action-btn delete" (click)="delete(expense)" [disabled]="expensesList.paid" title="Elimina">
-                        <i class="fa fa-trash"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-</div>
+<app-expense-list-view
+    [expensesList]="expensesList"
+    [expenses]="expenses"
+    [expensesLoaded]="expensesLoaded"
+    [expensesListTotalAmount]="expensesListTotalAmount"
+    [isPersonal]="true"
+    [balanceDetails]="[]"
+    (newExpense)="openNewExpenseDialog(newExpense(), 'Crea')"
+    (editExpense)="openNewExpenseDialog($event, 'Modifica')"
+    (repeatExpense)="openNewExpenseDialog($event, 'Ripeti')"
+    (deleteExpense)="delete($event)"
+    (salda)="salda(expensesList!)"
+    (leave)="leave(expensesList!)"
+    (deleteList)="leave(expensesList!)">
+</app-expense-list-view>

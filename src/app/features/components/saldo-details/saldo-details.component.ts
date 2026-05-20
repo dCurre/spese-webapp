@@ -2,10 +2,9 @@ import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { forkJoin } from 'rxjs';
 import { SaldoDetails } from './list-details-dialog-fields';
-import { ExpenseService } from 'src/app/core/services/postgres/expense/expense.service';
-import { ExpensesListService } from 'src/app/core/services/postgres/expenses-list/expenses-list.service';
+import { Expense } from 'src/app/core/services/postgres/expense/expense';
+import { ExpensesList } from 'src/app/core/services/postgres/expenses-list/expenses-list';
 import { ExpensesListParticipant } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant';
 import MathUtils from 'src/app/shared/utils/math-utils';
 
@@ -18,73 +17,79 @@ export class SaldoDetailsComponent implements OnInit {
 
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
 
-  public pieChartType: ChartType = 'pie';
+  public pieChartType: 'doughnut' = 'doughnut';
   public pieChartPlugins = [ChartDataLabels];
-  public pieChartOptions: ChartConfiguration['options'];
-  public pieChartData: ChartData<'pie', number[], string | string[]>;
-  private listID: number;
+  public pieChartOptions: ChartConfiguration<'doughnut'>['options'];
+  public pieChartData: ChartData<'doughnut', number[], string | string[]>;
   private expensesListTotalAmount: number = 0;
   protected mapPagato = new Map<string, number>();
   protected balanceDetails: SaldoDetails[] = [];
   protected partecipantsList: ExpensesListParticipant[] = [];
   protected ownerUserId: number | null = null;
   protected panelOpenState = false;
+  @Input() showParticipants: boolean = true;
+
+  private _groupBy: 'person' | 'type' = 'person';
+  @Input() set groupBy(value: 'person' | 'type') {
+    this._groupBy = value;
+    if (this._expensesList) this.processData(this._expensesList, this._expenses);
+  }
+  get groupBy(): 'person' | 'type' { return this._groupBy; }
+
   protected partecipantiOpen = false;
   protected chartOpen = true;
   protected dataLoaded = false;
-  protected chartColors = ['#00b37e', '#1a1f2e', '#6366f1', '#f59e0b', '#ef4444', '#8b5cf6'];
+  protected chartColors = ['#00b37e', '#a78bfa', '#60a5fa', '#f59e0b', '#f87171', '#8b5cf6'];
 
-  @Input() set listId(id: number) {
-    if (id) this.loadData(id);
+  @Input() set expensesList(list: ExpensesList | null) {
+    if (list) this.processData(list, this._expenses);
   }
 
-  constructor(
-    private pgExpenseService: ExpenseService,
-    private pgExpensesListService: ExpensesListService,
-  ) {}
+  @Input() set expenses(expenses: Expense[]) {
+    this._expenses = expenses;
+    if (this._expensesList) this.processData(this._expensesList, expenses);
+  }
+
+  private _expenses: Expense[] = [];
+  private _expensesList: ExpensesList | null = null;
+
+  constructor() {}
 
   ngOnInit(): void {}
 
-  private loadData(id: number) {
-    forkJoin({
-      list: this.pgExpensesListService.getById(id),
-      expenses: this.pgExpenseService.getByListId(id),
-    }).subscribe({
-      next: ({ list, expenses: res }) => {
-        this.ownerUserId = list.user_id;
-        const sorted = (list.participants ?? []).sort((a, b) =>
-          `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`)
-        );
-        const owner = sorted.find(p => p.user_id === list.user_id);
-        const others = sorted.filter(p => p.user_id !== list.user_id);
-        this.partecipantsList = owner ? [owner, ...others] : others;
+  private processData(list: ExpensesList, expenses: Expense[]) {
+    this._expensesList = list;
+    this.ownerUserId = list.user_id;
+    const sorted = (list.participants ?? []).sort((a, b) =>
+      `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`)
+    );
+    const owner = sorted.find(p => p.user_id === list.user_id);
+    const others = sorted.filter(p => p.user_id !== list.user_id);
+    this.partecipantsList = owner ? [owner, ...others] : others;
 
-        const expenseList = res.expenses;
+    this.expensesListTotalAmount = expenses.reduce((acc, e) => acc + Number(e.amount), 0);
 
-        this.expensesListTotalAmount = expenseList.reduce((acc, e) => acc + Number(e.amount), 0);
-
-        this.mapPagato = new Map();
-        expenseList.forEach(e => {
-          const buyer = `${e.owner.name} ${e.owner.surname}`;
-          this.mapPagato.set(buyer, (this.mapPagato.get(buyer) ?? 0) + Number(e.amount));
-        });
-
-        this.mapPagato = new Map([...this.mapPagato.entries()].sort());
-
-        this.balanceDetails = [];
-        this.mapPagato.forEach((buyerPaid, buyer) => {
-          this.mapPagato.forEach((receiverPaid, receiver) => {
-            if (buyer !== receiver) {
-              this.balanceDetails.push(new SaldoDetails(buyer, receiver, (receiverPaid - buyerPaid) / this.mapPagato.size));
-            }
-          });
-        });
-
-        this.dataLoaded = true;
-        this.fillChart();
-      },
-      error: (e) => console.error('SaldoDetailsComponent.getSaldoDetails: ', e)
+    this.mapPagato = new Map();
+    expenses.forEach(e => {
+      const key = this.groupBy === 'type'
+        ? (e.expense_type ?? 'Altro')
+        : `${e.owner.name} ${e.owner.surname}`;
+      this.mapPagato.set(key, (this.mapPagato.get(key) ?? 0) + Number(e.amount));
     });
+
+    this.mapPagato = new Map([...this.mapPagato.entries()].sort());
+
+    this.balanceDetails = [];
+    this.mapPagato.forEach((buyerPaid, buyer) => {
+      this.mapPagato.forEach((receiverPaid, receiver) => {
+        if (buyer !== receiver) {
+          this.balanceDetails.push(new SaldoDetails(buyer, receiver, (receiverPaid - buyerPaid) / this.mapPagato.size));
+        }
+      });
+    });
+
+    this.dataLoaded = true;
+    this.fillChart();
   }
 
   private fillChart() {
@@ -92,34 +97,23 @@ export class SaldoDetailsComponent implements OnInit {
       labels: Array.from(this.mapPagato.keys()),
       datasets: [{
         data: Array.from(this.mapPagato.values()),
-        borderWidth: 1,
-        backgroundColor: [
-          '#00b37e',
-          '#1a1f2e',
-          '#6366f1',
-          '#f59e0b',
-          '#ef4444',
-          '#8b5cf6',
-        ],
+        borderWidth: 3,
+        borderColor: getComputedStyle(document.documentElement).getPropertyValue('--color-bg-card').trim() || '#181e2e',
+        backgroundColor: this.chartColors,
+        hoverOffset: 6,
       }]
     };
 
     this.pieChartOptions = {
+      cutout: '62%',
       responsive: true,
       plugins: {
-        title: {
-          display: false,
-        },
-        legend: {
-          display: false,
-        },
-        datalabels: {
-          color: ['white'],
-          formatter: (value, ctx) => {
-            if (ctx.chart.data.labels) {
-              return MathUtils.formatToEur(value);
-            }
-          },
+        legend: { display: false },
+        datalabels: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ` ${MathUtils.formatToEur(ctx.parsed)}`
+          }
         },
       }
     };

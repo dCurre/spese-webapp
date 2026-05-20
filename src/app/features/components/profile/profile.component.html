@@ -1,5 +1,138 @@
-<div class="profile-placeholder">
-    <i class="fa fa-user-gear profile-icon"></i>
-    <h2 class="profile-title">Profilo</h2>
-    <p class="profile-sub">Personalizzazione account in arrivo.</p>
+<div class="profile-page" *ngIf="loggedUser">
+
+    <div class="profile-section">
+        <h2 class="profile-section-title">Account</h2>
+        <div class="profile-card">
+
+            <!-- Foto profilo -->
+            <div class="profile-row">
+                <div class="profile-row-left">
+                    <img *ngIf="loggedUser.profile_image && !avatarError"
+                         [src]="editingImage ? editImage : loggedUser.profile_image"
+                         class="profile-avatar" alt="Avatar"
+                         (error)="onAvatarError($event)">
+                    <div *ngIf="!loggedUser.profile_image || avatarError"
+                         class="profile-avatar-fallback">
+                        {{loggedUser.name[0].toUpperCase()}}{{loggedUser.surname[0].toUpperCase()}}
+                    </div>
+                    <div class="profile-row-info" *ngIf="!editingImage">
+                        <span class="profile-row-label">Foto profilo</span>
+                        <span class="profile-row-value muted">
+                            {{ loggedUser.profile_image ? 'Immagine personalizzata' : 'Immagine Google' }}
+                        </span>
+                    </div>
+                    <input *ngIf="editingImage"
+                           class="edit-input"
+                           type="url"
+                           placeholder="URL foto profilo"
+                           [(ngModel)]="editImage"
+                           (ngModelChange)="avatarError = false">
+                </div>
+                <div class="profile-row-actions" *ngIf="!editingImage">
+                    <button class="btn-edit-inline" (click)="startEditImage()">
+                        <i class="fa fa-pen"></i>
+                    </button>
+                </div>
+                <div class="profile-row-actions" *ngIf="editingImage">
+                    <button class="btn-save-inline" (click)="saveImage()" [disabled]="savingImage">
+                        <i class="fa" [ngClass]="savingImage ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                    </button>
+                    <button class="btn-cancel-inline" (click)="cancelEditImage()" [disabled]="savingImage">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <!-- Nome e cognome -->
+            <div class="profile-row">
+                <div class="profile-row-left">
+                    <div class="profile-row-info" *ngIf="!editingName">
+                        <span class="profile-row-label">Nome e cognome</span>
+                        <span class="profile-row-value">{{loggedUser.name}} {{loggedUser.surname}}</span>
+                    </div>
+                    <div class="edit-row" *ngIf="editingName">
+                        <input class="edit-input" type="text" placeholder="Nome" [(ngModel)]="editName" maxlength="100">
+                        <input class="edit-input" type="text" placeholder="Cognome" [(ngModel)]="editSurname" maxlength="100">
+                    </div>
+                </div>
+                <div class="profile-row-actions" *ngIf="!editingName">
+                    <button class="btn-edit-inline" (click)="startEditName()">
+                        <i class="fa fa-pen"></i>
+                    </button>
+                </div>
+                <div class="profile-row-actions" *ngIf="editingName">
+                    <button class="btn-save-inline" (click)="saveName()" [disabled]="savingName">
+                        <i class="fa" [ngClass]="savingName ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                    </button>
+                    <button class="btn-cancel-inline" (click)="cancelEditName()" [disabled]="savingName">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="profile-divider"></div>
+
+            <!-- Email (read-only) -->
+            <div class="profile-row">
+                <div class="profile-row-left">
+                    <div class="profile-row-info">
+                        <span class="profile-row-label">Email</span>
+                        <span class="profile-row-value email-row">
+                            {{loggedUser.email}}
+                            <button class="btn-copy" (click)="copyEmail()" [title]="emailCopied ? 'Copiata!' : 'Copia email'">
+                                <i class="fa" [ngClass]="emailCopied ? 'fa-check' : 'fa-copy'"></i>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <span class="profile-row-badge">{{loggedUser.role ?? 'user'}}</span>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2 class="profile-section-title">Sessione</h2>
+        <div class="profile-card">
+            <div class="pref-row pref-row-inline">
+                <div class="pref-label">
+                    <i class="fa fa-right-from-bracket"></i>
+                    <span>Esci dall'account</span>
+                </div>
+                <button class="btn-logout" (click)="logout()">
+                    <i class="fa fa-right-from-bracket"></i> Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="profile-section">
+        <h2 class="profile-section-title">Preferenze</h2>
+        <div class="profile-card">
+            <div class="pref-row">
+                <div class="pref-label">
+                    <i class="fa fa-palette"></i>
+                    <span>Tema</span>
+                </div>
+                <div class="theme-selector">
+                    <button class="theme-btn" [class.active]="selectedTheme === 'light'" (click)="setTheme('light')">
+                        <i class="fa fa-sun"></i><span>Chiaro</span>
+                    </button>
+                    <button class="theme-btn" [class.active]="selectedTheme === 'dark'" (click)="setTheme('dark')">
+                        <i class="fa fa-moon"></i><span>Scuro</span>
+                    </button>
+                    <button class="theme-btn" [class.active]="selectedTheme === 'auto'" (click)="setTheme('auto')">
+                        <i class="fa fa-desktop"></i><span>Auto</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="profile-loading" *ngIf="!loggedUser">
+    <i class="fa fa-spinner fa-spin"></i>
 </div>

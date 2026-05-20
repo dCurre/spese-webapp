@@ -38,7 +38,8 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   protected balanceDetails: SaldoDetails[] = [];
   protected mapPagato = new Map<string, number>();
-  protected balanceOpen = true;
+  protected balanceOpen = window.innerWidth > 768;
+  protected drawerOpen = false;
 
   protected readonly expenseTypeIcons: Record<string, string> = {
     'Alimentari':   'fa-basket-shopping',
@@ -54,6 +55,22 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   expenseTypeIcon(type: string | null): string {
     return type ? (this.expenseTypeIcons[type] ?? 'fa-tag') : 'fa-tag';
+  }
+
+  private readonly expenseTypeAccents: Record<string, string> = {
+    'Alimentari':    '#00d88a',
+    'Ristorante':    '#f59e0b',
+    'Trasporti':     '#a78bfa',
+    'Alloggio':      '#60a5fa',
+    'Svago':         '#f59e0b',
+    'Salute':        '#f87171',
+    'Abbigliamento': '#e879f9',
+    'Utenze':        '#f87171',
+    'Altro':         '#7b849e',
+  };
+
+  expenseTypeAccent(type: string | null): string {
+    return type ? (this.expenseTypeAccents[type] ?? '#00b37e') : '#00b37e';
   }
 
   togglePanel(i: number) { this.openPanel = this.openPanel === i ? null : i; }
@@ -84,30 +101,37 @@ export class ExpenseListDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.listID = Number(this.route.snapshot.paramMap.get('id'));
-    this.getExpensesListDetails(this.listID);
-    this.getExpensesByListId(this.listID);
+    this.loadData(this.listID);
   }
 
   ngOnDestroy() {
     this.modalService.dismissAll();
   }
 
-  getExpensesByListId(id: number) {
-    this.pgExpenseService.getByListId(id).subscribe({
-      next: (res) => {
+  private loadData(id: number) {
+    forkJoin({
+      list: this.pgExpensesListService.getById(id),
+      expenses: this.pgExpenseService.getByListId(id),
+    }).subscribe({
+      next: ({ list, expenses: res }) => {
+        this.expensesList = list;
         this.expenses = res.expenses;
         this.expensesListTotalAmount = res.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
         this.expensesLoaded = true;
         this.computeBalance(res.expenses);
       },
-      error: (e) => console.error('ExpenseListDetailsComponent.getExpensesByListId: ', e)
+      error: (e) => console.error('ExpenseListDetailsComponent.loadData: ', e)
     });
   }
 
-  getExpensesListDetails(id: number) {
-    this.pgExpensesListService.getById(id).subscribe({
-      next: (list) => this.expensesList = list,
-      error: (e) => console.error('ExpenseListDetailsComponent.getExpensesListDetails: ', e)
+  reloadExpenses() {
+    this.pgExpenseService.getByListId(this.listID).subscribe({
+      next: (res) => {
+        this.expenses = res.expenses;
+        this.expensesListTotalAmount = res.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+        this.computeBalance(res.expenses);
+      },
+      error: (e) => console.error('ExpenseListDetailsComponent.reloadExpenses: ', e)
     });
   }
 
@@ -137,7 +161,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     modalInsert.componentInstance.listID = this.listID;
     modalInsert.componentInstance.action = action;
     modalInsert.componentInstance.expense = expense;
-    modalInsert.result.then(() => this.getExpensesByListId(this.listID)).catch(() => {});
+    modalInsert.result.then(() => this.reloadExpenses()).catch(() => {});
   }
 
   delete(expense: Expense) {
@@ -149,7 +173,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     modalDelete.result.then((response) => {
       if (!response) return;
       this.pgExpenseService.delete(expense.id).subscribe({
-        next: () => this.getExpensesByListId(this.listID),
+        next: () => this.reloadExpenses(),
         error: (e) => console.error('ExpenseListDetailsComponent.delete: ', e)
       });
     }).catch(() => {});

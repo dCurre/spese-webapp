@@ -1,18 +1,1 @@
-@import url('../expenses-list-details/expenses-list-details.component.css');
-
-.list-details-main {
-    max-width: 900px;
-}
-
-.badge-personal {
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 0.2rem 0.6rem;
-    border-radius: 999px;
-    background: #eff6ff;
-    color: #2563eb;
-    border: 1px solid #bfdbfe;
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-}
+/* Styles are handled by expense-list-view.component.css */

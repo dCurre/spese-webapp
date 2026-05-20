@@ -1,0 +1,50 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.badge i { font-size: 0.65rem; }
+
+/* ── Varianti ── */
+.badge-active {
+  background: var(--green-dim, #d1fae5);
+  color: var(--green-text, #047857);
+  border-color: var(--green-mid, #6ee7b7);
+}
+
+.badge-paid {
+  background: var(--purple-dim, #ede9fe);
+  color: var(--purple, #7c3aed);
+  border-color: var(--purple-mid, #c4b5fd);
+}
+
+.badge-shared {
+  background: var(--green-dim, #d1fae5);
+  color: var(--green-text, #047857);
+  border-color: var(--green-mid, #6ee7b7);
+}
+
+.badge-personal {
+  background: var(--blue-dim, #dbeafe);
+  color: var(--blue, #2563eb);
+  border-color: var(--blue-mid, #93c5fd);
+}
+
+.badge-unknown {
+  background: var(--color-bg-input);
+  color: var(--color-text-muted);
+  border-color: var(--color-border);
+}
+
+.badge-owner {
+  background: var(--amber-dim, #fef3c7);
+  color: var(--amber, #d97706);
+  border-color: var(--amber-mid, #fcd34d);
+}
