@@ -825,6 +825,10 @@
         border-color: #00b37e;
     }
 
+    .not-found-full {
+        grid-column: 1 / -1;
+    }
+
     /* body: full-height column, no aside */
     .list-details-body { flex-direction: column; }
 
