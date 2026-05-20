@@ -122,10 +122,16 @@
                         <div class="skeleton-line skeleton-line-medium"></div>
                     </div>
                 </div>
+                <div class="expenses-grid" *ngIf="expensesLoaded && expenses.length <= 0">
+                    <div class="expense-card-add show-mobile" *ngIf="!expensesList.paid" (click)="newExpense.emit()">
+                        <i class="fa fa-plus"></i>
+                        <span>Nuova spesa</span>
+                    </div>
+                </div>
                 <div *ngIf="expensesLoaded && expenses.length <= 0">
                     <app-not-found subject="spesa"></app-not-found>
                 </div>
-                <div class="expenses-grid" *ngIf="expensesLoaded">
+                <div class="expenses-grid" *ngIf="expensesLoaded && expenses.length > 0">
                     <div class="expense-card-add show-mobile" *ngIf="!expensesList.paid" (click)="newExpense.emit()">
                         <i class="fa fa-plus"></i>
                         <span>Nuova spesa</span>
