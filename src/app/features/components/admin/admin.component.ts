@@ -4,6 +4,7 @@ import { ExpenseType, ExpenseTypeService } from 'src/app/core/services/postgres/
 import { User } from 'src/app/core/services/postgres/user/user';
 import { UserService } from 'src/app/core/services/postgres/user/user.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { ToastService } from 'src/app/core/services/toast/toast.service';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 
 @Component({
@@ -36,6 +37,7 @@ export class AdminComponent implements OnInit {
     private expenseTypeService: ExpenseTypeService,
     private userService: UserService,
     private authService: AuthService,
+    private toastService: ToastService,
     private afAuth: AngularFireAuth,
   ) {}
 
@@ -146,6 +148,7 @@ export class AdminComponent implements OnInit {
     navigator.clipboard.writeText(user.email).then(() => {
       this.copiedUserId = user.id;
       setTimeout(() => this.copiedUserId = null, 2000);
+      this.toastService.success('Email copiata negli appunti');
     });
   }
 

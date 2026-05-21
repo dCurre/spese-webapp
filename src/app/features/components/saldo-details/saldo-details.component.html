@@ -11,9 +11,16 @@
         </div>
         <div class="saldo-card-body" [class.open]="partecipantiOpen">
             <div class="participant-row" *ngFor="let p of partecipantsList">
-                <div class="participant-avatar">{{p.name[0].toUpperCase()}}</div>
-                <span class="participant-name">{{p.name}} {{p.surname}}</span>
+                <div class="participant-avatar" [class.guest-avatar]="p.is_guest">
+                    <i *ngIf="p.is_guest" class="fa fa-user"></i>
+                    <ng-container *ngIf="!p.is_guest">{{p.name[0].toUpperCase()}}</ng-container>
+                </div>
+                <span class="participant-name">{{p.name}} {{p.surname ?? ''}}</span>
                 <app-badge variant="owner" *ngIf="p.user_id === ownerUserId"></app-badge>
+                <app-badge variant="guest" *ngIf="p.is_guest"></app-badge>
+                <button class="participant-remove-btn" *ngIf="p.is_guest" (click)="removeGuest.emit(p.user_id)" title="Rimuovi ospite">
+                    <i class="fa fa-times"></i>
+                </button>
             </div>
         </div>
     </div>

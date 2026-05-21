@@ -131,8 +131,13 @@
     transition: background 0.15s;
 }
 
-.sidebar-user-link:hover {
-    background: rgba(255,255,255,0.07);
+.sidebar-user-link:hover,
+.sidebar-user-link.active {
+    background: rgba(0, 179, 126, 0.15);
+}
+
+.sidebar-user-link.active .sidebar-user-name {
+    color: var(--color-sidebar-text-active);
 }
 
 .sidebar-user-avatar {
@@ -188,4 +193,9 @@
 .sidebar-item-admin.active {
     background: rgba(245, 158, 11, 0.15);
     color: #f59e0b;
+}
+
+.sidebar-item-about {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 0.75rem;
 }

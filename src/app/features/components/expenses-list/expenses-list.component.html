@@ -83,8 +83,10 @@
                         </div>
                         <div class="group-name">{{expensesList.name}}</div>
                     </div>
-                    <button class="btn-icon-delete" (click)="$event.stopPropagation(); delete(expensesList)" title="Elimina">
-                        <i class="fa fa-trash"></i>
+                    <button class="btn-icon-delete"
+                            (click)="$event.stopPropagation(); deleteOrLeave(expensesList)"
+                            [title]="expensesList.list_type === 'shared' && expensesList.user_id !== loggedUser?.id ? 'Abbandona' : 'Elimina'">
+                        <i class="fa" [ngClass]="expensesList.list_type === 'shared' && expensesList.user_id !== loggedUser?.id ? 'fa-right-from-bracket' : 'fa-trash'"></i>
                     </button>
                 </div>
                 <div class="group-card-badges">
@@ -123,8 +125,10 @@
                         </div>
                         <div class="group-name">{{expensesList.name}}</div>
                     </div>
-                    <button class="btn-icon-delete" (click)="$event.stopPropagation(); delete(expensesList)" title="Elimina">
-                        <i class="fa fa-trash"></i>
+                    <button class="btn-icon-delete"
+                            (click)="$event.stopPropagation(); deleteOrLeave(expensesList)"
+                            [title]="expensesList.list_type === 'shared' && expensesList.user_id !== loggedUser?.id ? 'Abbandona' : 'Elimina'">
+                        <i class="fa" [ngClass]="expensesList.list_type === 'shared' && expensesList.user_id !== loggedUser?.id ? 'fa-right-from-bracket' : 'fa-trash'"></i>
                     </button>
                 </div>
                 <div class="group-card-badges">

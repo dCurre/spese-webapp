@@ -10,6 +10,7 @@ import { ListDetailsGuard } from './core/guards/list-details/list-details.guard'
 import { ListPersonalGuard } from './core/guards/list-personal/list-personal.guard';
 import { AdminGuard } from './core/guards/admin/admin.guard';
 import { AdminComponent } from './features/components/admin/admin.component';
+import { AboutComponent } from './features/components/about/about.component';
 
 //Components
 import { AccessDeniedComponent } from './features/components/access-denied/access-denied.component';
@@ -31,6 +32,7 @@ const routes: Routes = [
   { path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard] },
   { path: 'checklist', component: ChecklistComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'about', component: AboutComponent, canActivate: [AuthGuard] },
   { path: '', component: HomeComponent, canActivate: [AuthGuard]  },
   { path: '**', component: AccessDeniedComponent, canActivate: [AuthGuard]  },// catch-all in case no other path matched
 ];

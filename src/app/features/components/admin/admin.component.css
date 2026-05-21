@@ -59,8 +59,7 @@
     transform: rotate(-180deg);
 }
 
-.admin-card .admin-list,
-.admin-card .add-row {
+.admin-card .admin-list {
     display: block;
 }
 
@@ -164,6 +163,9 @@
 
 .add-row {
     display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
     gap: 0.5rem;
     padding: 0.875rem 1.25rem;
     border-top: 1px solid var(--color-bg-input);

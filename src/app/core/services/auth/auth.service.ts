@@ -14,7 +14,7 @@ import { PathService } from '../path/path.service';
 })
 export class AuthService {
 
-    private loggedUser$ = new BehaviorSubject<User | null>(null);
+    private loggedUser$ = new BehaviorSubject<User | null | undefined>(undefined);
 
     constructor(
         private afAuth: AngularFireAuth,
@@ -24,7 +24,7 @@ export class AuthService {
     ) {
         this.afAuth.authState.subscribe(async firebaseUser => {
             if (!firebaseUser?.email) {
-                this.loggedUser$.next(null);
+                this.loggedUser$.next(null);  // null = caricato, utente non loggato
                 return;
             }
             try {
@@ -32,6 +32,11 @@ export class AuthService {
                 this.loggedUser$.next(pgUser ?? this.fallbackUser(firebaseUser));
             } catch {
                 this.loggedUser$.next(this.fallbackUser(firebaseUser));
+            }
+            const returnUrl = sessionStorage.getItem('returnUrl');
+            if (returnUrl) {
+                sessionStorage.removeItem('returnUrl');
+                this.router.navigateByUrl(returnUrl);
             }
         });
     }
@@ -53,7 +58,7 @@ export class AuthService {
     }
 
     getStoredUser(): Observable<User | null> {
-        return this.loggedUser$.asObservable();
+        return this.loggedUser$.pipe(filter((u): u is User | null => u !== undefined));
     }
 
     setUser(user: User): void {

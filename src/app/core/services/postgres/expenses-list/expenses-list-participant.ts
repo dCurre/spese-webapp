@@ -3,7 +3,8 @@ export class ExpensesListParticipant {
     expenses_list_id: number;
     joined_at: string;
     name: string;
-    surname: string;
+    surname: string | null;
     email: string;
     profile_image: string;
+    is_guest: boolean;
 }

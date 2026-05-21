@@ -48,3 +48,9 @@
   color: var(--amber, #d97706);
   border-color: var(--amber-mid, #fcd34d);
 }
+
+.badge-guest {
+  background: var(--blue-dim, #dbeafe);
+  color: var(--blue, #2563eb);
+  border-color: var(--blue-mid, #93c5fd);
+}

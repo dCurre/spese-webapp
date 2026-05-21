@@ -1,1 +1,6 @@
-/* Styles are handled by expense-list-view.component.css */
+:host {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}

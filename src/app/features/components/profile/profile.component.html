@@ -1,138 +1,280 @@
 <div class="profile-page" *ngIf="loggedUser">
+  <div class="content-inner">
 
-    <div class="profile-section">
-        <h2 class="profile-section-title">Account</h2>
-        <div class="profile-card">
+    <!-- ── ACCOUNT ── -->
+    <div>
+      <div class="section-hdr">Account</div>
+      <div class="settings-card">
 
-            <!-- Foto profilo -->
-            <div class="profile-row">
-                <div class="profile-row-left">
-                    <img *ngIf="loggedUser.profile_image && !avatarError"
-                         [src]="editingImage ? editImage : loggedUser.profile_image"
-                         class="profile-avatar" alt="Avatar"
-                         (error)="onAvatarError($event)">
-                    <div *ngIf="!loggedUser.profile_image || avatarError"
-                         class="profile-avatar-fallback">
-                        {{loggedUser.name[0].toUpperCase()}}{{loggedUser.surname[0].toUpperCase()}}
-                    </div>
-                    <div class="profile-row-info" *ngIf="!editingImage">
-                        <span class="profile-row-label">Foto profilo</span>
-                        <span class="profile-row-value muted">
-                            {{ loggedUser.profile_image ? 'Immagine personalizzata' : 'Immagine Google' }}
-                        </span>
-                    </div>
-                    <input *ngIf="editingImage"
-                           class="edit-input"
-                           type="url"
-                           placeholder="URL foto profilo"
-                           [(ngModel)]="editImage"
-                           (ngModelChange)="avatarError = false">
-                </div>
-                <div class="profile-row-actions" *ngIf="!editingImage">
-                    <button class="btn-edit-inline" (click)="startEditImage()">
-                        <i class="fa fa-pen"></i>
-                    </button>
-                </div>
-                <div class="profile-row-actions" *ngIf="editingImage">
-                    <button class="btn-save-inline" (click)="saveImage()" [disabled]="savingImage">
-                        <i class="fa" [ngClass]="savingImage ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                    </button>
-                    <button class="btn-cancel-inline" (click)="cancelEditImage()" [disabled]="savingImage">
-                        <i class="fa fa-times"></i>
-                    </button>
-                </div>
+        <!-- Profile hero -->
+        <div class="profile-hero">
+          <div class="profile-avatar-wrap" #avatarWrap>
+            <div class="profile-avatar" (click)="openAvatarPanel()">
+              <ng-container *ngIf="uploadingAvatar">
+                <i class="fa fa-spinner fa-spin" style="font-size:22px;color:#fff"></i>
+              </ng-container>
+              <ng-container *ngIf="!uploadingAvatar">
+                <img *ngIf="loggedUser.profile_image && !avatarError"
+                     [src]="loggedUser.profile_image"
+                     alt="Avatar"
+                     (error)="onAvatarError($event)"
+                     style="width:100%;height:100%;object-fit:cover;border-radius:18px">
+                <span *ngIf="!loggedUser.profile_image || avatarError" style="font-size:26px;font-weight:700;color:#fff">
+                  {{loggedUser.name[0].toUpperCase()}}{{loggedUser.surname?.[0]?.toUpperCase() ?? ''}}
+                </span>
+              </ng-container>
             </div>
-
-            <div class="profile-divider"></div>
-
-            <!-- Nome e cognome -->
-            <div class="profile-row">
-                <div class="profile-row-left">
-                    <div class="profile-row-info" *ngIf="!editingName">
-                        <span class="profile-row-label">Nome e cognome</span>
-                        <span class="profile-row-value">{{loggedUser.name}} {{loggedUser.surname}}</span>
-                    </div>
-                    <div class="edit-row" *ngIf="editingName">
-                        <input class="edit-input" type="text" placeholder="Nome" [(ngModel)]="editName" maxlength="100">
-                        <input class="edit-input" type="text" placeholder="Cognome" [(ngModel)]="editSurname" maxlength="100">
-                    </div>
-                </div>
-                <div class="profile-row-actions" *ngIf="!editingName">
-                    <button class="btn-edit-inline" (click)="startEditName()">
-                        <i class="fa fa-pen"></i>
-                    </button>
-                </div>
-                <div class="profile-row-actions" *ngIf="editingName">
-                    <button class="btn-save-inline" (click)="saveName()" [disabled]="savingName">
-                        <i class="fa" [ngClass]="savingName ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                    </button>
-                    <button class="btn-cancel-inline" (click)="cancelEditName()" [disabled]="savingName">
-                        <i class="fa fa-times"></i>
-                    </button>
-                </div>
+            <div class="avatar-badge" (click)="openAvatarPanel()">
+              <i class="fa" [ngClass]="uploadingAvatar ? 'fa-spinner fa-spin' : 'fa-pen'"></i>
             </div>
+            <input #avatarInput type="file" accept="image/jpeg,image/png,image/webp,image/gif"
+                   style="display:none" (change)="onAvatarFileSelected($event)">
 
-            <div class="profile-divider"></div>
-
-            <!-- Email (read-only) -->
-            <div class="profile-row">
-                <div class="profile-row-left">
-                    <div class="profile-row-info">
-                        <span class="profile-row-label">Email</span>
-                        <span class="profile-row-value email-row">
-                            {{loggedUser.email}}
-                            <button class="btn-copy" (click)="copyEmail()" [title]="emailCopied ? 'Copiata!' : 'Copia email'">
-                                <i class="fa" [ngClass]="emailCopied ? 'fa-check' : 'fa-copy'"></i>
-                            </button>
-                        </span>
-                    </div>
+            <!-- Pannello selezione foto -->
+            <div class="avatar-panel" *ngIf="showAvatarPanel">
+              <div class="avatar-panel-backdrop" (click)="closeAvatarPanel()"></div>
+              <div class="avatar-panel-box">
+                <div class="avatar-panel-title">Foto profilo</div>
+                <div class="avatar-panel-grid">
+                  <div class="avatar-panel-item"
+                       *ngFor="let img of avatarHistory"
+                       [class.active]="img === loggedUser.profile_image"
+                       (click)="selectHistoryImage(img)">
+                    <img [src]="img" alt="foto">
+                    <i class="fa fa-check avatar-panel-check" *ngIf="img === loggedUser.profile_image"></i>
+                  </div>
+                  <button class="avatar-panel-upload" (click)="triggerAvatarPicker()">
+                    <i class="fa fa-plus"></i>
+                  </button>
                 </div>
-                <span class="profile-row-badge">{{loggedUser.role ?? 'user'}}</span>
+              </div>
             </div>
-
+          </div>
+          <div class="profile-info">
+            <div class="profile-name">{{loggedUser.name}} {{loggedUser.surname}}</div>
+            <div class="profile-email">
+              <span>{{loggedUser.email}}</span>
+              <span class="badge" [ngClass]="roleBadgeClass">
+                <i class="fa fa-shield-halved"></i> {{loggedUser.role ?? 'user'}}
+              </span>
+            </div>
+          </div>
         </div>
+
+
+        <!-- Nome e cognome row -->
+        <div class="settings-row">
+          <div class="row-icon" style="background:var(--green-dim);color:var(--green-text)">
+            <i class="fa fa-id-badge"></i>
+          </div>
+          <div class="row-body">
+            <div class="row-label">Nome e cognome</div>
+            <ng-container *ngIf="!editingName">
+              <div class="row-value">{{loggedUser.name}} {{loggedUser.surname}}</div>
+            </ng-container>
+            <ng-container *ngIf="editingName">
+              <div style="display:flex;gap:8px;margin-top:4px">
+                <input class="inline-input" type="text" placeholder="Nome" [(ngModel)]="editName"
+                       maxlength="100" (keydown.enter)="saveName()" (keydown.escape)="cancelEditName()">
+                <input class="inline-input" type="text" placeholder="Cognome" [(ngModel)]="editSurname"
+                       maxlength="100" (keydown.enter)="saveName()" (keydown.escape)="cancelEditName()">
+              </div>
+            </ng-container>
+          </div>
+          <div class="row-actions">
+            <ng-container *ngIf="!editingName">
+              <button class="edit-btn" (click)="startEditName()" title="Modifica nome">
+                <i class="fa fa-pen" style="font-size:13px"></i>
+              </button>
+            </ng-container>
+            <ng-container *ngIf="editingName">
+              <button class="btn-save" (click)="saveName()" [disabled]="savingName">
+                <i class="fa" [ngClass]="savingName ? 'fa-spinner fa-spin' : 'fa-check'"></i> Salva
+              </button>
+              <button class="btn-cancel" (click)="cancelEditName()" [disabled]="savingName">
+                <i class="fa fa-times" style="font-size:13px"></i>
+              </button>
+            </ng-container>
+          </div>
+        </div>
+
+        <!-- Email row -->
+        <div class="settings-row">
+          <div class="row-icon" style="background:var(--amber-dim);color:var(--amber)">
+            <i class="fa fa-envelope"></i>
+          </div>
+          <div class="row-body">
+            <div class="row-label">Email</div>
+            <div class="row-value" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span>{{loggedUser.email}}</span>
+              <span class="badge badge-green"><i class="fa fa-check"></i> Verificata</span>
+            </div>
+          </div>
+          <div class="row-actions">
+            <button class="edit-btn" (click)="copyEmail()" [title]="emailCopied ? 'Copiata!' : 'Copia email'">
+              <i class="fa" [ngClass]="emailCopied ? 'fa-check' : 'fa-copy'" style="font-size:13px"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Password row -->
+        <div class="settings-row">
+          <div class="row-icon" style="background:var(--purple-dim);color:var(--purple)">
+            <i class="fa fa-lock"></i>
+          </div>
+          <div class="row-body">
+            <div class="row-label">Password</div>
+            <div class="row-value" style="letter-spacing:3px;color:var(--color-text-secondary)">••••••••••</div>
+          </div>
+          <div class="row-actions">
+            <button class="edit-btn" (click)="notImplemented()" title="Cambia password">
+              <i class="fa fa-pen" style="font-size:13px"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
     </div>
 
-    <div class="profile-section">
-        <h2 class="profile-section-title">Sessione</h2>
-        <div class="profile-card">
-            <div class="pref-row pref-row-inline">
-                <div class="pref-label">
-                    <i class="fa fa-right-from-bracket"></i>
-                    <span>Esci dall'account</span>
-                </div>
-                <button class="btn-logout" (click)="logout()">
-                    <i class="fa fa-right-from-bracket"></i> Logout
-                </button>
-            </div>
+    <!-- ── STATISTICHE ── -->
+    <div>
+      <div class="section-hdr">Le tue statistiche</div>
+      <div class="stats-strip">
+        <div class="stat-card" style="--c-accent:var(--green-text)">
+          <div class="stat-label">Liste create</div>
+          <div class="stat-value" style="color:var(--green-text)">{{ statsLoaded ? statListsOwned : '—' }}</div>
+          <div class="stat-sub">di cui sei proprietario</div>
         </div>
+        <div class="stat-card" style="--c-accent:var(--blue)">
+          <div class="stat-label">Liste a cui partecipi</div>
+          <div class="stat-value" style="color:var(--blue)">{{ statsLoaded ? statListsParticipating : '—' }}</div>
+          <div class="stat-sub">senza esserne owner</div>
+        </div>
+        <div class="stat-card" style="--c-accent:var(--amber)">
+          <div class="stat-label">Spese totali</div>
+          <div class="stat-value" style="color:var(--amber)">{{ statsLoaded ? statExpenses : '—' }}</div>
+          <div class="stat-sub">spese registrate</div>
+        </div>
+      </div>
     </div>
 
-    <div class="profile-section">
-        <h2 class="profile-section-title">Preferenze</h2>
-        <div class="profile-card">
-            <div class="pref-row">
-                <div class="pref-label">
-                    <i class="fa fa-palette"></i>
-                    <span>Tema</span>
-                </div>
-                <div class="theme-selector">
-                    <button class="theme-btn" [class.active]="selectedTheme === 'light'" (click)="setTheme('light')">
-                        <i class="fa fa-sun"></i><span>Chiaro</span>
-                    </button>
-                    <button class="theme-btn" [class.active]="selectedTheme === 'dark'" (click)="setTheme('dark')">
-                        <i class="fa fa-moon"></i><span>Scuro</span>
-                    </button>
-                    <button class="theme-btn" [class.active]="selectedTheme === 'auto'" (click)="setTheme('auto')">
-                        <i class="fa fa-desktop"></i><span>Auto</span>
-                    </button>
-                </div>
+    <!-- ── PREFERENZE ── -->
+    <div>
+      <div class="section-hdr">Preferenze</div>
+      <div class="settings-card">
+
+        <!-- Tema -->
+        <div class="settings-row theme-row">
+          <div class="row-icon" style="background:var(--purple-dim);color:var(--purple)">
+            <i class="fa fa-palette"></i>
+          </div>
+          <div class="row-body">
+            <div class="row-label">Tema</div>
+            <div class="row-value">{{ themeLabel }}</div>
+          </div>
+          <div class="row-actions">
+            <div class="theme-picker">
+              <div class="theme-opt" [class.active]="selectedTheme === 'light'" (click)="setTheme('light')">
+                <i class="fa fa-sun"></i> Chiaro
+              </div>
+              <div class="theme-opt" [class.active]="selectedTheme === 'dark'" (click)="setTheme('dark')">
+                <i class="fa fa-moon"></i> Scuro
+              </div>
+              <div class="theme-opt" [class.active]="selectedTheme === 'auto'" (click)="setTheme('auto')">
+                <i class="fa fa-desktop"></i> Auto
+              </div>
             </div>
+          </div>
         </div>
+
+        <!-- Lingua (non implementata) -->
+        <div class="settings-row">
+          <div class="row-icon" style="background:var(--blue-dim);color:var(--blue)">
+            <i class="fa fa-globe"></i>
+          </div>
+          <div class="row-body">
+            <div class="row-label">Lingua</div>
+            <div class="row-value">Italiano 🇮🇹</div>
+          </div>
+          <div class="row-actions">
+            <button class="edit-btn" (click)="notImplemented()" title="Cambia lingua">
+              <i class="fa fa-chevron-right" style="font-size:13px"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Valuta (non implementata) -->
+        <div class="settings-row">
+          <div class="row-icon" style="background:var(--green-dim);color:var(--green-text)">
+            <i class="fa fa-euro-sign"></i>
+          </div>
+          <div class="row-body">
+            <div class="row-label">Valuta predefinita</div>
+            <div class="row-value">Euro (€)</div>
+          </div>
+          <div class="row-actions">
+            <button class="edit-btn" (click)="notImplemented()" title="Cambia valuta">
+              <i class="fa fa-chevron-right" style="font-size:13px"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
     </div>
 
+    <!-- ── SESSIONE ── -->
+    <div>
+      <div class="section-hdr">Sessione</div>
+      <div class="settings-card">
+        <div class="danger-row">
+          <div class="row-icon" style="background:var(--red-dim,rgba(239,68,68,0.1));color:#ef4444">
+            <i class="fa fa-right-from-bracket"></i>
+          </div>
+          <div class="danger-body">
+            <div class="danger-title">Esci dall'account</div>
+            <div class="danger-desc">Verrai disconnesso da tutti i dispositivi</div>
+          </div>
+          <button class="btn btn-danger" (click)="logout()">
+            <i class="fa fa-right-from-bracket"></i> Logout
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── IMPOSTAZIONI AVANZATE ── -->
+    <div>
+      <div class="section-hdr">Impostazioni avanzate</div>
+      <div class="settings-card">
+        <div class="danger-row">
+          <div class="row-icon" style="background:var(--amber-dim);color:var(--amber)">
+            <i class="fa fa-database"></i>
+          </div>
+          <div class="danger-body">
+            <div class="danger-title">Esporta i tuoi dati</div>
+            <div class="danger-desc">Scarica un archivio di tutte le tue liste e spese</div>
+          </div>
+          <button class="btn btn-ghost" (click)="notImplemented()">
+            <i class="fa fa-download"></i> Esporta
+          </button>
+        </div>
+        <div class="danger-row">
+          <div class="row-icon" style="background:var(--red-dim,rgba(239,68,68,0.1));color:#ef4444">
+            <i class="fa fa-trash"></i>
+          </div>
+          <div class="danger-body">
+            <div class="danger-title">Elimina account</div>
+            <div class="danger-desc">Tutti i tuoi dati verranno eliminati definitivamente</div>
+          </div>
+          <button class="btn btn-danger" (click)="notImplemented()">
+            <i class="fa fa-trash"></i> Elimina
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <div class="profile-loading" *ngIf="!loggedUser">
-    <i class="fa fa-spinner fa-spin"></i>
+  <i class="fa fa-spinner fa-spin"></i>
 </div>

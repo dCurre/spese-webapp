@@ -26,4 +26,8 @@ export class ExpensesListParticipantService {
   remove(listId: number, userId: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl(listId)}/${userId}`);
   }
+
+  removeGuest(listId: number, userId: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl(listId)}/${userId}/guest`);
+  }
 }

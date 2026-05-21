@@ -59,8 +59,8 @@
                 [class.is-invalid]="touched.buyer && !selectedBuyerName"
                 [class.is-valid]="touched.buyer && !!selectedBuyerName">
                 <option value="" disabled>Seleziona partecipante</option>
-                <option *ngFor="let p of participants" [value]="p.name + ' ' + p.surname">
-                    {{p.name}} {{p.surname}}
+                <option *ngFor="let p of participants" [value]="p.name + ' ' + (p.surname ?? '')">
+                    {{p.name}} {{p.surname ?? ''}}
                 </option>
             </select>
             <span class="field-error" *ngIf="touched.buyer && !selectedBuyerName">

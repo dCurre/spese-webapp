@@ -28,6 +28,8 @@ export class ExpenseListViewComponent {
   @Output() leave = new EventEmitter<void>();
   @Output() deleteList = new EventEmitter<void>();
   @Output() shareLink = new EventEmitter<void>();
+  @Output() addGuest = new EventEmitter<void>();
+  @Output() removeGuest = new EventEmitter<number>();
 
   protected searchTerm: string = '';
   protected sortBy: 'name' | 'date' | 'amount' = 'date';

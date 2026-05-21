@@ -66,7 +66,7 @@ export class NewExpenseDialogComponent implements OnInit {
     this.selectedDate = DateUtils.dateToIsoString(date);
 
     if (this.expense?.owner) {
-      this.selectedBuyerName = `${this.expense.owner.name} ${this.expense.owner.surname}`;
+      this.selectedBuyerName = `${this.expense.owner.name} ${this.expense.owner.surname ?? ''}`;
     }
 
     this.selectedTypeId = this.expense?.expense_type_id ?? 1;
@@ -105,7 +105,7 @@ export class NewExpenseDialogComponent implements OnInit {
 
   async close() {
     const expenseDate = DateUtils.isoStringToDateString(this.selectedDate);
-    const buyer = this.participants.find(p => `${p.name} ${p.surname}` === this.selectedBuyerName);
+    const buyer = this.participants.find(p => `${p.name} ${p.surname ?? ''}` === this.selectedBuyerName);
     if (!buyer) return;
 
     if (!StringUtils.equalsIgnoreCase('Modifica', this.action)) {
