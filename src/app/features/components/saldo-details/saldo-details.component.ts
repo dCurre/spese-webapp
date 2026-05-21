@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
@@ -28,6 +28,7 @@ export class SaldoDetailsComponent implements OnInit {
   protected ownerUserId: number | null = null;
   protected panelOpenState = false;
   @Input() showParticipants: boolean = true;
+  @Output() removeGuest = new EventEmitter<number>();
 
   private _groupBy: 'person' | 'type' = 'person';
   @Input() set groupBy(value: 'person' | 'type') {
@@ -61,7 +62,7 @@ export class SaldoDetailsComponent implements OnInit {
     this._expensesList = list;
     this.ownerUserId = list.user_id;
     const sorted = (list.participants ?? []).sort((a, b) =>
-      `${a.name} ${a.surname}`.localeCompare(`${b.name} ${b.surname}`)
+      `${a.name} ${a.surname ?? ''}`.localeCompare(`${b.name} ${b.surname ?? ''}`)
     );
     const owner = sorted.find(p => p.user_id === list.user_id);
     const others = sorted.filter(p => p.user_id !== list.user_id);
@@ -73,7 +74,7 @@ export class SaldoDetailsComponent implements OnInit {
     expenses.forEach(e => {
       const key = this.groupBy === 'type'
         ? (e.expense_type ?? 'Altro')
-        : `${e.owner.name} ${e.owner.surname}`;
+        : `${e.owner.name} ${e.owner.surname ?? ''}`;
       this.mapPagato.set(key, (this.mapPagato.get(key) ?? 0) + Number(e.amount));
     });
 

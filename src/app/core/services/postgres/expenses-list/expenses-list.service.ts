@@ -32,4 +32,11 @@ export class ExpensesListService {
   delete(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }
+
+  transferOwner(listId: number, currentOwnerId: number, newOwnerId: number): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/${listId}/transfer-owner`, {
+      current_owner_id: currentOwnerId,
+      new_owner_id: newOwnerId,
+    });
+  }
 }

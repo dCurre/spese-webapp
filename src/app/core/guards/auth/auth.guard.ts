@@ -22,7 +22,11 @@ export class AuthGuard implements CanActivate {
         return this.afAuth.authState.pipe(
             filter(user => user !== undefined),
             first(),
-            map(user => user ? true : this.router.createUrlTree(['/signin']))
+            map(user => {
+                if (user) return true;
+                sessionStorage.setItem('returnUrl', state.url);
+                return this.router.createUrlTree(['/signin']);
+            })
         );
     }
 }

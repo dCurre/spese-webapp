@@ -1,0 +1,40 @@
+<div class="tod">
+  <div class="tod-header">
+    <div class="tod-icon">
+      <i class="fa fa-right-from-bracket"></i>
+    </div>
+    <button class="tod-close" (click)="modalService.close(false)">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+
+  <div class="tod-body">
+    <h5 class="tod-title">Abbandona lista</h5>
+    <p class="tod-text">
+      Sei il proprietario di <strong>{{listName}}</strong>. Seleziona un nuovo proprietario prima di andartene.
+    </p>
+
+    <div class="tod-list">
+      <div class="tod-item"
+           *ngFor="let p of participants"
+           [class.selected]="selectedUserId === p.user_id"
+           (click)="select(p.user_id)">
+        <div class="tod-avatar">
+          <img *ngIf="p.profile_image" [src]="p.profile_image" [alt]="p.name">
+          <span *ngIf="!p.profile_image">{{initials(p)}}</span>
+        </div>
+        <div class="tod-name">{{p.name}} {{p.surname ?? ''}}</div>
+        <i class="fa fa-check tod-check" *ngIf="selectedUserId === p.user_id"></i>
+      </div>
+    </div>
+
+    <div class="tod-actions">
+      <button class="tod-btn-confirm" [disabled]="!selectedUserId" (click)="confirm()">
+        <i class="fa fa-crown"></i> Trasferisci e abbandona
+      </button>
+      <button class="tod-btn-delete" (click)="deleteAndLeave()">
+        <i class="fa fa-trash"></i> Elimina lista e abbandona
+      </button>
+    </div>
+  </div>
+</div>

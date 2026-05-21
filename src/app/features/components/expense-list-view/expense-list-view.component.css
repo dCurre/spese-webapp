@@ -1,7 +1,14 @@
-.list-details-page {
+:host {
     display: flex;
     flex-direction: column;
     height: 100%;
+    overflow: hidden;
+}
+
+.list-details-page {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
     overflow: hidden;
 }
 

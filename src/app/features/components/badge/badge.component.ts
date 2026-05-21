@@ -6,7 +6,8 @@ export type BadgeVariant =
   | 'shared'
   | 'personal'
   | 'unknown'
-  | 'owner';
+  | 'owner'
+  | 'guest';
 
 const VARIANT_CONFIG: Record<BadgeVariant, { icon: string; label: string }> = {
   active:   { icon: 'fa-circle-check', label: 'Attivo' },
@@ -15,6 +16,7 @@ const VARIANT_CONFIG: Record<BadgeVariant, { icon: string; label: string }> = {
   personal: { icon: 'fa-user',         label: 'Personale' },
   unknown:  { icon: 'fa-question',     label: 'Non taggato' },
   owner:    { icon: 'fa-crown',        label: 'Proprietario' },
+  guest:    { icon: 'fa-user',          label: 'Ospite' },
 };
 
 @Component({

@@ -21,6 +21,9 @@
             <button class="btn-icon hide-mobile" (click)="shareLink.emit()" *ngIf="expensesList.list_type !== 'personal'" title="Condividi">
                 <i class="fa fa-share-nodes"></i>
             </button>
+            <button class="btn-icon hide-mobile" (click)="addGuest.emit()" *ngIf="expensesList.list_type !== 'personal'" title="Aggiungi ospite">
+                <i class="fa fa-user-plus"></i>
+            </button>
             <button class="btn-icon hide-mobile" (click)="salda.emit()" [title]="expensesList.paid ? 'Riapri Saldo' : 'Chiudi Saldo'">
                 <i class="fa" [ngClass]="expensesList.paid ? 'fa-lock-open' : 'fa-lock'"></i>
             </button>
@@ -41,6 +44,9 @@
             </button>
             <button class="btn-icon" (click)="shareLink.emit()" *ngIf="expensesList.list_type !== 'personal'" title="Condividi">
                 <i class="fa fa-share-nodes"></i>
+            </button>
+            <button class="btn-icon" (click)="addGuest.emit()" *ngIf="expensesList.list_type !== 'personal'" title="Aggiungi ospite">
+                <i class="fa fa-user-plus"></i>
             </button>
             <button class="btn-icon btn-icon-danger" *ngIf="expensesList.list_type !== 'personal'" (click)="leave.emit()" title="Abbandona">
                 <i class="fa fa-right-from-bracket"></i>
@@ -88,7 +94,7 @@
                     </div>
                 </div>
             </div>
-            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses"></app-saldo-details>
+            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses" (removeGuest)="removeGuest.emit($event)"></app-saldo-details>
         </div>
 
         <!-- Colonna destra: toolbar + grid -->
@@ -145,7 +151,7 @@
                             <span>
                                 <img *ngIf="expense.owner.profile_image" class="owner-avatar" [src]="expense.owner.profile_image" [alt]="expense.owner.name"/>
                                 <span *ngIf="!expense.owner.profile_image" class="owner-avatar owner-avatar-fallback">{{expense.owner.name[0].toUpperCase()}}</span>
-                                {{expense.owner.name}} {{expense.owner.surname}}
+                                {{expense.owner.name}} {{expense.owner.surname ?? ''}}
                             </span>
                             <span><i class="fa fa-calendar"></i> {{expenseDateString(expense)}}</span>
                             <span *ngIf="expense.expense_type">
@@ -205,7 +211,7 @@
                     </div>
                 </div>
             </div>
-            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses"></app-saldo-details>
+            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses" (removeGuest)="removeGuest.emit($event)"></app-saldo-details>
         </ng-container>
 
         <div class="drawer-spacer"></div>

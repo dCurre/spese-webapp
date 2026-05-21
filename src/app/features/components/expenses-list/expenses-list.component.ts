@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
-import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
-import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
 import { NewListDialogComponent } from '../dialog/new-list-dialog/new-list-dialog.component';
 import { ExpensesList } from 'src/app/core/services/postgres/expenses-list/expenses-list';
 import { ExpensesListService } from 'src/app/core/services/postgres/expenses-list/expenses-list.service';
@@ -11,6 +9,7 @@ import { ExpensesListParticipantService } from 'src/app/core/services/postgres/e
 import { User } from 'src/app/core/services/postgres/user/user';
 import { UserService } from 'src/app/core/services/postgres/user/user.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { ExpensesListActionsService } from 'src/app/core/services/postgres/expenses-list/expenses-list-actions.service';
 import GenericUtils from 'src/app/shared/utils/generic-utils';
 
 @Component({
@@ -59,6 +58,7 @@ export class ExpensesListComponent implements OnInit {
     private pgUserService: UserService,
     private authService: AuthService,
     private modalService: NgbModal,
+    private listActionsService: ExpensesListActionsService,
     public router: Router,
   ) {}
 
@@ -132,26 +132,8 @@ export class ExpensesListComponent implements OnInit {
     }).catch(() => {});
   }
 
-  delete(expensesList: ExpensesList) {
-    const isPersonal = expensesList.list_type === 'personal';
-    const isLastParticipant = (expensesList.participants?.length ?? 0) <= 1;
-
-    const message = isPersonal
-      ? 'Vuoi veramente eliminare ' + expensesList.name + '?'
-      : isLastParticipant
-        ? 'Sei l\'unico componente di ' + expensesList.name + '.\nVuoi veramente cancellarla?'
-        : 'Vuoi veramente cancellare ' + expensesList.name + '?';
-
-    const modal = this.modalService.open(DialogComponent, { centered: true });
-    modal.componentInstance.dialogFields = new ConfirmDialogFields('Elimina', message);
-
-    modal.result.then((response) => {
-      if (!response) return;
-      this.pgExpensesListService.delete(expensesList.id).subscribe({
-        next: () => this.reloadLists(),
-        error: (e) => console.error('ExpensesListComponent.delete: ', e)
-      });
-    }).catch(() => {});
+  deleteOrLeave(expensesList: ExpensesList) {
+    this.listActionsService.deleteOrLeave(expensesList, () => this.reloadLists());
   }
 
   formatDate(dateStr: string): string {

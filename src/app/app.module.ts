@@ -57,6 +57,10 @@ import { ExpensesListPersonalComponent } from './features/components/expenses-li
 import { AdminComponent } from './features/components/admin/admin.component';
 import { BadgeComponent } from './features/components/badge/badge.component';
 import { ExpenseListViewComponent } from './features/components/expense-list-view/expense-list-view.component';
+import { TransferOwnerDialogComponent } from './features/components/dialog/transfer-owner-dialog/transfer-owner-dialog.component';
+import { AddGuestDialogComponent } from './features/components/dialog/add-guest-dialog/add-guest-dialog.component';
+import { AboutComponent } from './features/components/about/about.component';
+import { DcLogoComponent } from './features/components/dc-logo/dc-logo.component';
 
 @NgModule({
   declarations: [
@@ -85,6 +89,10 @@ import { ExpenseListViewComponent } from './features/components/expense-list-vie
     AdminComponent,
     BadgeComponent,
     ExpenseListViewComponent,
+    TransferOwnerDialogComponent,
+    AddGuestDialogComponent,
+    AboutComponent,
+    DcLogoComponent,
   ],
   imports: [
     BrowserModule,

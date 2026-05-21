@@ -1,6 +1,12 @@
-.home-layout {
+:host {
     display: flex;
     height: 100%;
+    overflow: hidden;
+}
+
+.home-layout {
+    display: flex;
+    flex: 1;
     overflow: hidden;
 }
 

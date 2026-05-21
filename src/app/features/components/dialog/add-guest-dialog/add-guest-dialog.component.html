@@ -1,0 +1,24 @@
+<div class="agd">
+  <div class="agd-header">
+    <div class="agd-icon">
+      <i class="fa fa-user-plus"></i>
+    </div>
+    <button class="agd-close" (click)="modalService.close(false)">
+      <i class="fa fa-times"></i>
+    </button>
+  </div>
+  <div class="agd-body">
+    <h5 class="agd-title">Aggiungi ospite</h5>
+    <p class="agd-text">L'ospite non ha un account e non potrà accedere alla lista. Serve solo per il calcolo delle spese.</p>
+    <input class="agd-input"
+           type="text"
+           placeholder="Nome ospite"
+           [(ngModel)]="guestName"
+           maxlength="100"
+           (keydown.enter)="confirm()"
+           autofocus>
+    <button class="agd-btn-confirm" [disabled]="!guestName.trim()" (click)="confirm()">
+      <i class="fa fa-user-plus"></i> Aggiungi
+    </button>
+  </div>
+</div>

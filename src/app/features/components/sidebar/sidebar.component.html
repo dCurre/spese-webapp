@@ -20,10 +20,14 @@
                 <span>Admin</span>
             </a>
         </ng-container>
+        <a class="sidebar-item sidebar-item-about" routerLink="/about" routerLinkActive="active">
+            <i class="fa fa-circle-info"></i>
+            <span>About</span>
+        </a>
     </nav>
 
     <div class="sidebar-footer" *ngIf="authService.getStoredUser() | async as user">
-        <a routerLink="/profile" class="sidebar-user-link">
+        <a routerLink="/profile" routerLinkActive="active" class="sidebar-user-link">
             <img [src]="user.profile_image" class="sidebar-user-avatar" />
             <div class="sidebar-user-info">
                 <div class="sidebar-user-name">{{user.name}} {{user.surname}}</div>
@@ -55,5 +59,9 @@
     <a class="bottom-nav-item" routerLink="/profile" routerLinkActive="active">
         <i class="fa fa-user"></i>
         <span>Profilo</span>
+    </a>
+    <a class="bottom-nav-item" routerLink="/about" routerLinkActive="active">
+        <i class="fa fa-circle-info"></i>
+        <span>About</span>
     </a>
 </nav>
