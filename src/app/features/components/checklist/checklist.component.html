@@ -1,5 +1,153 @@
-<div class="checklist-placeholder">
-    <i class="fa fa-list-check checklist-icon"></i>
-    <h2 class="checklist-title">Checklist spesa</h2>
-    <p class="checklist-sub">Questa sezione è in arrivo.</p>
+<div class="list-sticky-header">
+    <div class="section-header">
+        <h3 class="section-title">Checklist spesa</h3>
+        <div class="section-actions">
+            <button class="btn-new-group" (click)="newChecklist()" [disabled]="!loggedUser">
+                <i class="fa fa-plus"></i> Nuova Checklist
+            </button>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="search-input-wrap">
+            <i class="fa fa-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Cerca checklist..." [(ngModel)]="searchTerm"/>
+            <button *ngIf="searchTerm" class="search-clear" (click)="searchTerm = ''">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+        <div class="sort-wrap">
+            <i class="fa fa-arrow-up-wide-short sort-icon"></i>
+            <select class="sort-select" [(ngModel)]="sortBy">
+                <option value="date">Data</option>
+                <option value="name">Nome</option>
+            </select>
+        </div>
+        <button class="sort-dir-btn" (click)="sortAsc = !sortAsc; $any($event.target).blur()" [title]="sortAsc ? 'Crescente' : 'Decrescente'">
+            <i class="fa" [ngClass]="sortAsc ? 'fa-arrow-up' : 'fa-arrow-down'"></i>
+        </button>
+    </div>
+</div>
+
+<!-- Card template riutilizzabile -->
+<ng-template #cardTpl let-list="list" let-completed="completed">
+    <div class="group-card" [class.card-completed]="completed" [class.card-starred]="list.starred" [routerLink]="['/checklist', list.id]">
+        <div class="group-card-top">
+            <div class="group-card-title">
+                <div class="group-avatar" [ngClass]="completed ? 'avatar-completed' : 'avatar-active'">
+                    {{list.name[0].toUpperCase()}}
+                </div>
+                <div class="group-name">{{list.name}}</div>
+            </div>
+            <button class="btn-icon-star" (click)="toggleStar(list, $event)"
+                    [title]="list.starred ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'"
+                    [class.starred]="list.starred">
+                <i class="fa fa-star"></i>
+            </button>
+            <button class="btn-icon-delete" (click)="deleteList(list, $event)" title="Elimina">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+
+        <div class="checklist-badges">
+            <span class="badge-type badge-personal" *ngIf="list.list_type === 'personal'">
+                <i class="fa fa-user"></i> Personale
+            </span>
+            <span class="badge-type badge-shared" *ngIf="list.list_type === 'shared'">
+                <i class="fa fa-users"></i> Condivisa
+            </span>
+            <span class="badge-type badge-completed-tag" *ngIf="completed">
+                <i class="fa fa-check"></i> Completata
+            </span>
+        </div>
+
+        <div class="checklist-progress" *ngIf="(list.items_count ?? 0) > 0">
+            <div class="progress-bar">
+                <div class="progress-fill" [style.width.%]="progressPercent(list)"></div>
+            </div>
+            <span class="progress-text">{{list.checked_count ?? 0}}/{{list.items_count ?? 0}}</span>
+        </div>
+        <span class="group-date" *ngIf="(list.items_count ?? 0) === 0 && !completed">Nessun articolo</span>
+
+        <div class="group-card-footer">
+            <span class="group-expenses-count">
+                <i class="fa fa-cart-shopping"></i> {{list.items_count ?? 0}} articoli
+            </span>
+            <span class="group-date">{{formatDate(list.created_at)}}</span>
+        </div>
+    </div>
+</ng-template>
+
+<div class="groups-scroll">
+
+    <!-- Skeleton -->
+    <div *ngIf="!hasLoaded" class="groups-grid">
+        <div class="group-card skeleton-card" *ngFor="let i of [1,2,3,4]">
+            <div class="skeleton-avatar-lg"></div>
+            <div class="skeleton-info">
+                <div class="skeleton-line skeleton-line-medium"></div>
+                <div class="skeleton-line skeleton-line-short"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Errore -->
+    <div *ngIf="hasLoaded && loadError" class="load-error">
+        <i class="fa fa-triangle-exclamation"></i>
+        <span>Impossibile caricare le checklist. Riprova più tardi.</span>
+        <button class="btn-retry" (click)="retry()">
+            <i class="fa fa-rotate-right"></i> Riprova
+        </button>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="hasLoaded && !loadError && allLists.length === 0" class="empty-state">
+        <i class="fa fa-list-check empty-icon"></i>
+        <p class="empty-title">Nessuna checklist</p>
+        <p class="empty-sub">Crea la tua prima lista della spesa</p>
+        <button class="btn-new-group" (click)="newChecklist()">
+            <i class="fa fa-plus"></i> Nuova Checklist
+        </button>
+    </div>
+
+    <ng-container *ngIf="hasLoaded && !loadError && allLists.length > 0">
+
+        <!-- Preferite -->
+        <div class="section-wrap" *ngIf="starredLists.length > 0">
+            <div class="section-label section-label-starred">
+                <i class="fa fa-star"></i> Preferite <span class="section-badge section-badge-starred">{{starredLists.length}}</span>
+            </div>
+            <div class="groups-grid">
+                <ng-container *ngFor="let list of starredLists">
+                    <ng-container *ngTemplateOutlet="cardTpl; context: { list: list, completed: list.completed }"></ng-container>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Attive -->
+        <div class="section-wrap" *ngIf="activeLists.length > 0">
+            <div class="section-label">
+                Attive <span class="section-badge">{{activeLists.length}}</span>
+            </div>
+            <div class="groups-grid">
+                <ng-container *ngFor="let list of activeLists">
+                    <ng-container *ngTemplateOutlet="cardTpl; context: { list: list, completed: false }"></ng-container>
+                </ng-container>
+            </div>
+        </div>
+
+        <!-- Completate -->
+        <div class="section-wrap" *ngIf="completedLists.length > 0">
+            <div class="section-label">
+                Completate <span class="section-badge section-badge-muted">{{completedLists.length}}</span>
+            </div>
+            <div class="groups-grid">
+                <ng-container *ngFor="let list of completedLists">
+                    <ng-container *ngTemplateOutlet="cardTpl; context: { list: list, completed: true }"></ng-container>
+                </ng-container>
+            </div>
+        </div>
+
+    </ng-container>
+
 </div>

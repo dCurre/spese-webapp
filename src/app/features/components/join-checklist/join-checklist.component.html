@@ -1,0 +1,19 @@
+<div class="join-container">
+
+    <div *ngIf="state === 'loading'" class="join-card">
+        <div class="spinner-ring"></div>
+        <p class="join-text">Accesso alla checklist in corso...</p>
+    </div>
+
+    <div *ngIf="state === 'error'" class="join-card">
+        <div class="join-icon join-icon-error">
+            <i class="fa fa-triangle-exclamation"></i>
+        </div>
+        <p class="join-title">Accesso non riuscito</p>
+        <p class="join-text">{{errorMessage}}</p>
+        <button class="btn-home" (click)="goHome()">
+            <i class="fa fa-list-check"></i> Le mie checklist
+        </button>
+    </div>
+
+</div>

@@ -3,6 +3,9 @@
     <div class="sidebar-logo">
         <i class="fa fa-money-bill-wave sidebar-logo-icon"></i>
         <span class="sidebar-logo-text">Spese</span>
+        <a class="sidebar-about-icon" routerLink="/about" routerLinkActive="active" title="About">
+            <i class="fa fa-circle-info"></i>
+        </a>
     </div>
 
     <nav class="sidebar-nav">
@@ -20,10 +23,6 @@
                 <span>Admin</span>
             </a>
         </ng-container>
-        <a class="sidebar-item sidebar-item-about" routerLink="/about" routerLinkActive="active">
-            <i class="fa fa-circle-info"></i>
-            <span>About</span>
-        </a>
     </nav>
 
     <div class="sidebar-footer" *ngIf="authService.getStoredUser() | async as user">
@@ -50,16 +49,16 @@
         <i class="fa fa-list-check"></i>
         <span>Checklist</span>
     </a>
+    <a class="bottom-nav-item" routerLink="/profile" routerLinkActive="active">
+        <i class="fa fa-user"></i>
+        <span>Profilo</span>
+    </a>
     <ng-container *ngIf="authService.getStoredUser() | async as user">
         <a class="bottom-nav-item" routerLink="/admin" routerLinkActive="active" *ngIf="user.role === 'admin' || user.role === 'superadmin'">
             <i class="fa fa-shield-halved"></i>
             <span>Admin</span>
         </a>
     </ng-container>
-    <a class="bottom-nav-item" routerLink="/profile" routerLinkActive="active">
-        <i class="fa fa-user"></i>
-        <span>Profilo</span>
-    </a>
     <a class="bottom-nav-item" routerLink="/about" routerLinkActive="active">
         <i class="fa fa-circle-info"></i>
         <span>About</span>

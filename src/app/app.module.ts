@@ -51,6 +51,9 @@ import { AuthService } from './core/services/auth/auth.service';
 // Pipe
 import { ExpenseFilterPipe } from './features/components/filter-pipes/expense-filter/expense-filter.pipe';
 import { ChecklistComponent } from './features/components/checklist/checklist.component';
+import { ChecklistDetailComponent } from './features/components/checklist-detail/checklist-detail.component';
+import { NewChecklistDialogComponent } from './features/components/dialog/new-checklist-dialog/new-checklist-dialog.component';
+import { JoinChecklistComponent } from './features/components/join-checklist/join-checklist.component';
 import { ProfileComponent } from './features/components/profile/profile.component';
 import { SignUpComponent } from './features/components/sign-up/sign-up.component';
 import { ExpensesListPersonalComponent } from './features/components/expenses-list-personal/expenses-list-personal.component';
@@ -83,6 +86,9 @@ import { DcLogoComponent } from './features/components/dc-logo/dc-logo.component
     ExpenseFilterPipe,
     ToastComponent,
     ChecklistComponent,
+    ChecklistDetailComponent,
+    NewChecklistDialogComponent,
+    JoinChecklistComponent,
     ProfileComponent,
     SignUpComponent,
     ExpensesListPersonalComponent,

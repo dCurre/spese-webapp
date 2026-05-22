@@ -75,7 +75,19 @@
     font-size: 1.2rem;
     font-weight: 700;
     color: white;
+    flex: 1;
 }
+
+.sidebar-about-icon {
+    color: var(--color-sidebar-text);
+    font-size: 1rem;
+    text-decoration: none;
+    transition: color 0.15s;
+    display: flex;
+    align-items: center;
+}
+.sidebar-about-icon:hover,
+.sidebar-about-icon.active { color: var(--color-sidebar-text-active); }
 
 .sidebar-nav {
     flex: 1;

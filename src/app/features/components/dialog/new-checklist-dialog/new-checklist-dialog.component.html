@@ -1,0 +1,50 @@
+<div class="dialog-header">
+    <h5 class="dialog-title">Nuova checklist</h5>
+    <button class="dialog-close" (click)="modalService.close(null)" aria-label="Close">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+
+<div class="dialog-body">
+    <form (ngSubmit)="confirm()">
+
+        <div class="field-group">
+            <label class="field-label">Tipo</label>
+            <div class="type-selector">
+                <button type="button" class="type-btn" [class.active]="selectedType === 'personal'" (click)="selectedType = 'personal'">
+                    <i class="fa fa-user"></i>
+                    <span class="type-btn-label">Personale</span>
+                    <span class="type-btn-desc">Solo per te</span>
+                </button>
+                <button type="button" class="type-btn" [class.active]="selectedType === 'shared'" (click)="selectedType = 'shared'">
+                    <i class="fa fa-users"></i>
+                    <span class="type-btn-label">Condivisa</span>
+                    <span class="type-btn-desc">Con altri utenti</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="field-group">
+            <label class="field-label">Nome della checklist</label>
+            <input
+                type="text"
+                [(ngModel)]="name"
+                name="checklistName"
+                class="field-input"
+                [class.is-invalid]="name.length > 0 && !isValid()"
+                [class.is-valid]="isValid()"
+                placeholder="Es. Spesa settimanale"
+                maxlength="40"
+                autofocus>
+            <span class="field-error" *ngIf="name.length > 0 && !isValid()">
+                Inserisci un nome valido (max {{maxLength}} caratteri).
+            </span>
+        </div>
+
+    </form>
+</div>
+
+<div class="dialog-footer">
+    <button class="btn-cancel" type="button" (click)="modalService.close(null)">Annulla</button>
+    <button class="btn-confirm" type="button" [disabled]="!isValid()" (click)="confirm()">Crea</button>
+</div>
