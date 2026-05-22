@@ -17,6 +17,7 @@ export class ErrorInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       tap(event => {
         if (isMutation && event instanceof HttpResponse) {
+          if (req.headers.has('X-Silent')) return;
           const message = event.body?.message;
           if (message) this.toastService.success(message);
         }

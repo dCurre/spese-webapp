@@ -1,0 +1,321 @@
+<!-- LOADING -->
+<div *ngIf="!hasLoaded" class="detail-loading">
+    <div class="spinner-ring"></div>
+</div>
+
+<!-- ERROR -->
+<div *ngIf="hasLoaded && loadError" class="load-error">
+    <i class="fa fa-triangle-exclamation"></i>
+    <span>Impossibile caricare la checklist.</span>
+    <button class="btn-back" (click)="goBack()">
+        <i class="fa fa-arrow-left"></i> Torna indietro
+    </button>
+</div>
+
+<!-- CONTENT -->
+<ng-container *ngIf="hasLoaded && !loadError && list">
+
+<div class="sidebar-backdrop" *ngIf="sidebarOpen" (click)="toggleSidebar()"></div>
+<div class="detail-layout" [class.sidebar-open]="sidebarOpen && list.list_type === 'shared'">
+    <div class="detail-main">
+
+    <div class="detail-header" [class.header-batch]="batchMode">
+        <button class="btn-back" (click)="goBack()" *ngIf="!batchMode">
+            <i class="fa fa-arrow-left"></i>
+        </button>
+        <div class="detail-header-info">
+            <div class="detail-title-row">
+                <ng-container *ngIf="!editingName">
+                    <h2 class="detail-title" [class.detail-title-editable]="isOwner" (click)="startEditName()">{{list.name}}</h2>
+                    <button class="btn-edit-name" *ngIf="isOwner && !batchMode" (click)="startEditName()" title="Rinomina">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                </ng-container>
+                <div class="name-edit-row" *ngIf="editingName">
+                    <input class="name-edit-input" type="text" [(ngModel)]="editingNameValue"
+                           (keydown)="onNameKeydown($event)" (input)="nameEditEmpty = false"
+                           autofocus maxlength="40" [class.name-edit-error]="nameEditEmpty">
+                    <button class="btn-name-confirm" (click)="saveEditName()" title="Conferma"><i class="fa fa-check"></i></button>
+                    <button class="btn-name-cancel" (click)="cancelEditName()" title="Annulla"><i class="fa fa-times"></i></button>
+                </div>
+                <span class="badge-list-type badge-personal" *ngIf="list.list_type === 'personal' && !batchMode">
+                    <i class="fa fa-user"></i> Personale
+                </span>
+                <span class="badge-list-type badge-shared" *ngIf="list.list_type === 'shared' && !batchMode">
+                    <i class="fa fa-users"></i> Condivisa
+                </span>
+                <span class="badge-list-type badge-completed-tag" *ngIf="list.completed && !batchMode">
+                    <i class="fa fa-check"></i> Completata
+                </span>
+                <span class="badge-list-type badge-batch" *ngIf="batchMode">
+                    <i class="fa fa-pen-to-square"></i> Modifica
+                </span>
+                <button class="btn-star-inline" *ngIf="!batchMode" (click)="toggleStar()" [class.btn-star-inline-active]="list.starred" [title]="list.starred ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'">
+                    <i class="fa fa-star"></i>
+                </button>
+            </div>
+            <span class="detail-date" *ngIf="!batchMode">Creata il {{formatDate(list.created_at)}}</span>
+            <span class="detail-date" *ngIf="batchMode">Modifica nome e quantità, poi conferma</span>
+        </div>
+        <div class="detail-header-actions">
+            <!-- Azioni normali -->
+            <ng-container *ngIf="!batchMode">
+                <button class="btn-action btn-leave" *ngIf="list.list_type === 'shared'" (click)="leaveList()" title="Esci dalla lista">
+                    <i class="fa fa-right-from-bracket"></i>
+                    <span>Esci</span>
+                </button>
+                <button class="btn-action btn-share" (click)="shareList()" [title]="shareCopied ? 'Link copiato!' : 'Condividi link'">
+                    <i class="fa" [ngClass]="shareCopied ? 'fa-check' : 'fa-link'"></i>
+                    <span>{{shareCopied ? 'Copiato!' : 'Condividi'}}</span>
+                </button>
+                <button class="btn-action btn-participants" *ngIf="list.list_type === 'shared'" (click)="toggleSidebar()" [class.btn-participants-active]="sidebarOpen" title="Partecipanti">
+                    <i class="fa fa-users"></i>
+                    <span>Membri</span>
+                    <span class="participants-count-badge" *ngIf="participantCount > 0">{{participantCount}}</span>
+                </button>
+                <button class="btn-action btn-uncheck" *ngIf="checkedItems.length > 0" (click)="uncheckAll()">
+                    <i class="fa fa-rotate-left"></i>
+                    <span>Ricomincia</span>
+                </button>
+                <button class="btn-action btn-mark-done" *ngIf="!list.completed" (click)="toggleCompleted()">
+                    <i class="fa fa-check"></i>
+                    <span>Completa</span>
+                </button>
+                <button class="btn-action btn-delete-list" *ngIf="isOwner && list.list_type === 'personal'" (click)="deleteList()" title="Elimina lista">
+                    <i class="fa fa-trash"></i>
+                    <span>Elimina</span>
+                </button>
+                <button class="btn-action btn-edit-mode" *ngIf="items.length > 0" (click)="enterBatchMode()">
+                    <i class="fa fa-pen-to-square"></i>
+                    <span>Modifica multipla</span>
+                </button>
+            </ng-container>
+            <!-- Azioni batch -->
+            <ng-container *ngIf="batchMode">
+                <button class="btn-action btn-batch-cancel" (click)="cancelBatch()">
+                    <i class="fa fa-times"></i>
+                    <span>Annulla</span>
+                </button>
+                <button class="btn-action btn-batch-save" (click)="saveBatch()">
+                    <i class="fa fa-check"></i>
+                    <span>Salva</span>
+                </button>
+            </ng-container>
+        </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-section" *ngIf="items.length > 0 && !batchMode">
+        <div class="progress-bar-outer">
+            <div class="progress-bar-fill" [style.width.%]="progressPercent"
+                 [class.complete]="progressPercent === 100"></div>
+        </div>
+        <span class="progress-label">{{checkedItems.length}}/{{items.length}} articoli</span>
+    </div>
+
+    <!-- ITEMS LIST - modalità normale -->
+    <div class="items-container" *ngIf="!batchMode">
+
+        <!-- Da acquistare -->
+        <div class="items-section">
+            <div class="items-section-label" *ngIf="uncheckedItems.length > 0">
+                Da acquistare <span class="items-count">{{uncheckedItems.length}}</span>
+            </div>
+            <div class="items-list">
+                <div class="item-row" *ngFor="let item of uncheckedItems">
+                    <button class="item-check-btn unchecked" (click)="toggleItem(item)">
+                        <i class="fa fa-circle"></i>
+                    </button>
+                    <div class="item-content" *ngIf="editingItemId !== item.id">
+                        <span class="item-name">{{item.name}}</span>
+                        <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
+                    </div>
+                    <div class="item-edit-form" *ngIf="editingItemId === item.id">
+                        <input class="edit-input" type="text" [(ngModel)]="editingItemName"
+                               (keydown)="onEditKeydown($event, item)" autofocus>
+                        <button class="btn-edit-save" (click)="saveEdit(item)"><i class="fa fa-check"></i></button>
+                        <button class="btn-edit-cancel" (click)="cancelEdit()"><i class="fa fa-times"></i></button>
+                    </div>
+                    <ng-container *ngIf="editingItemId !== item.id">
+                        <button class="item-edit-btn" (click)="startEdit(item)" title="Modifica">
+                            <i class="fa fa-pencil"></i>
+                        </button>
+                        <button class="item-delete-btn" (click)="deleteItem(item, $event)" title="Elimina">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </ng-container>
+                </div>
+                <!-- Add item nella griglia -->
+                <div class="item-row add-item-card" *ngIf="addingItem">
+                    <input class="add-input add-input-name" type="text" [(ngModel)]="newItemName"
+                           placeholder="Nome articolo" (keydown)="onAddKeydown($event)" autofocus>
+                    <input class="add-input add-input-qty" type="number" [(ngModel)]="newItemQty"
+                           placeholder="Qtà" min="0">
+                    <button class="btn-add-confirm" (click)="addItem()" [disabled]="!newItemName.trim()">
+                        <i class="fa fa-check"></i>
+                    </button>
+                    <button class="btn-add-cancel" (click)="addingItem = false; newItemName = ''">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </div>
+                <button class="btn-add-item" *ngIf="!addingItem" (click)="addingItem = true">
+                    <i class="fa fa-plus"></i> Aggiungi articolo
+                </button>
+            </div>
+        </div>
+
+        <!-- Già nel carrello -->
+        <div class="items-section items-section-checked" *ngIf="checkedItems.length > 0">
+            <div class="items-section-label items-section-label-muted">
+                Nel carrello <span class="items-count items-count-muted">{{checkedItems.length}}</span>
+            </div>
+            <div class="items-list">
+                <div class="item-row item-row-checked" *ngFor="let item of checkedItems">
+                    <button class="item-check-btn checked" (click)="toggleItem(item)">
+                        <i class="fa fa-circle-check"></i>
+                    </button>
+                    <div class="item-content">
+                        <span class="item-name item-name-checked">{{item.name}}</span>
+                        <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
+                    </div>
+                    <button class="item-delete-btn" (click)="deleteItem(item, $event)" title="Elimina">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ITEMS LIST - modalità batch -->
+    <div class="items-container batch-container" *ngIf="batchMode">
+        <div class="items-list">
+            <div class="item-row batch-row" *ngFor="let item of batchItems" [class.batch-row-delete]="item.toDelete">
+                <button class="batch-check-toggle" (click)="item.checked = !item.checked" [disabled]="item.toDelete"
+                        [class.batch-checked]="item.checked" [title]="item.checked ? 'Deseleziona' : 'Seleziona'">
+                    <i class="fa" [ngClass]="item.checked ? 'fa-circle-check' : 'fa-circle'"></i>
+                </button>
+                <input class="batch-input batch-input-name" type="text" [(ngModel)]="item.name"
+                       [disabled]="item.toDelete" placeholder="Nome articolo"
+                       [class.batch-input-error]="batchAddAttempted && item.id === null && !item.name.trim()">
+                <div class="qty-stepper" [class.qty-stepper-disabled]="item.toDelete">
+                    <button class="qty-btn" (click)="item.quantity = (item.quantity || 1) - 1 < 1 ? 1 : (item.quantity || 1) - 1" [disabled]="item.toDelete || (item.quantity || 1) <= 1">−</button>
+                    <span class="qty-value">{{item.quantity || 1}}</span>
+                    <button class="qty-btn" (click)="item.quantity = (item.quantity || 1) + 1" [disabled]="item.toDelete">+</button>
+                </div>
+                <button class="batch-delete-toggle" *ngIf="item.id !== null" (click)="toggleBatchDelete(item)" [title]="item.toDelete ? 'Ripristina' : 'Elimina'">
+                    <i class="fa" [ngClass]="item.toDelete ? 'fa-rotate-left' : 'fa-trash'"></i>
+                </button>
+                <button class="batch-delete-toggle batch-remove-new" *ngIf="item.id === null" (click)="removeBatchItem(item)" title="Rimuovi">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+            <button class="btn-add-item batch-add-btn" (click)="addBatchItem()">
+                <i class="fa fa-plus"></i> Aggiungi articolo
+            </button>
+        </div>
+        <div class="batch-footer" *ngIf="batchDeleteCount > 0">
+            <span class="batch-info">
+                <i class="fa fa-trash"></i> {{batchDeleteCount}} da eliminare
+            </span>
+        </div>
+    </div>
+
+    </div><!-- /detail-main -->
+
+    <!-- PARTICIPANTS SIDEBAR -->
+    <div class="participants-sidebar" *ngIf="sidebarOpen && list.list_type === 'shared'">
+        <div class="sidebar-header">
+            <span class="sidebar-title"><i class="fa fa-users"></i> Partecipanti</span>
+            <button class="sidebar-close" (click)="toggleSidebar()"><i class="fa fa-times"></i></button>
+        </div>
+        <div class="sidebar-body">
+            <div class="participant-item" *ngFor="let p of sortedParticipants">
+                <div class="participant-avatar">
+                    <img *ngIf="p.profile_image" [src]="p.profile_image" [alt]="p.name" class="avatar-img">
+                    <div *ngIf="!p.profile_image" class="avatar-initials">{{getInitials(p)}}</div>
+                </div>
+                <div class="participant-info">
+                    <span class="participant-name">{{p.name}} {{p.surname || ''}}</span>
+                    <span class="participant-email">{{p.email}}</span>
+                </div>
+                <span class="participant-badge" [class.badge-owner]="p.user_id === list.owner_id" [class.badge-member]="p.user_id !== list.owner_id">
+                    {{p.user_id === list.owner_id ? 'Owner' : 'Partecipante'}}
+                </span>
+            </div>
+            <div class="sidebar-empty" *ngIf="!list.participants || list.participants.length === 0">
+                <i class="fa fa-user-slash"></i>
+                <span>Nessun partecipante</span>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /detail-layout -->
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+        <div class="modal-icon-wrap modal-icon-danger">
+            <i class="fa fa-trash"></i>
+        </div>
+        <h3 class="modal-title">Elimina lista</h3>
+        <p class="modal-desc">Sei sicuro di voler eliminare <strong>{{list.name}}</strong>?<br>L'operazione non è reversibile.</p>
+        <div class="modal-actions">
+            <button class="btn-modal-cancel" (click)="cancelDelete()">Annulla</button>
+            <button class="btn-modal-confirm btn-modal-delete" (click)="confirmDelete()">
+                <i class="fa fa-trash"></i> Elimina
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- TRANSFER OWNERSHIP MODAL -->
+<div class="modal-overlay" *ngIf="showTransferModal" (click)="cancelTransfer()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+
+        <!-- caso: nessun partecipante → elimina -->
+        <ng-container *ngIf="transferCandidates.length === 0">
+            <div class="modal-icon-wrap modal-icon-danger">
+                <i class="fa fa-trash"></i>
+            </div>
+            <h3 class="modal-title">Elimina lista</h3>
+            <p class="modal-desc">Sei l'unico membro di questa lista. Uscendo verrà eliminata definitivamente.</p>
+            <div class="modal-actions">
+                <button class="btn-modal-cancel" (click)="cancelTransfer()">Annulla</button>
+                <button class="btn-modal-confirm btn-modal-delete" (click)="deleteAndLeave()">
+                    <i class="fa fa-trash"></i> Elimina e esci
+                </button>
+            </div>
+        </ng-container>
+
+        <!-- caso: ci sono partecipanti → trasferisci -->
+        <ng-container *ngIf="transferCandidates.length > 0">
+            <div class="modal-icon-wrap modal-icon-leave">
+                <i class="fa fa-right-from-bracket"></i>
+            </div>
+            <h3 class="modal-title">Esci dalla lista</h3>
+            <p class="modal-desc">Sei il proprietario. Seleziona un nuovo owner prima di uscire.</p>
+            <div class="transfer-candidates">
+                <label class="transfer-option" *ngFor="let p of transferCandidates"
+                       [class.selected]="selectedNewOwnerId === p.user_id"
+                       (click)="selectedNewOwnerId = p.user_id">
+                    <div class="participant-avatar">
+                        <img *ngIf="p.profile_image" [src]="p.profile_image" [alt]="p.name" class="avatar-img">
+                        <div *ngIf="!p.profile_image" class="avatar-initials">{{getInitials(p)}}</div>
+                    </div>
+                    <span class="transfer-name">{{p.name}} {{p.surname || ''}}</span>
+                    <i class="fa fa-circle-check transfer-check" *ngIf="selectedNewOwnerId === p.user_id"></i>
+                </label>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal-cancel" (click)="cancelTransfer()">Annulla</button>
+                <button class="btn-modal-confirm" (click)="confirmTransfer()" [disabled]="!selectedNewOwnerId">
+                    <i class="fa fa-check"></i> Conferma e esci
+                </button>
+            </div>
+        </ng-container>
+
+    </div>
+</div>
+
+</ng-container>

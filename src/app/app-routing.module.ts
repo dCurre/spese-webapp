@@ -19,6 +19,8 @@ import { HomeComponent } from './features/components/home/home.component';
 import { JoinComponent } from './features/components/join/join.component';
 import { SignInComponent } from './features/components/sign-in/sign-in.component';
 import { ChecklistComponent } from './features/components/checklist/checklist.component';
+import { ChecklistDetailComponent } from './features/components/checklist-detail/checklist-detail.component';
+import { JoinChecklistComponent } from './features/components/join-checklist/join-checklist.component';
 import { ProfileComponent } from './features/components/profile/profile.component';
 import { SignUpComponent } from './features/components/sign-up/sign-up.component';
 import { ExpensesListPersonalComponent } from './features/components/expenses-list-personal/expenses-list-personal.component';
@@ -31,6 +33,8 @@ const routes: Routes = [
   { path: 'list-personal/:id', component: ExpenseListDetailsComponent, canActivate: [AuthGuard, ListPersonalGuard] },
   { path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AdminGuard] },
   { path: 'checklist', component: ChecklistComponent, canActivate: [AuthGuard] },
+  { path: 'checklist/join/:token', component: JoinChecklistComponent, canActivate: [AuthGuard] },
+  { path: 'checklist/:id', component: ChecklistDetailComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'about', component: AboutComponent, canActivate: [AuthGuard] },
   { path: '', component: HomeComponent, canActivate: [AuthGuard]  },
