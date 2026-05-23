@@ -4,6 +4,7 @@ import { map, Observable } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { SidenavService } from 'src/app/core/services/sidenav/sidenav.service';
 import { environment } from 'src/environments/environment';
+import { APP_NAME } from 'src/app/version';
 
 @Component({
   selector: 'app-sidebar',
@@ -11,7 +12,8 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
-  
+  appName = APP_NAME;
+
   constructor(
     public sidenavService: SidenavService,
     protected authService: AuthService,

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { APP_VERSION } from 'src/app/version';
+import { APP_VERSION, APP_NAME } from 'src/app/version';
 
 @Component({
   selector: 'app-about',
@@ -8,4 +8,5 @@ import { APP_VERSION } from 'src/app/version';
 })
 export class AboutComponent {
   version = APP_VERSION;
+  appName = APP_NAME;
 }

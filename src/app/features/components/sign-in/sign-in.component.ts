@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
+import { APP_NAME } from 'src/app/version';
 
 @Component({
   selector: 'app-sign-in',
@@ -10,6 +11,7 @@ import { AuthService } from 'src/app/core/services/auth/auth.service';
 })
 export class SignInComponent implements OnInit {
 
+  appName = APP_NAME;
   loginForm: FormGroup;
   firebaseErrorMessage: string;
   leaving = false;
