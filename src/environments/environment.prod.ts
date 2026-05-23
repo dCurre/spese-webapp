@@ -9,6 +9,6 @@ export const environment = {
     appId: "1:587215754394:web:7befe7d1a513110be7bb23",
     measurementId: "G-J5XK9X00QG"
   },
-  apiUrl: 'https://spese-ms.vercel.app/api/',
-  pgApiUrl: 'https://spese-ms.vercel.app'
+  apiUrl: 'https://spese-ms.onrender.com/api/',
+  pgApiUrl: 'https://spese-ms.onrender.com'
 };
