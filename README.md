@@ -1,27 +1,64 @@
-# SpeseWebapp
+<p align="center">
+  <img src="src/assets/ic_logo.png" alt="Spese logo" width="80"/>
+</p>
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.0.
+<h1 align="center">Spese — Frontend</h1>
 
-## Development server
+<p align="center">
+  App per la gestione delle spese condivise e delle liste della spesa.<br/>
+  Costruita con <strong>Angular 14</strong> e deployata su <strong>Firebase Hosting</strong>.
+</p>
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+<p align="center">
+  <a href="https://spese-dc.web.app">🌐 spese-dc.web.app</a>
+</p>
 
-## Code scaffolding
+---
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Funzionalità
 
-## Build
+- 📋 **Liste spese condivise** — crea liste, aggiungi partecipanti, registra spese
+- 🛒 **Checklist** — liste della spesa collaborative con aggiornamenti in tempo reale
+- 👤 **Profilo utente** — immagine profilo con storico, tema chiaro/scuro/auto
+- 🔐 **Autenticazione** — login con Google tramite Firebase Auth
+- 📊 **Statistiche** — grafici sulle spese per categoria
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+## Stack
 
-## Running unit tests
+| Layer | Tecnologia |
+|-------|-----------|
+| Framework | Angular 14 |
+| UI | Angular Material + Bootstrap 5 |
+| Auth | Firebase Authentication |
+| Charts | Chart.js + ng2-charts |
+| Backend | [spese-ms](https://github.com/dCurre/spese-ms) |
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Sviluppo locale
 
-## Running end-to-end tests
+```bash
+npm install
+ng serve
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+L'app sarà disponibile su `http://localhost:4200`.
 
-## Further help
+Assicurati che il backend sia in esecuzione su `http://localhost:5000` oppure modifica `src/environments/environment.ts`.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+## Build & Deploy
+
+```bash
+ng build --configuration=production
+firebase deploy --only hosting
+```
+
+## Struttura
+
+```
+src/
+├── app/
+│   ├── core/          # Servizi, interceptor, modelli
+│   ├── features/      # Componenti pagina
+│   └── shared/        # Componenti riutilizzabili
+├── assets/
+└── environments/
+```
