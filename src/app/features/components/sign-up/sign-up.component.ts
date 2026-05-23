@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { APP_NAME } from 'src/app/version';
 
 @Component({
   selector: 'app-sign-up',
@@ -8,6 +9,7 @@ import { Router } from '@angular/router';
 })
 export class SignUpComponent implements OnInit {
 
+  appName = APP_NAME;
   leaving = false;
 
   constructor(private router: Router) {}
