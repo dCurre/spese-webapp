@@ -690,6 +690,9 @@
     transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
+.batch-tree-additem-btn { color: rgba(0,179,126,0.5); font-size: 0.75rem; }
+.batch-tree-additem-btn:hover { background: rgba(0,179,126,0.1); color: #00b37e; border-color: rgba(0,179,126,0.25); }
+
 .batch-tree-subcategory-btn { color: rgba(99,102,241,0.5); font-size: 0.75rem; }
 .batch-tree-subcategory-btn:hover { background: rgba(99,102,241,0.1); color: #6366f1; border-color: rgba(99,102,241,0.25); }
 
@@ -781,8 +784,8 @@
 
 /* Bottone nuova categoria nel batch — riusa btn-add-category + variante specifica */
 .batch-add-category-btn {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
 }
 
 .batch-footer {
@@ -1185,8 +1188,8 @@
     justify-content: center;
     gap: 0.5rem;
     padding: 0.5rem 0.625rem;
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
+    margin-top: 0;
+    margin-bottom: 0.75rem;
     border: 1.5px dashed rgba(99,102,241,0.35);
     border-radius: 6px;
     background: transparent;
@@ -1351,6 +1354,18 @@
 .category-check-btn.checked { color: #00b37e; }
 .category-check-btn.indeterminate { color: #f59e0b; }
 .category-check-btn:disabled { opacity: 0.3; cursor: default; transform: none; }
+
+/* Bottoni icona nell'header categoria (add item / add subcategory) */
+.item-add-btn {
+    width: 24px; height: 24px;
+    border-radius: 5px; border: 1px solid transparent;
+    background: transparent; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; flex-shrink: 0;
+    color: rgba(0,179,126,0.5);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.item-add-btn:hover { background: rgba(0,179,126,0.1); color: #00b37e; border-color: rgba(0,179,126,0.25); }
 
 /* Variante "senza categoria" — icona tag */
 .uncat-folder-icon {

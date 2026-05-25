@@ -36,22 +36,30 @@
                    (ngModelChange)="categoryRenameNameChange.emit($event)"
                    (keydown)="onEditCategoryKeydown($event, cat)" autofocus
                    [disabled]="savingEditCategoryId === cat.id">
-            <button class="btn-edit-save" (click)="categoryRenameSave.emit({ cat: cat, name: editingCategoryName })"
+            <button class="btn-edit-save" (click)="categoryRenameSave.emit({ cat: cat, name: editingCategoryName }); $event.stopPropagation()"
                     [disabled]="!editingCategoryName.trim() || savingEditCategoryId === cat.id">
                 <i class="fa" [ngClass]="savingEditCategoryId === cat.id ? 'fa-spinner fa-spin' : 'fa-check'"></i>
             </button>
-            <button class="btn-edit-cancel" (click)="categoryRenameCancel.emit()" [disabled]="savingEditCategoryId === cat.id">
+            <button class="btn-edit-cancel" (click)="categoryRenameCancel.emit(); $event.stopPropagation()" [disabled]="savingEditCategoryId === cat.id">
                 <i class="fa fa-times"></i>
             </button>
         </div>
 
-        <!-- Azioni (visibili solo on hover) -->
+        <!-- Azioni header -->
         <div class="category-actions" *ngIf="editingCategoryId !== cat.id" (click)="$event.stopPropagation()">
-            <button class="item-edit-btn" (click)="categoryRenameStart.emit(cat)" title="Rinomina"
+            <button class="item-add-btn" (click)="addItemStart.emit(cat.id); $event.stopPropagation()" title="Aggiungi articolo"
+                    *ngIf="addingItemInCategoryId !== cat.id && addingSubcategoryParentId !== cat.id">
+                <i class="fa fa-plus-circle"></i>
+            </button>
+            <button class="item-addsub-btn" (click)="addSubcategoryStart.emit(cat.id); $event.stopPropagation()" title="Aggiungi sottocategoria"
+                    *ngIf="addingItemInCategoryId !== cat.id && addingSubcategoryParentId !== cat.id">
+                <i class="fa fa-folder-plus"></i>
+            </button>
+            <button class="item-edit-btn" (click)="categoryRenameStart.emit(cat); $event.stopPropagation()" title="Rinomina"
                     [disabled]="deletingId === cat.id">
                 <i class="fa fa-pencil"></i>
             </button>
-            <button class="item-delete-btn" (click)="categoryDelete.emit({ cat: cat })" title="Elimina"
+            <button class="item-delete-btn" (click)="categoryDelete.emit({ cat: cat }); $event.stopPropagation()" title="Elimina"
                     [disabled]="deletingId === cat.id">
                 <i class="fa" [ngClass]="deletingId === cat.id ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
             </button>
@@ -173,19 +181,8 @@
                 </button>
             </div>
 
-            <!-- Bottoni azione in fondo -->
-            <div class="cat-footer-actions" *ngIf="addingItemInCategoryId !== cat.id && addingSubcategoryParentId !== cat.id">
-                <button class="cat-item-row btn-add-inline" (click)="addItemStart.emit(cat.id)">
-                    <span class="item-add-icon"><i class="fa fa-plus"></i></span>
-                    <span class="btn-add-inline-label">Aggiungi articolo</span>
-                </button>
-                <button class="cat-item-row btn-add-inline btn-add-subcategory" (click)="addSubcategoryStart.emit(cat.id)">
-                    <span class="item-add-icon"><i class="fa fa-folder-plus"></i></span>
-                    <span class="btn-add-inline-label">Aggiungi sottocategoria</span>
-                </button>
-            </div>
 
-            <!-- Form aggiungi sottocategoria -->
+<!-- Form aggiungi sottocategoria -->
             <div class="cat-item-row cat-item-add-inline cat-item-add-subcategory" *ngIf="addingSubcategoryParentId === cat.id">
                 <span class="item-add-icon"><i class="fa fa-folder-plus"></i></span>
                 <input class="batch-input batch-input-name" type="text" [ngModel]="newSubcategoryName"

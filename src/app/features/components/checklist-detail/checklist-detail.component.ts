@@ -58,6 +58,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected editingItemQty: number | null = null;
   protected editingCategoryId: number | null = null;
   protected editingCategoryName = '';
+  private editingCategoryOriginalName = '';
 
   protected shareCopied = false;
   protected editingName = false;
@@ -103,14 +104,22 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   private loadList(): void {
     this.shoppingListService.getById(this.listId).subscribe({
-      next: (list) => { this.list = list; this.hasLoaded = true; this.loadError = false; },
+      next: (list) => {
+        this.list = list;
+        this.hasLoaded = true;
+        this.loadError = false;
+        this.uncatCollapsed = (list.items ?? []).length === 0;
+      },
       error: () => { this.hasLoaded = true; this.loadError = true; }
     });
   }
 
   private reload(): void {
     this.shoppingListService.getById(this.listId).subscribe({
-      next: (list) => { this.list = list; },
+      next: (list) => {
+        this.list = list;
+        if ((list.items ?? []).length === 0) this.uncatCollapsed = true;
+      },
       error: () => {}
     });
   }
@@ -331,6 +340,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected onNodeCategoryRenameStart(cat: ShoppingCategory): void {
     this.editingCategoryId = cat.id;
     this.editingCategoryName = cat.name;
+    this.editingCategoryOriginalName = cat.name;
     this.editingItemId = null;
   }
 
@@ -479,11 +489,13 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.editingCategoryId = cat.id;
     this.editingCategoryName = cat.name;
+    this.editingCategoryOriginalName = cat.name;
     this.editingItemId = null;
   }
 
   protected saveEditCategory(cat: ShoppingCategory): void {
     if (!this.editingCategoryName.trim()) { this.cancelEditCategory(); return; }
+    if (this.editingCategoryName.trim() === this.editingCategoryOriginalName) { this.cancelEditCategory(); return; }
     if (this.savingEditCategoryId) return;
     this.savingEditCategoryId = cat.id;
     this.shoppingCategoryService.update(cat.id, { name: this.editingCategoryName.trim() }).subscribe({
