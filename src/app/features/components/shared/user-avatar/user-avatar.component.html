@@ -1,0 +1,15 @@
+<div class="avatar-root"
+     [style.width.px]="size"
+     [style.height.px]="size"
+     [style.border-radius]="borderRadius"
+     [style.font-size]="fontSize"
+     [style.border]="noBorder ? 'none' : null">
+  <img *ngIf="user?.profile_image && !imageError"
+       [src]="user.profile_image"
+       alt="Avatar"
+       (error)="onImageError()"
+       class="avatar-img">
+  <span *ngIf="!user?.profile_image || imageError" class="avatar-initials">
+    {{ initials }}
+  </span>
+</div>

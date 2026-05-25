@@ -13,16 +13,13 @@
               <ng-container *ngIf="uploadingAvatar">
                 <i class="fa fa-spinner fa-spin" style="font-size:22px;color:#fff"></i>
               </ng-container>
-              <ng-container *ngIf="!uploadingAvatar">
-                <img *ngIf="loggedUser.profile_image && !avatarError"
-                     [src]="loggedUser.profile_image"
-                     alt="Avatar"
-                     (error)="onAvatarError($event)"
-                     style="width:100%;height:100%;object-fit:cover;border-radius:18px">
-                <span *ngIf="!loggedUser.profile_image || avatarError" style="font-size:26px;font-weight:700;color:#fff">
-                  {{loggedUser.name[0].toUpperCase()}}{{loggedUser.surname?.[0]?.toUpperCase() ?? ''}}
-                </span>
-              </ng-container>
+              <app-user-avatar *ngIf="!uploadingAvatar"
+                               [user]="loggedUser"
+                               [size]="64"
+                               shape="rounded"
+                               [noBorder]="true"
+                               style="display:block;width:100%;height:100%">
+              </app-user-avatar>
             </div>
             <div class="avatar-badge" (click)="openAvatarPanel()">
               <i class="fa" [ngClass]="uploadingAvatar ? 'fa-spinner fa-spin' : 'fa-pen'"></i>

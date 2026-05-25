@@ -99,6 +99,10 @@ export class CategoryNodeComponent implements OnChanges {
     return (this.cat.items ?? []).length === 0 && (this.cat.children ?? []).length === 0;
   }
 
+  protected get hasDirectItems(): boolean {
+    return (this.cat.items ?? []).length > 0;
+  }
+
   protected get indentPx(): number { return this.depth * 20; }
 
   protected get allItems(): ShoppingItem[] { return this.cat.items ?? []; }

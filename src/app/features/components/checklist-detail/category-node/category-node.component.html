@@ -73,7 +73,7 @@
 
     <!-- BODY -->
     <div class="category-body" [class.collapsed]="collapsed">
-        <div class="category-items-list">
+        <div class="category-items-list" [class.category-items-no-direct]="!hasDirectItems">
 
             <!-- Sottocategorie ricorsive -->
             <app-category-node *ngFor="let child of (cat.children || [])"

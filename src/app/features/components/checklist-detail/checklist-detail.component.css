@@ -718,7 +718,6 @@
 .batch-cat-tree-body {
     margin-left: 0.75rem;
     padding-left: 1rem;
-    border-left: 1.5px solid var(--color-border);
     padding-bottom: 0.25rem;
 }
 .batch-uncat-body-noheader {
@@ -731,6 +730,41 @@
     display: flex;
     flex-direction: column;
     gap: 0;
+    position: relative;
+}
+
+/* Connettori albero per gli item nel batch */
+.batch-cat-tree-items > .batch-tree-item-row {
+    position: relative;
+}
+
+/* Linea verticale: da top:0 fino al centro della riga */
+.batch-cat-tree-items > .batch-tree-item-row::after {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 0;
+    bottom: 50%;
+    width: 1.5px;
+    background: var(--color-border);
+    pointer-events: none;
+}
+
+/* Tutti tranne l'ultimo: la linea verticale scende fino in fondo */
+.batch-cat-tree-items > .batch-tree-item-row:not(:last-child)::after {
+    bottom: 0;
+}
+
+/* Connettore orizzontale */
+.batch-cat-tree-items > .batch-tree-item-row::before {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 50%;
+    width: 0.6rem;
+    height: 1.5px;
+    background: var(--color-border);
+    pointer-events: none;
 }
 
 /* Ogni riga item dentro il batch (simile a cat-item-row) */
@@ -744,7 +778,10 @@
     cursor: default;
 }
 .batch-tree-item-row:hover { background: rgba(255,255,255,0.04); }
-.batch-tree-item-row.batch-row-delete { opacity: 0.4; }
+/* opacity solo sui figli, non sui pseudo-elementi connettori */
+.batch-tree-item-row.batch-row-delete > * { opacity: 0.4; }
+.batch-tree-item-row.batch-row-delete::before,
+.batch-tree-item-row.batch-row-delete::after { opacity: 1; }
 .batch-tree-item-row.batch-row-delete .batch-input { text-decoration: line-through; color: var(--color-text-muted); }
 
 /* Check button item nel batch */
@@ -1350,6 +1387,9 @@
     padding-left: 1rem; padding-bottom: 0.25rem;
     border-left: 1.5px solid var(--color-border);
     margin-left: 0.75rem;
+}
+.category-items-no-direct {
+    border-left-color: transparent;
 }
 
 /* Check button (usato nell'header "senza categoria") */
