@@ -48,6 +48,23 @@
     gap: 0.5rem;
 }
 
+.btn-import-group {
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.btn-import-group:hover { border-color: #00b37e; color: #00b37e; background: rgba(0,179,126,0.06); }
+.btn-import-group:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .btn-new-group {
     background: #00b37e;
     color: white;

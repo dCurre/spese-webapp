@@ -5,6 +5,7 @@ import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ShoppingList } from 'src/app/core/services/postgres/shopping-list/shopping-list';
 import { ShoppingListService } from 'src/app/core/services/postgres/shopping-list/shopping-list.service';
 import { NewChecklistDialogComponent } from '../dialog/new-checklist-dialog/new-checklist-dialog.component';
+import { ImportChecklistDialogComponent, ImportChecklistResult } from '../dialog/import-checklist-dialog/import-checklist-dialog.component';
 import { User } from 'src/app/core/services/postgres/user/user';
 
 @Component({
@@ -138,6 +139,41 @@ export class ChecklistComponent implements OnInit, OnDestroy {
   protected formatDate(dateStr: string): string {
     if (!dateStr) return '';
     return new Date(dateStr).toLocaleDateString('it-IT');
+  }
+
+  protected importChecklist(): void {
+    if (!this.loggedUser) return;
+    const modal = this.modalService.open(ImportChecklistDialogComponent, { centered: true, size: 'lg' });
+    modal.componentInstance.mode = 'new';
+    modal.result.then((result: ImportChecklistResult | null) => {
+      if (!result) return;
+      this.shoppingListService.create({
+        name: result.name,
+        list_type: 'personal',
+        owner_id: this.loggedUser!.id,
+        completed: false,
+      }).subscribe({
+        next: (res) => {
+          // Usa batch-save per creare tutti gli item in una sola chiamata
+          this.shoppingListService.batchSave(res.id, {
+            items_create: result.items.map((item, idx) => ({
+              name: item.name,
+              quantity: null,
+              checked: item.checked,
+              sort_order: idx,
+              category_id: null,
+            })),
+          }).subscribe({
+            next: () => {
+              this.reloadLists();
+              this.router.navigate(['/checklist', res.id]);
+            },
+            error: () => this.reloadLists(),
+          });
+        },
+        error: () => {},
+      });
+    }).catch(() => {});
   }
 
   protected retry(): void {

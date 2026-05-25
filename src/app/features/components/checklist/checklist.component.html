@@ -2,6 +2,9 @@
     <div class="section-header">
         <h3 class="section-title">Checklist spesa</h3>
         <div class="section-actions">
+            <button class="btn-import-group" (click)="importChecklist()" [disabled]="!loggedUser" title="Importa checklist">
+                <i class="fa fa-file-import"></i> Importa
+            </button>
             <button class="btn-new-group" (click)="newChecklist()" [disabled]="!loggedUser">
                 <i class="fa fa-plus"></i> Nuova Checklist
             </button>

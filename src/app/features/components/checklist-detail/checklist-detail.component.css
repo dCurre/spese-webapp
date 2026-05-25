@@ -551,6 +551,7 @@
     border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
+.btn-import:hover { border-color: #00b37e; color: #00b37e; background: rgba(0,179,126,0.06); }
 .btn-edit-mode:hover { border-color: #f59e0b; color: #b45309; background: rgba(245,158,11,0.06); }
 
 .btn-batch-save {
