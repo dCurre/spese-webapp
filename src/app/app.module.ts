@@ -3,19 +3,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatInputModule } from '@angular/material/input';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatDialogModule } from '@angular/material/dialog';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { MatExpansionModule } from '@angular/material/expansion';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatSelectModule } from '@angular/material/select';
+import { NgbModalModule, NgbToastModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgChartsModule } from 'ng2-charts';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { AppRoutingModule } from './app-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 
@@ -108,22 +97,12 @@ import { UserAvatarComponent } from './features/components/shared/user-avatar/us
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
-    MatExpansionModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireAuthModule,
-    MatButtonModule,
-    MatCardModule,
-    MatInputModule,
-    MatDialogModule,
-    MatAutocompleteModule,
-    MatToolbarModule,
-    MatSidenavModule,
-    MatIconModule,
-    MatDividerModule,
-    MatSelectModule,
     HttpClientModule,
 
-    NgbModule,
+    NgbModalModule,
+    NgbToastModule,
     NgChartsModule,
 
     FormsModule,
