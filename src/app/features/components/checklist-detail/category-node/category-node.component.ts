@@ -1,7 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
 import { ShoppingCategory, ShoppingItem } from 'src/app/core/services/postgres/shopping-list/shopping-list';
 
-export interface ItemSavePayload { item: ShoppingItem; name: string; quantity: number | null; }
+export interface ItemSavePayload { item: ShoppingItem; name: string; quantity: number | null; categoryId: number | null; }
 export interface ItemDeletePayload { item: ShoppingItem; }
 export interface ItemTogglePayload { item: ShoppingItem; }
 export interface CategoryTogglePayload { cat: ShoppingCategory; }
@@ -18,11 +18,15 @@ export interface AddSubcategoryPayload { parent: ShoppingCategory; name: string;
 export class CategoryNodeComponent implements OnChanges {
   @Input() cat!: ShoppingCategory;
   @Input() depth = 0;
+  @Input() readonly = false;       // nasconde rename/delete sulla categoria
+  @Input() categoryIcon = 'fa-folder'; // icona da usare nell'header
 
   // stati condivisi dal padre (uno alla volta globale)
   @Input() editingItemId: number | null = null;
   @Input() editingItemName = '';
   @Input() editingItemQty: number | null = null;
+  @Input() editingItemCategoryId: number | null = null;
+  @Input() allCategories: { id: number; label: string }[] = [];
   @Input() savingEditId: number | null = null;
   @Input() deletingId: number | null = null;
   @Input() editingCategoryId: number | null = null;
@@ -45,8 +49,10 @@ export class CategoryNodeComponent implements OnChanges {
   @Output() itemEditCancel = new EventEmitter<void>();
   @Output() itemEditNameChange = new EventEmitter<string>();
   @Output() itemEditQtyChange = new EventEmitter<number | null>();
+  @Output() itemEditCategoryChange = new EventEmitter<number | null>();
   @Output() categoryToggle = new EventEmitter<CategoryTogglePayload>();
   @Output() categoryDelete = new EventEmitter<CategoryDeletePayload>();
+  @Output() categoryEmpty = new EventEmitter<CategoryDeletePayload>(); // svuota (solo readonly)
   @Output() categoryRenameStart = new EventEmitter<ShoppingCategory>();
   @Output() categoryRenameSave = new EventEmitter<CategoryRenameSave>();
   @Output() categoryRenameCancel = new EventEmitter<void>();
@@ -62,9 +68,35 @@ export class CategoryNodeComponent implements OnChanges {
   @Output() addSubcategoryNameChange = new EventEmitter<string>();
 
   protected collapsed = false;
+  private collapsedByEmpty = false;
 
-  ngOnChanges(): void {
-    this.collapsed = this.collapseAll;
+  ngOnChanges(changes: import('@angular/core').SimpleChanges): void {
+    if (changes['collapseAll']) {
+      this.collapsed = this.collapseAll || this.isEmpty;
+      this.collapsedByEmpty = this.isEmpty && !this.collapseAll;
+    }
+    // Primo render: inizializza collapsed e collapsedByEmpty
+    if (changes['cat']?.isFirstChange()) {
+      this.collapsed = this.isEmpty;
+      this.collapsedByEmpty = this.isEmpty;
+    }
+    // Se il nodo era chiuso perché vuoto e ora ha item/figli, aprilo
+    if (changes['cat'] && !changes['cat'].isFirstChange() && this.collapsedByEmpty && !this.isEmpty) {
+      this.collapsed = false;
+      this.collapsedByEmpty = false;
+    }
+    // Se si sta aggiungendo un item in questa categoria, aprila
+    if (changes['addingItemInCategoryId'] && this.addingItemInCategoryId === this.cat.id) {
+      this.collapsed = false;
+    }
+    // Se si sta aggiungendo una sottocategoria in questa categoria, aprila
+    if (changes['addingSubcategoryParentId'] && this.addingSubcategoryParentId === this.cat.id) {
+      this.collapsed = false;
+    }
+  }
+
+  protected get isEmpty(): boolean {
+    return (this.cat.items ?? []).length === 0 && (this.cat.children ?? []).length === 0;
   }
 
   protected get indentPx(): number { return this.depth * 20; }
@@ -118,7 +150,7 @@ export class CategoryNodeComponent implements OnChanges {
   }
 
   protected onEditItemKeydown(event: KeyboardEvent, item: ShoppingItem): void {
-    if (event.key === 'Enter') this.itemSave.emit({ item, name: this.editingItemName, quantity: this.editingItemQty });
+    if (event.key === 'Enter') this.itemSave.emit({ item, name: this.editingItemName, quantity: this.editingItemQty, categoryId: this.editingItemCategoryId });
     if (event.key === 'Escape') this.itemEditCancel.emit();
   }
 

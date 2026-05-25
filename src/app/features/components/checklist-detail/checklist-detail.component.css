@@ -591,6 +591,19 @@
 .batch-input:disabled { background: var(--color-bg-input); cursor: not-allowed; }
 .batch-input-name { flex: 1; }
 
+.edit-category-select {
+    padding: 0.35rem 0.5rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: 7px; font-size: 0.8rem;
+    background: var(--color-bg-card); color: var(--color-text-primary);
+    outline: none; transition: border-color 0.15s;
+    flex-shrink: 0;
+    max-width: 110px;
+    cursor: pointer;
+}
+.edit-category-select:focus { border-color: #00b37e; }
+.edit-category-select:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .qty-stepper {
     display: flex;
     align-items: center;
@@ -1282,8 +1295,8 @@
 .category-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.55rem 0.75rem;
+    gap: 0.35rem;
+    padding: 0.45rem 0.5rem;
     border-radius: 6px;
     cursor: pointer;
     user-select: none;

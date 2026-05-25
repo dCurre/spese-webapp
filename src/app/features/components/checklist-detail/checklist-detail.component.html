@@ -134,6 +134,7 @@
             [cat]="cat" [depth]="0"
             [collapseAll]="allCollapsed"
             [editingItemId]="editingItemId" [editingItemName]="editingItemName" [editingItemQty]="editingItemQty"
+            [editingItemCategoryId]="editingItemCategoryId" [allCategories]="flatCategories"
             [savingEditId]="savingEditId" [deletingId]="deletingId"
             [editingCategoryId]="editingCategoryId" [editingCategoryName]="editingCategoryName"
             [savingEditCategoryId]="savingEditCategoryId"
@@ -149,6 +150,7 @@
             (itemEditCancel)="cancelEditItem()"
             (itemEditNameChange)="editingItemName = $event"
             (itemEditQtyChange)="editingItemQty = $event"
+            (itemEditCategoryChange)="editingItemCategoryId = $event"
             (categoryToggle)="onNodeCategoryToggle($event)"
             (categoryDelete)="onNodeCategoryDelete($event)"
             (categoryRenameStart)="onNodeCategoryRenameStart($event)"
@@ -166,107 +168,39 @@
             (addSubcategoryNameChange)="newSubcategoryName = $event">
         </app-category-node>
 
-        <!-- ITEM SENZA CATEGORIA -->
-        <div class="uncategorized-section">
-
-            <!-- Header stile categoria -->
-            <div class="category-header uncat-header" (click)="uncatCollapsed = !uncatCollapsed">
-                <button class="category-collapse-btn" [class.collapsed]="uncatCollapsed"
-                        (click)="uncatCollapsed = !uncatCollapsed; $event.stopPropagation()">
-                    <i class="fa fa-chevron-down"></i>
-                </button>
-                <i class="fa fa-tag uncat-folder-icon"></i>
-                <button class="category-check-btn"
-                        [class.checked]="uncatAllChecked"
-                        [class.indeterminate]="uncatIndeterminate"
-                        [disabled]="!uncategorizedItems.length"
-                        (click)="toggleUncategorized(); $event.stopPropagation()"
-                        [title]="uncatAllChecked ? 'Deseleziona tutto' : 'Seleziona tutto'">
-                    <i class="fa" [ngClass]="{
-                        'fa-circle-check': uncatAllChecked,
-                        'fa-circle-minus': uncatIndeterminate,
-                        'fa-circle': !uncatAllChecked && !uncatIndeterminate
-                    }"></i>
-                </button>
-                <span class="category-name">Senza categoria</span>
-                <span class="category-count">{{uncategorizedItems.length}}</span>
-                <span class="category-spacer"></span>
-                <button class="item-add-btn" *ngIf="!addingItem"
-                        (click)="addingItem = true; $event.stopPropagation()" title="Aggiungi articolo">
-                    <i class="fa fa-plus-circle"></i>
-                </button>
-            </div>
-
-            <!-- Body collassabile -->
-            <div class="category-body" [class.collapsed]="uncatCollapsed">
-                <div class="category-items-list">
-
-                    <div class="cat-item-row" *ngFor="let item of uncategorizedItems"
-                         [class.cat-item-checked]="item.checked">
-                        <button class="item-check-btn" [class.checked]="item.checked" [class.unchecked]="!item.checked"
-                                (click)="toggleItem(item)">
-                            <i class="fa" [ngClass]="item.checked ? 'fa-circle-check' : 'fa-circle'"></i>
-                        </button>
-                        <div class="item-content" *ngIf="editingItemId !== item.id">
-                            <span class="item-name" [class.item-name-checked]="item.checked">{{item.name}}</span>
-                            <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
-                        </div>
-                        <ng-container *ngIf="editingItemId === item.id">
-                            <input class="batch-input batch-input-name" type="text" [(ngModel)]="editingItemName"
-                                   (keydown)="onEditItemKeydown($event, item)" autofocus
-                                   [disabled]="savingEditId === item.id">
-                            <div class="qty-stepper" [class.qty-stepper-disabled]="savingEditId === item.id">
-                                <button class="qty-btn" (click)="editingItemQty = (editingItemQty || 1) - 1 < 1 ? null : (editingItemQty || 1) - 1"
-                                        [disabled]="savingEditId === item.id || !editingItemQty">−</button>
-                                <span class="qty-value">{{editingItemQty || '—'}}</span>
-                                <button class="qty-btn" (click)="editingItemQty = (editingItemQty || 0) + 1"
-                                        [disabled]="savingEditId === item.id">+</button>
-                            </div>
-                            <button class="btn-edit-save" (click)="saveEditItem(item)"
-                                    [disabled]="!editingItemName.trim() || savingEditId === item.id">
-                                <i class="fa" [ngClass]="savingEditId === item.id ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                            </button>
-                            <button class="btn-edit-cancel" (click)="cancelEditItem()" [disabled]="savingEditId === item.id">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </ng-container>
-                        <ng-container *ngIf="editingItemId !== item.id">
-                            <button class="item-edit-btn" (click)="startEditItem(item)"
-                                    [disabled]="deletingId === item.id">
-                                <i class="fa fa-pencil"></i>
-                            </button>
-                            <button class="item-delete-btn" (click)="deleteItem(item, $event)"
-                                    [disabled]="deletingId === item.id">
-                                <i class="fa" [ngClass]="deletingId === item.id ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
-                            </button>
-                        </ng-container>
-                    </div>
-
-                    <!-- Form aggiungi item -->
-                    <div class="cat-item-row cat-item-add-inline" *ngIf="addingItem">
-                        <span class="item-add-icon"><i class="fa fa-plus"></i></span>
-                        <input class="batch-input batch-input-name" type="text" [(ngModel)]="newItemName"
-                               placeholder="Nome articolo" (keydown)="onAddKeydown($event)" autofocus
-                               [disabled]="savingItem">
-                        <div class="qty-stepper" [class.qty-stepper-disabled]="savingItem">
-                            <button class="qty-btn" (click)="newItemQty = newItemQty > 1 ? newItemQty - 1 : 1"
-                                    [disabled]="savingItem || newItemQty <= 1">−</button>
-                            <span class="qty-value">{{newItemQty || '—'}}</span>
-                            <button class="qty-btn" (click)="newItemQty = (newItemQty || 0) + 1"
-                                    [disabled]="savingItem">+</button>
-                        </div>
-                        <button class="btn-edit-save" (click)="addItem()" [disabled]="!newItemName.trim() || savingItem">
-                            <i class="fa" [ngClass]="savingItem ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                        </button>
-                        <button class="btn-edit-cancel" (click)="addingItem = false; newItemName = ''; newItemQty = 1" [disabled]="savingItem">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
-
-
-                </div>
-            </div>
-        </div>
+        <!-- SENZA CATEGORIA (come category-node readonly) -->
+        <app-category-node
+            [cat]="uncategorizedNode"
+            [depth]="0"
+            [readonly]="true"
+            [categoryIcon]="'fa-tag'"
+            [collapseAll]="allCollapsed"
+            [editingItemId]="editingItemId" [editingItemName]="editingItemName" [editingItemQty]="editingItemQty"
+            [editingItemCategoryId]="editingItemCategoryId" [allCategories]="flatCategories"
+            [savingEditId]="savingEditId" [deletingId]="emptyingUncat ? 0 : deletingId"
+            [editingCategoryId]="editingCategoryId" [editingCategoryName]="editingCategoryName"
+            [savingEditCategoryId]="savingEditCategoryId"
+            [addingItemInCategoryId]="addingItemInCategoryId"
+            [newCategoryItemName]="newCategoryItemName" [newCategoryItemQty]="newCategoryItemQty"
+            [savingItem]="savingItem"
+            [addingSubcategoryParentId]="addingSubcategoryParentId"
+            [newSubcategoryName]="newSubcategoryName" [savingCategory]="savingCategory"
+            (itemToggle)="onNodeItemToggle($event)"
+            (itemSave)="onNodeItemSave($event)"
+            (itemDelete)="onNodeItemDelete($event)"
+            (itemEditStart)="onNodeItemEditStart($event)"
+            (itemEditCancel)="cancelEditItem()"
+            (itemEditNameChange)="editingItemName = $event"
+            (itemEditQtyChange)="editingItemQty = $event"
+            (itemEditCategoryChange)="editingItemCategoryId = $event"
+            (categoryToggle)="onNodeCategoryToggle($event)"
+            (categoryEmpty)="onNodeCategoryEmpty($event)"
+            (addItemStart)="startAddItemInCategory($event)"
+            (addItemCancel)="cancelAddItemInCategory()"
+            (addItemSave)="onNodeAddItemSave($event)"
+            (addItemNameChange)="newCategoryItemName = $event"
+            (addItemQtyChange)="newCategoryItemQty = $event">
+        </app-category-node>
 
     </div><!-- /items-container normale -->
 
@@ -326,6 +260,10 @@
                             <input class="batch-input batch-input-name" type="text" [(ngModel)]="item.name"
                                    [disabled]="item.toDelete" placeholder="Nome articolo"
                                    [class.batch-input-error]="batchAddAttempted && item.id === null && !item.name.trim()">
+                            <select class="edit-category-select" [(ngModel)]="item.categoryId" [disabled]="item.toDelete">
+                                <option [ngValue]="null">Senza categoria</option>
+                                <option *ngFor="let fc of flatCategories" [ngValue]="fc.id">{{fc.label}}</option>
+                            </select>
                             <div class="qty-stepper" [class.qty-stepper-disabled]="item.toDelete">
                                 <button class="qty-btn" (click)="item.quantity = item.quantity && item.quantity > 1 ? item.quantity - 1 : null"
                                         [disabled]="item.toDelete || !item.quantity || item.quantity <= 1">−</button>
@@ -377,6 +315,10 @@
                         <input class="batch-input batch-input-name" type="text" [(ngModel)]="item.name"
                                [disabled]="item.toDelete" placeholder="Nome articolo"
                                [class.batch-input-error]="batchAddAttempted && item.id === null && !item.name.trim()">
+                        <select class="edit-category-select" [(ngModel)]="item.categoryId" [disabled]="item.toDelete">
+                            <option [ngValue]="null">Senza categoria</option>
+                            <option *ngFor="let fc of flatCategories" [ngValue]="fc.id">{{fc.label}}</option>
+                        </select>
                         <div class="qty-stepper" [class.qty-stepper-disabled]="item.toDelete">
                             <button class="qty-btn" (click)="item.quantity = item.quantity && item.quantity > 1 ? item.quantity - 1 : null"
                                     [disabled]="item.toDelete || !item.quantity || item.quantity <= 1">−</button>

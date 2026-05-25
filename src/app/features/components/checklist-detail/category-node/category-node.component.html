@@ -8,8 +8,8 @@
             <i class="fa fa-chevron-down"></i>
         </button>
 
-        <!-- Icona cartella -->
-        <i class="fa fa-folder category-folder-icon"></i>
+        <!-- Icona cartella / tag -->
+        <i class="fa category-folder-icon" [ngClass]="categoryIcon"></i>
 
         <!-- Check button -->
         <button class="category-check-btn"
@@ -26,12 +26,12 @@
         </button>
 
         <!-- Nome categoria -->
-        <ng-container *ngIf="editingCategoryId !== cat.id">
+        <ng-container *ngIf="readonly || editingCategoryId !== cat.id">
             <span class="category-name" [class.category-name-done]="checkedAll">{{cat.name}}</span>
             <span class="category-count">{{checkedItemCount}}</span>
             <span class="category-spacer"></span>
         </ng-container>
-        <div class="item-edit-form" *ngIf="editingCategoryId === cat.id" (click)="$event.stopPropagation()">
+        <div class="item-edit-form" *ngIf="!readonly && editingCategoryId === cat.id" (click)="$event.stopPropagation()">
             <input class="edit-input" type="text" [ngModel]="editingCategoryName"
                    (ngModelChange)="categoryRenameNameChange.emit($event)"
                    (keydown)="onEditCategoryKeydown($event, cat)" autofocus
@@ -52,14 +52,19 @@
                 <i class="fa fa-plus-circle"></i>
             </button>
             <button class="item-addsub-btn" (click)="addSubcategoryStart.emit(cat.id); $event.stopPropagation()" title="Aggiungi sottocategoria"
-                    *ngIf="addingItemInCategoryId !== cat.id && addingSubcategoryParentId !== cat.id">
+                    *ngIf="!readonly && addingItemInCategoryId !== cat.id && addingSubcategoryParentId !== cat.id">
                 <i class="fa fa-folder-plus"></i>
             </button>
-            <button class="item-edit-btn" (click)="categoryRenameStart.emit(cat); $event.stopPropagation()" title="Rinomina"
+            <button class="item-edit-btn" *ngIf="!readonly" (click)="categoryRenameStart.emit(cat); $event.stopPropagation()" title="Rinomina"
                     [disabled]="deletingId === cat.id">
                 <i class="fa fa-pencil"></i>
             </button>
-            <button class="item-delete-btn" (click)="categoryDelete.emit({ cat: cat }); $event.stopPropagation()" title="Elimina"
+            <button class="item-delete-btn" *ngIf="!readonly" (click)="categoryDelete.emit({ cat: cat }); $event.stopPropagation()" title="Elimina"
+                    [disabled]="deletingId === cat.id">
+                <i class="fa" [ngClass]="deletingId === cat.id ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
+            </button>
+            <button class="item-delete-btn" *ngIf="readonly && allItems.length"
+                    (click)="categoryEmpty.emit({ cat: cat }); $event.stopPropagation()" title="Elimina tutti gli articoli"
                     [disabled]="deletingId === cat.id">
                 <i class="fa" [ngClass]="deletingId === cat.id ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
             </button>
@@ -75,6 +80,7 @@
                 [cat]="child" [depth]="depth + 1"
                 [collapseAll]="collapseAll"
                 [editingItemId]="editingItemId" [editingItemName]="editingItemName" [editingItemQty]="editingItemQty"
+                [editingItemCategoryId]="editingItemCategoryId" [allCategories]="allCategories"
                 [savingEditId]="savingEditId" [deletingId]="deletingId"
                 [editingCategoryId]="editingCategoryId" [editingCategoryName]="editingCategoryName"
                 [savingEditCategoryId]="savingEditCategoryId"
@@ -90,6 +96,7 @@
                 (itemEditCancel)="itemEditCancel.emit()"
                 (itemEditNameChange)="itemEditNameChange.emit($event)"
                 (itemEditQtyChange)="itemEditQtyChange.emit($event)"
+                (itemEditCategoryChange)="itemEditCategoryChange.emit($event)"
                 (categoryToggle)="categoryToggle.emit($event)"
                 (categoryDelete)="categoryDelete.emit($event)"
                 (categoryRenameStart)="categoryRenameStart.emit($event)"
@@ -121,6 +128,12 @@
                            (ngModelChange)="itemEditNameChange.emit($event)"
                            (keydown)="onEditItemKeydown($event, item)" autofocus
                            [disabled]="savingEditId === item.id">
+                    <select class="edit-category-select" [ngModel]="editingItemCategoryId"
+                            (ngModelChange)="itemEditCategoryChange.emit($event)"
+                            [disabled]="savingEditId === item.id">
+                        <option [ngValue]="null">Senza categoria</option>
+                        <option *ngFor="let c of allCategories" [ngValue]="c.id">{{c.label}}</option>
+                    </select>
                     <div class="qty-stepper" [class.qty-stepper-disabled]="savingEditId === item.id">
                         <button class="qty-btn" (click)="itemEditQtyChange.emit(editingItemQty && editingItemQty > 1 ? editingItemQty - 1 : null)"
                                 [disabled]="savingEditId === item.id || !editingItemQty">−</button>
@@ -128,7 +141,7 @@
                         <button class="qty-btn" (click)="itemEditQtyChange.emit((editingItemQty || 0) + 1)"
                                 [disabled]="savingEditId === item.id">+</button>
                     </div>
-                    <button class="btn-edit-save" (click)="itemSave.emit({ item: item, name: editingItemName, quantity: editingItemQty })"
+                    <button class="btn-edit-save" (click)="itemSave.emit({ item: item, name: editingItemName, quantity: editingItemQty, categoryId: editingItemCategoryId })"
                             [disabled]="!editingItemName.trim() || savingEditId === item.id">
                         <i class="fa" [ngClass]="savingEditId === item.id ? 'fa-spinner fa-spin' : 'fa-check'"></i>
                     </button>
