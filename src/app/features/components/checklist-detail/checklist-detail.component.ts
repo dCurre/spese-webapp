@@ -20,17 +20,22 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   // Aggiunta item (senza categoria)
   protected newItemName = '';
-  protected newItemQty: number | null = null;
+  protected newItemQty: number = 1;
   protected addingItem = false;
 
   // Aggiunta item in una categoria
   protected addingItemInCategoryId: number | null = null;
   protected newCategoryItemName = '';
-  protected newCategoryItemQty: number | null = null;
+  protected newCategoryItemQty: number = 1;
 
   // Nuova categoria
   protected addingCategory = false;
   protected newCategoryName = '';
+  protected savingCategory = false;
+  protected savingItem = false;
+  protected deletingId: number | null = null;
+  protected savingEditId: number | null = null;
+  protected savingEditCategoryId: number | null = null;
 
   // Categorie collapse
   protected collapsedCategories = new Set<number>();
@@ -38,6 +43,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   // Edit inline
   protected editingItemId: number | null = null;
   protected editingItemName = '';
+  protected editingItemQty: number | null = null;
   protected editingCategoryId: number | null = null;
   protected editingCategoryName = '';
 
@@ -47,8 +53,15 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected nameEditEmpty = false;
 
   protected batchMode = false;
-  protected batchItems: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] = [];
+  // batch categories
+  protected batchCategories: { id: number | null; name: string; toDelete: boolean; items: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] }[] = [];
+  // batch uncategorized
+  protected batchUncategorized: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] = [];
   protected batchAddAttempted = false;
+  // legacy alias for template footer counter
+  protected get batchItems(): { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] {
+    return [...this.batchCategories.flatMap(c => c.items), ...this.batchUncategorized];
+  }
 
   protected sidebarOpen = false;
   protected showTransferModal = false;
@@ -92,13 +105,21 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   // ── Helpers ────────────────────────────────────────────────────
 
+  /** Ordinamento: checked prima, poi alfabetico */
+  private sortItems(items: ShoppingItem[]): ShoppingItem[] {
+    return [...items].sort((a, b) => {
+      if (a.checked !== b.checked) return a.checked ? 1 : -1;
+      return a.name.localeCompare(b.name, 'it', { sensitivity: 'base' });
+    });
+  }
+
   protected get categories(): ShoppingCategory[] {
     return (this.list?.categories ?? []).sort((a, b) => a.sort_order - b.sort_order);
   }
 
   /** Item senza categoria */
   protected get uncategorizedItems(): ShoppingItem[] {
-    return (this.list?.items ?? []).sort((a, b) => a.sort_order - b.sort_order);
+    return this.sortItems(this.list?.items ?? []);
   }
 
   protected get uncheckedUncategorized(): ShoppingItem[] {
@@ -149,16 +170,17 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   }
 
   protected uncheckedCatItems(cat: ShoppingCategory): ShoppingItem[] {
-    return (cat.items ?? []).filter(i => !i.checked).sort((a, b) => a.sort_order - b.sort_order);
+    return this.sortItems(cat.items ?? []).filter(i => !i.checked);
   }
 
   protected checkedCatItems(cat: ShoppingCategory): ShoppingItem[] {
-    return (cat.items ?? []).filter(i => i.checked).sort((a, b) => a.sort_order - b.sort_order);
+    return this.sortItems(cat.items ?? []).filter(i => i.checked);
   }
 
   // ── Toggle categoria (spunta/despunta tutti gli item) ──────────
 
   protected toggleCategory(cat: ShoppingCategory): void {
+    if (!(cat.items ?? []).length) return;
     const newChecked = !this.categoryChecked(cat);
     this.shoppingCategoryService.checkCategory(cat.id, newChecked).subscribe({
       next: () => {
@@ -198,14 +220,15 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   // ── Aggiungi categoria ─────────────────────────────────────────
 
   protected addCategory(): void {
-    if (!this.newCategoryName.trim() || !this.list) return;
+    if (!this.newCategoryName.trim() || !this.list || this.savingCategory) return;
+    this.savingCategory = true;
     this.shoppingCategoryService.create({
       shopping_list_id: this.list.id,
       name: this.newCategoryName.trim(),
       sort_order: this.categories.length,
     }).subscribe({
-      next: () => { this.newCategoryName = ''; this.addingCategory = false; this.reload(); },
-      error: () => {}
+      next: () => { this.newCategoryName = ''; this.addingCategory = false; this.savingCategory = false; this.reload(); },
+      error: () => { this.savingCategory = false; }
     });
   }
 
@@ -219,28 +242,29 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected startAddItemInCategory(catId: number): void {
     this.addingItemInCategoryId = catId;
     this.newCategoryItemName = '';
-    this.newCategoryItemQty = null;
+    this.newCategoryItemQty = 1;
     this.collapsedCategories.delete(catId);
   }
 
   protected cancelAddItemInCategory(): void {
     this.addingItemInCategoryId = null;
     this.newCategoryItemName = '';
-    this.newCategoryItemQty = null;
+    this.newCategoryItemQty = 1;
   }
 
   protected addItemInCategory(cat: ShoppingCategory): void {
-    if (!this.newCategoryItemName.trim() || !this.list) return;
+    if (!this.newCategoryItemName.trim() || !this.list || this.savingItem) return;
+    this.savingItem = true;
     this.shoppingItemService.create({
       shopping_list_id: this.list.id,
       category_id: cat.id,
       name: this.newCategoryItemName.trim(),
-      quantity: this.newCategoryItemQty || null,
+      quantity: this.newCategoryItemQty > 0 ? this.newCategoryItemQty : null,
       checked: false,
       sort_order: (cat.items ?? []).length,
     }).subscribe({
-      next: () => { this.cancelAddItemInCategory(); this.reload(); },
-      error: () => {}
+      next: () => { this.savingItem = false; this.cancelAddItemInCategory(); this.newCategoryItemQty = 1; this.reload(); },
+      error: () => { this.savingItem = false; }
     });
   }
 
@@ -252,17 +276,18 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   // ── Aggiungi item senza categoria ──────────────────────────────
 
   protected addItem(): void {
-    if (!this.newItemName.trim() || !this.list) return;
+    if (!this.newItemName.trim() || !this.list || this.savingItem) return;
+    this.savingItem = true;
     this.shoppingItemService.create({
       shopping_list_id: this.list.id,
       category_id: null,
       name: this.newItemName.trim(),
-      quantity: this.newItemQty || null,
+      quantity: this.newItemQty > 0 ? this.newItemQty : null,
       checked: false,
       sort_order: this.uncategorizedItems.length,
     }).subscribe({
-      next: () => { this.newItemName = ''; this.newItemQty = null; this.addingItem = false; this.reload(); },
-      error: () => {}
+      next: () => { this.savingItem = false; this.newItemName = ''; this.newItemQty = 1; this.addingItem = false; this.reload(); },
+      error: () => { this.savingItem = false; }
     });
   }
 
@@ -275,15 +300,21 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   protected deleteItem(item: ShoppingItem, event: Event): void {
     event.stopPropagation();
+    if (this.deletingId) return;
+    this.deletingId = item.id;
     this.shoppingItemService.delete(item.id).subscribe({
-      next: () => this.reload(), error: () => {}
+      next: () => { this.deletingId = null; this.reload(); },
+      error: () => { this.deletingId = null; }
     });
   }
 
   protected deleteCategory(cat: ShoppingCategory, event: Event): void {
     event.stopPropagation();
+    if (this.deletingId) return;
+    this.deletingId = cat.id;
     this.shoppingCategoryService.delete(cat.id).subscribe({
-      next: () => this.reload(), error: () => {}
+      next: () => { this.deletingId = null; this.reload(); },
+      error: () => { this.deletingId = null; }
     });
   }
 
@@ -292,18 +323,21 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected startEditItem(item: ShoppingItem): void {
     this.editingItemId = item.id;
     this.editingItemName = item.name;
+    this.editingItemQty = item.quantity ?? null;
     this.editingCategoryId = null;
   }
 
   protected saveEditItem(item: ShoppingItem): void {
-    if (!this.editingItemName.trim()) { this.cancelEditItem(); return; }
-    this.shoppingItemService.update(item.id, { name: this.editingItemName.trim() }).subscribe({
-      next: () => { item.name = this.editingItemName.trim(); this.cancelEditItem(); },
-      error: () => this.cancelEditItem()
+    if (!this.editingItemName.trim() || this.savingEditId) return;
+    this.savingEditId = item.id;
+    const qty = (this.editingItemQty && this.editingItemQty > 0) ? this.editingItemQty : null;
+    this.shoppingItemService.update(item.id, { name: this.editingItemName.trim(), quantity: qty }).subscribe({
+      next: () => { item.name = this.editingItemName.trim(); item.quantity = qty; this.savingEditId = null; this.cancelEditItem(); },
+      error: () => { this.savingEditId = null; this.cancelEditItem(); }
     });
   }
 
-  protected cancelEditItem(): void { this.editingItemId = null; this.editingItemName = ''; }
+  protected cancelEditItem(): void { this.editingItemId = null; this.editingItemName = ''; this.editingItemQty = null; }
 
   protected onEditItemKeydown(event: KeyboardEvent, item: ShoppingItem): void {
     if (event.key === 'Enter') this.saveEditItem(item);
@@ -321,9 +355,11 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   protected saveEditCategory(cat: ShoppingCategory): void {
     if (!this.editingCategoryName.trim()) { this.cancelEditCategory(); return; }
+    if (this.savingEditCategoryId) return;
+    this.savingEditCategoryId = cat.id;
     this.shoppingCategoryService.update(cat.id, { name: this.editingCategoryName.trim() }).subscribe({
-      next: () => { cat.name = this.editingCategoryName.trim(); this.cancelEditCategory(); },
-      error: () => this.cancelEditCategory()
+      next: () => { cat.name = this.editingCategoryName.trim(); this.savingEditCategoryId = null; this.cancelEditCategory(); },
+      error: () => { this.savingEditCategoryId = null; this.cancelEditCategory(); }
     });
   }
 
@@ -399,50 +435,165 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ── Batch mode (solo item senza categoria) ─────────────────────
+  // ── Batch mode ────────────────────────────────────────────────
 
-  protected get batchDeleteCount(): number { return this.batchItems.filter(i => i.id !== null && i.toDelete).length; }
-  protected get hasEmptyBatchItem(): boolean { return this.batchItems.some(i => i.id === null && !i.name.trim()); }
+  protected get batchDeleteCount(): number {
+    const cats = this.batchCategories.filter(c => c.id !== null && c.toDelete).length;
+    const items = this.batchItems.filter(i => i.id !== null && i.toDelete).length;
+    return cats + items;
+  }
+  protected get hasEmptyBatchItem(): boolean {
+    return this.batchItems.some(i => i.id === null && !i.name.trim());
+  }
 
   protected enterBatchMode(): void {
-    this.batchItems = this.uncategorizedItems.map(i => ({
+    this.batchCategories = this.categories.map(cat => ({
+      id: cat.id,
+      name: cat.name,
+      toDelete: false,
+      items: (cat.items ?? []).sort((a, b) => a.sort_order - b.sort_order).map(i => ({
+        id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false,
+      })),
+    }));
+    this.batchUncategorized = this.uncategorizedItems.map(i => ({
       id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false,
     }));
     this.batchMode = true;
   }
 
-  protected cancelBatch(): void { this.batchMode = false; this.batchItems = []; }
+  protected cancelBatch(): void {
+    this.batchMode = false;
+    this.batchCategories = [];
+    this.batchUncategorized = [];
+  }
 
   protected toggleBatchDelete(item: any): void { item.toDelete = !item.toDelete; }
-  protected removeBatchItem(item: any): void { this.batchItems = this.batchItems.filter(i => i !== item); }
 
-  protected addBatchItem(): void {
+  protected toggleBatchCategoryDelete(cat: any): void {
+    cat.toDelete = !cat.toDelete;
+    // marca/demarks anche tutti i suoi item
+    cat.items.forEach((i: any) => i.toDelete = cat.toDelete);
+  }
+
+  protected removeBatchItem(item: any, list: any[]): void {
+    const idx = list.indexOf(item);
+    if (idx !== -1) list.splice(idx, 1);
+  }
+
+  protected addBatchItem(list: any[]): void {
     if (this.hasEmptyBatchItem) { this.batchAddAttempted = true; return; }
     this.batchAddAttempted = false;
-    this.batchItems.push({ id: null, name: '', quantity: null, checked: false, toDelete: false });
+    list.push({ id: null, name: '', quantity: null, checked: false, toDelete: false });
+  }
+
+  protected addBatchCategory(): void {
+    this.batchCategories.push({ id: null, name: '', toDelete: false, items: [] });
+  }
+
+  protected removeBatchCategory(cat: any): void {
+    const idx = this.batchCategories.indexOf(cat);
+    if (idx !== -1) this.batchCategories.splice(idx, 1);
   }
 
   protected saveBatch(): void {
-    const deleteIds = this.batchItems.filter(i => i.id !== null && i.toDelete).map(i => i.id as number);
-    const updates = this.batchItems.filter(i => i.id !== null && !i.toDelete)
-      .map(i => ({ id: i.id as number, name: i.name.trim() || 'Articolo', quantity: i.quantity, checked: i.checked }));
-    const newItems = this.batchItems.filter(i => i.id === null && !i.toDelete && i.name.trim())
-      .map((i, idx) => ({
-        shopping_list_id: this.list!.id, category_id: null,
-        name: i.name.trim(), quantity: i.quantity, checked: i.checked,
-        sort_order: this.uncategorizedItems.length + idx,
-      }));
-    this.shoppingItemService.bulkUpdate(updates, deleteIds).subscribe({
-      next: () => {
-        if (!newItems.length) { this.batchMode = false; this.batchItems = []; this.reload(); return; }
-        let done = 0;
-        newItems.forEach(item => this.shoppingItemService.create(item).subscribe({
-          next: () => { if (++done === newItems.length) { this.batchMode = false; this.batchItems = []; this.reload(); } },
-          error: () => {}
+    if (!this.list) return;
+
+    // Raccoglie tutte le operazioni
+    const itemDeleteIds: number[] = [];
+    const itemUpdates: { id: number; name: string; quantity: number | null; checked: boolean }[] = [];
+    const newItems: { shopping_list_id: number; category_id: number | null; name: string; quantity: number | null; checked: boolean; sort_order: number }[] = [];
+    const catDeleteIds: number[] = [];
+    const catUpdates: { id: number; name: string }[] = [];
+    const newCats: { shopping_list_id: number; name: string; sort_order: number; pendingItems: typeof newItems }[] = [];
+
+    // Categorie
+    this.batchCategories.forEach((cat, catIdx) => {
+      if (cat.id !== null && cat.toDelete) {
+        catDeleteIds.push(cat.id);
+        return; // gli item vengono cancellati in cascade
+      }
+      if (cat.id !== null && !cat.toDelete) {
+        if (cat.name.trim()) catUpdates.push({ id: cat.id, name: cat.name.trim() });
+        cat.items.forEach((item, idx) => {
+          if (item.id !== null && item.toDelete) { itemDeleteIds.push(item.id); return; }
+          if (item.id !== null) itemUpdates.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: item.quantity, checked: item.checked });
+          if (item.id === null && item.name.trim()) newItems.push({
+            shopping_list_id: this.list!.id, category_id: cat.id as number,
+            name: item.name.trim(), quantity: item.quantity, checked: item.checked, sort_order: idx,
+          });
+        });
+      }
+      if (cat.id === null && cat.name.trim()) {
+        const pending = cat.items.filter(i => i.name.trim()).map((i, idx) => ({
+          shopping_list_id: this.list!.id, category_id: 0, // verrà sostituito dopo create
+          name: i.name.trim(), quantity: i.quantity, checked: i.checked, sort_order: idx,
         }));
-      },
-      error: () => {}
+        newCats.push({ shopping_list_id: this.list!.id, name: cat.name.trim(), sort_order: catIdx, pendingItems: pending as any });
+      }
     });
+
+    // Item senza categoria
+    this.batchUncategorized.forEach((item, idx) => {
+      if (item.id !== null && item.toDelete) { itemDeleteIds.push(item.id); return; }
+      if (item.id !== null) itemUpdates.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: item.quantity, checked: item.checked });
+      if (item.id === null && item.name.trim()) newItems.push({
+        shopping_list_id: this.list!.id, category_id: null,
+        name: item.name.trim(), quantity: item.quantity, checked: item.checked, sort_order: idx,
+      });
+    });
+
+    const finish = () => { this.batchMode = false; this.batchCategories = []; this.batchUncategorized = []; this.reload(); };
+
+    // 1. Elimina categorie (cascade item) + update item + delete item
+    const step2 = () => {
+      // Crea nuove categorie in sequenza (per poi aggiungere i loro item)
+      if (!newCats.length) { finish(); return; }
+      let done = 0;
+      newCats.forEach(nc => {
+        this.shoppingCategoryService.create({ shopping_list_id: nc.shopping_list_id, name: nc.name, sort_order: nc.sort_order }).subscribe({
+          next: (res: any) => {
+            const catId = res.id;
+            const pending = nc.pendingItems.map((pi: any) => ({ ...pi, category_id: catId }));
+            if (!pending.length) { if (++done === newCats.length) finish(); return; }
+            let idone = 0;
+            pending.forEach((pi: any) => this.shoppingItemService.create(pi).subscribe({
+              next: () => { if (++idone === pending.length && ++done === newCats.length) finish(); },
+              error: () => { if (++idone === pending.length && ++done === newCats.length) finish(); }
+            }));
+          },
+          error: () => { if (++done === newCats.length) finish(); }
+        });
+      });
+    };
+
+    const step1 = () => {
+      // update items + crea nuovi item (no categoria nuova)
+      this.shoppingItemService.bulkUpdate(itemUpdates, itemDeleteIds).subscribe({
+        next: () => {
+          if (!newItems.length) { step2(); return; }
+          let done = 0;
+          newItems.forEach(item => this.shoppingItemService.create(item).subscribe({
+            next: () => { if (++done === newItems.length) step2(); },
+            error: () => { if (++done === newItems.length) step2(); }
+          }));
+        },
+        error: () => step2()
+      });
+    };
+
+    // update nomi categorie
+    if (catUpdates.length) {
+      let done = 0;
+      catUpdates.forEach(cu => this.shoppingCategoryService.update(cu.id, { name: cu.name }).subscribe({
+        next: () => { if (++done === catUpdates.length) step1(); },
+        error: () => { if (++done === catUpdates.length) step1(); }
+      }));
+    } else {
+      step1();
+    }
+
+    // Elimina categorie (fire and forget, cascade)
+    catDeleteIds.forEach(id => this.shoppingCategoryService.delete(id).subscribe({ next: () => {}, error: () => {} }));
   }
 
   // ── Share / Leave / Delete ─────────────────────────────────────
