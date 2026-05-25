@@ -57,6 +57,17 @@ export class ShoppingListService {
     transferOwnership(listId: number, oldOwnerId: number, newOwnerId: number): Observable<void> {
         return this.http.post<void>(`${this.baseUrl}/${listId}/transfer-ownership`, { old_owner_id: oldOwnerId, new_owner_id: newOwnerId });
     }
+
+    batchSave(listId: number, payload: {
+        categories_update?: { id: number; name: string }[];
+        categories_delete?: number[];
+        categories_create?: { temp_id: string; name: string; parent_id: number | string | null; sort_order: number }[];
+        items_update?: { id: number; name: string; quantity: number | null; checked: boolean }[];
+        items_delete?: number[];
+        items_create?: { name: string; quantity: number | null; checked: boolean; sort_order: number; category_id: number | null; category_temp_id?: string }[];
+    }): Observable<void> {
+        return this.http.post<void>(`${this.baseUrl}/${listId}/batch-save`, payload);
+    }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -85,8 +96,8 @@ export class ShoppingItemService {
     return this.http.put<void>(`${environment.pgApiUrl}/api/shopping-items/bulk`, { updates, delete_ids: deleteIds });
   }
 
-  checkAll(listId: number, checked: boolean): Observable<void> {
-    return this.http.patch<void>(`${this.baseUrl}/check-all`, { shopping_list_id: listId, checked });
+  checkAll(listId: number, checked: boolean, uncategorizedOnly = false): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/check-all`, { shopping_list_id: listId, checked, uncategorized_only: uncategorizedOnly });
   }
 
   reorder(listId: number, orderedIds: number[]): Observable<void> {

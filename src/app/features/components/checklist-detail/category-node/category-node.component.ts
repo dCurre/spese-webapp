@@ -35,6 +35,7 @@ export class CategoryNodeComponent implements OnChanges {
   @Input() addingSubcategoryParentId: number | null = null;
   @Input() newSubcategoryName = '';
   @Input() savingCategory = false;
+  @Input() collapseAll = false;
 
   // eventi verso il padre
   @Output() itemToggle = new EventEmitter<ItemTogglePayload>();
@@ -62,7 +63,9 @@ export class CategoryNodeComponent implements OnChanges {
 
   protected collapsed = false;
 
-  ngOnChanges(): void {}
+  ngOnChanges(): void {
+    this.collapsed = this.collapseAll;
+  }
 
   protected get indentPx(): number { return this.depth * 20; }
 
