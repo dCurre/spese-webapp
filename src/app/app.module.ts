@@ -55,6 +55,7 @@ import { AddGuestDialogComponent } from './features/components/dialog/add-guest-
 import { AboutComponent } from './features/components/about/about.component';
 import { DcLogoComponent } from './features/components/dc-logo/dc-logo.component';
 import { UserAvatarComponent } from './features/components/shared/user-avatar/user-avatar.component';
+import { ImportChecklistDialogComponent } from './features/components/dialog/import-checklist-dialog/import-checklist-dialog.component';
 
 @NgModule({
   declarations: [
@@ -92,6 +93,7 @@ import { UserAvatarComponent } from './features/components/shared/user-avatar/us
     AboutComponent,
     DcLogoComponent,
     UserAvatarComponent,
+    ImportChecklistDialogComponent,
   ],
   imports: [
     BrowserModule,

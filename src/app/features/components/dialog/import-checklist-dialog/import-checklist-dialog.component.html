@@ -1,0 +1,65 @@
+<div class="dialog-header">
+    <h5 class="dialog-title">
+        <i class="fa fa-file-import"></i>
+        {{ mode === 'new' ? 'Importa nuova checklist' : 'Importa articoli' }}
+    </h5>
+    <button class="dialog-close" (click)="modal.close(null)">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+
+<div class="dialog-body">
+
+    <!-- Nome checklist (solo mode=new) -->
+    <div class="field-group" *ngIf="mode === 'new'">
+        <label class="field-label">Nome della checklist</label>
+        <input type="text" class="field-input"
+               [(ngModel)]="listName"
+               placeholder="Es. Spesa settimanale"
+               maxlength="40"
+               autofocus>
+        <span class="field-error" *ngIf="attempted && mode === 'new' && !listName.trim()">
+            Inserisci un nome per la checklist.
+        </span>
+    </div>
+
+    <!-- Textarea testo -->
+    <div class="field-group">
+        <label class="field-label">Incolla il testo della lista</label>
+        <textarea class="field-textarea"
+                  [(ngModel)]="rawText"
+                  placeholder="[v] Pane&#10;[v] Latte&#10;[  ] Uova&#10;..."
+                  rows="10"
+                  [autofocus]="mode === 'add'"></textarea>
+        <span class="field-hint">Supportato: Samsung Notes (<code>[v]</code> / <code>[  ]</code>)</span>
+    </div>
+
+    <!-- Preview -->
+    <div class="preview-wrap" *ngIf="parsedItems.length > 0">
+        <div class="preview-header">
+            <span class="preview-title">Anteprima</span>
+            <span class="preview-count">{{ parsedItems.length }} articoli</span>
+        </div>
+        <div class="preview-list">
+            <div class="preview-item" *ngFor="let item of parsedItems">
+                <i class="fa preview-icon"
+                   [ngClass]="item.checked ? 'fa-circle-check preview-icon-checked' : 'fa-circle preview-icon-unchecked'"></i>
+                <span class="preview-name" [class.preview-name-checked]="item.checked">{{ item.name }}</span>
+            </div>
+        </div>
+    </div>
+
+    <span class="field-error" *ngIf="attempted && parsedItems.length === 0">
+        Nessun articolo riconosciuto. Controlla il formato del testo.
+    </span>
+
+</div>
+
+<div class="dialog-footer">
+    <button class="btn-cancel" type="button" (click)="modal.close(null)">Annulla</button>
+    <button class="btn-confirm" type="button" (click)="confirm()"
+            [disabled]="attempted && !isValid">
+        <i class="fa fa-file-import"></i>
+        {{ mode === 'new' ? 'Crea e importa' : 'Importa' }}
+    </button>
+</div>

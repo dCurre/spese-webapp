@@ -1,11 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ShoppingList, ShoppingItem, ShoppingCategory, ShoppingListParticipant } from 'src/app/core/services/postgres/shopping-list/shopping-list';
 import { ShoppingListService, ShoppingItemService, ShoppingCategoryService } from 'src/app/core/services/postgres/shopping-list/shopping-list.service';
 import { ItemSavePayload, ItemDeletePayload, ItemTogglePayload, CategoryTogglePayload, CategoryDeletePayload, CategoryRenameSave, AddItemPayload, AddSubcategoryPayload } from './category-node/category-node.component';
+import { ImportChecklistDialogComponent, ImportChecklistResult } from '../dialog/import-checklist-dialog/import-checklist-dialog.component';
 import { User } from 'src/app/core/services/postgres/user/user';
 
 @Component({
@@ -84,6 +86,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     private shoppingListService: ShoppingListService,
     private shoppingItemService: ShoppingItemService,
     private shoppingCategoryService: ShoppingCategoryService,
+    private modalService: NgbModal,
   ) {}
 
   ngOnInit(): void {
@@ -762,6 +765,29 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
       next: () => { this.batchMode = false; this.batchCategories = []; this.batchUncategorized = []; this.reload(); },
       error: () => { /* toast già gestito dall'interceptor */ }
     });
+  }
+
+  // ── Import ────────────────────────────────────────────────────
+
+  protected importItems(): void {
+    if (!this.list) return;
+    const modal = this.modalService.open(ImportChecklistDialogComponent, { centered: true, size: 'lg' });
+    modal.componentInstance.mode = 'add';
+    modal.result.then((result: ImportChecklistResult | null) => {
+      if (!result || result.items.length === 0) return;
+      this.shoppingListService.batchSave(this.list!.id, {
+        items_create: result.items.map((item, idx) => ({
+          name: item.name,
+          quantity: null,
+          checked: item.checked,
+          sort_order: idx,
+          category_id: null,
+        })),
+      }).subscribe({
+        next: () => this.reload(),
+        error: () => {},
+      });
+    }).catch(() => {});
   }
 
   // ── Share / Leave / Delete ─────────────────────────────────────
