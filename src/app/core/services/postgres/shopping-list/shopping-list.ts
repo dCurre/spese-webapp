@@ -3,11 +3,21 @@ export type ChecklistType = 'personal' | 'shared';
 export class ShoppingItem {
     id: number;
     shopping_list_id: number;
+    category_id: number | null;
     name: string;
     quantity: number | null;
     checked: boolean;
     sort_order: number;
     created_at: string;
+}
+
+export class ShoppingCategory {
+    id: number;
+    shopping_list_id: number;
+    name: string;
+    sort_order: number;
+    created_at: string;
+    items: ShoppingItem[];
 }
 
 export class ShoppingList {
@@ -19,7 +29,8 @@ export class ShoppingList {
     starred: boolean;
     invite_token: string | null;
     created_at: string;
-    items?: ShoppingItem[];
+    items?: ShoppingItem[];           // item senza categoria
+    categories?: ShoppingCategory[];  // categorie con i loro item
     items_count?: number;
     checked_count?: number;
     participants?: ShoppingListParticipant[];

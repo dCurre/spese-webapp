@@ -7,9 +7,7 @@
 <div *ngIf="hasLoaded && loadError" class="load-error">
     <i class="fa fa-triangle-exclamation"></i>
     <span>Impossibile caricare la checklist.</span>
-    <button class="btn-back" (click)="goBack()">
-        <i class="fa fa-arrow-left"></i> Torna indietro
-    </button>
+    <button class="btn-back" (click)="goBack()"><i class="fa fa-arrow-left"></i> Torna indietro</button>
 </div>
 
 <!-- CONTENT -->
@@ -19,10 +17,9 @@
 <div class="detail-layout" [class.sidebar-open]="sidebarOpen && list.list_type === 'shared'">
     <div class="detail-main">
 
+    <!-- HEADER -->
     <div class="detail-header" [class.header-batch]="batchMode">
-        <button class="btn-back" (click)="goBack()" *ngIf="!batchMode">
-            <i class="fa fa-arrow-left"></i>
-        </button>
+        <button class="btn-back" (click)="goBack()" *ngIf="!batchMode"><i class="fa fa-arrow-left"></i></button>
         <div class="detail-header-info">
             <div class="detail-title-row">
                 <ng-container *ngIf="!editingName">
@@ -35,8 +32,8 @@
                     <input class="name-edit-input" type="text" [(ngModel)]="editingNameValue"
                            (keydown)="onNameKeydown($event)" (input)="nameEditEmpty = false"
                            autofocus maxlength="40" [class.name-edit-error]="nameEditEmpty">
-                    <button class="btn-name-confirm" (click)="saveEditName()" title="Conferma"><i class="fa fa-check"></i></button>
-                    <button class="btn-name-cancel" (click)="cancelEditName()" title="Annulla"><i class="fa fa-times"></i></button>
+                    <button class="btn-name-confirm" (click)="saveEditName()"><i class="fa fa-check"></i></button>
+                    <button class="btn-name-cancel" (click)="cancelEditName()"><i class="fa fa-times"></i></button>
                 </div>
                 <span class="badge-list-type badge-personal" *ngIf="list.list_type === 'personal' && !batchMode">
                     <i class="fa fa-user"></i> Personale
@@ -50,7 +47,9 @@
                 <span class="badge-list-type badge-batch" *ngIf="batchMode">
                     <i class="fa fa-pen-to-square"></i> Modifica
                 </span>
-                <button class="btn-star-inline" *ngIf="!batchMode" (click)="toggleStar()" [class.btn-star-inline-active]="list.starred" [title]="list.starred ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'">
+                <button class="btn-star-inline" *ngIf="!batchMode" (click)="toggleStar()"
+                        [class.btn-star-inline-active]="list.starred"
+                        [title]="list.starred ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'">
                     <i class="fa fa-star"></i>
                 </button>
             </div>
@@ -58,71 +57,194 @@
             <span class="detail-date" *ngIf="batchMode">Modifica nome e quantità, poi conferma</span>
         </div>
         <div class="detail-header-actions">
-            <!-- Azioni normali -->
             <ng-container *ngIf="!batchMode">
-                <button class="btn-action btn-leave" *ngIf="list.list_type === 'shared'" (click)="leaveList()" title="Esci dalla lista">
-                    <i class="fa fa-right-from-bracket"></i>
-                    <span>Esci</span>
+                <button class="btn-action btn-leave" *ngIf="list.list_type === 'shared'" (click)="leaveList()">
+                    <i class="fa fa-right-from-bracket"></i><span>Esci</span>
                 </button>
-                <button class="btn-action btn-share" (click)="shareList()" [title]="shareCopied ? 'Link copiato!' : 'Condividi link'">
+                <button class="btn-action btn-share" (click)="shareList()">
                     <i class="fa" [ngClass]="shareCopied ? 'fa-check' : 'fa-link'"></i>
                     <span>{{shareCopied ? 'Copiato!' : 'Condividi'}}</span>
                 </button>
-                <button class="btn-action btn-participants" *ngIf="list.list_type === 'shared'" (click)="toggleSidebar()" [class.btn-participants-active]="sidebarOpen" title="Partecipanti">
-                    <i class="fa fa-users"></i>
-                    <span>Membri</span>
+                <button class="btn-action btn-participants" *ngIf="list.list_type === 'shared'" (click)="toggleSidebar()"
+                        [class.btn-participants-active]="sidebarOpen">
+                    <i class="fa fa-users"></i><span>Membri</span>
                     <span class="participants-count-badge" *ngIf="participantCount > 0">{{participantCount}}</span>
                 </button>
-                <button class="btn-action btn-uncheck" *ngIf="checkedItems.length > 0" (click)="uncheckAll()">
-                    <i class="fa fa-rotate-left"></i>
-                    <span>Ricomincia</span>
+                <button class="btn-action btn-uncheck" *ngIf="hasCheckedItems" (click)="uncheckAll()">
+                    <i class="fa fa-rotate-left"></i><span>Ricomincia</span>
                 </button>
                 <button class="btn-action btn-mark-done" *ngIf="!list.completed" (click)="toggleCompleted()">
-                    <i class="fa fa-check"></i>
-                    <span>Completa</span>
+                    <i class="fa fa-check"></i><span>Completa</span>
                 </button>
-                <button class="btn-action btn-delete-list" *ngIf="isOwner && list.list_type === 'personal'" (click)="deleteList()" title="Elimina lista">
-                    <i class="fa fa-trash"></i>
-                    <span>Elimina</span>
+                <button class="btn-action btn-delete-list" *ngIf="isOwner && list.list_type === 'personal'" (click)="deleteList()">
+                    <i class="fa fa-trash"></i><span>Elimina</span>
                 </button>
-                <button class="btn-action btn-edit-mode" *ngIf="items.length > 0" (click)="enterBatchMode()">
-                    <i class="fa fa-pen-to-square"></i>
-                    <span>Modifica multipla</span>
+                <button class="btn-action btn-edit-mode" *ngIf="uncategorizedItems.length > 0" (click)="enterBatchMode()">
+                    <i class="fa fa-pen-to-square"></i><span>Modifica multipla</span>
                 </button>
             </ng-container>
-            <!-- Azioni batch -->
             <ng-container *ngIf="batchMode">
                 <button class="btn-action btn-batch-cancel" (click)="cancelBatch()">
-                    <i class="fa fa-times"></i>
-                    <span>Annulla</span>
+                    <i class="fa fa-times"></i><span>Annulla</span>
                 </button>
                 <button class="btn-action btn-batch-save" (click)="saveBatch()">
-                    <i class="fa fa-check"></i>
-                    <span>Salva</span>
+                    <i class="fa fa-check"></i><span>Salva</span>
                 </button>
             </ng-container>
         </div>
     </div>
 
     <!-- PROGRESS BAR -->
-    <div class="progress-section" *ngIf="items.length > 0 && !batchMode">
+    <div class="progress-section" *ngIf="totalCount > 0 && !batchMode">
         <div class="progress-bar-outer">
-            <div class="progress-bar-fill" [style.width.%]="progressPercent"
-                 [class.complete]="progressPercent === 100"></div>
+            <div class="progress-bar-fill" [style.width.%]="progressPercent" [class.complete]="progressPercent === 100"></div>
         </div>
-        <span class="progress-label">{{checkedItems.length}}/{{items.length}} articoli</span>
+        <span class="progress-label">{{checkedCount}}/{{totalCount}} articoli</span>
     </div>
 
-    <!-- ITEMS LIST - modalità normale -->
+    <!-- NORMALE -->
     <div class="items-container" *ngIf="!batchMode">
 
-        <!-- Da acquistare -->
-        <div class="items-section">
-            <div class="items-section-label" *ngIf="uncheckedItems.length > 0">
-                Da acquistare <span class="items-count">{{uncheckedItems.length}}</span>
+        <!-- CATEGORIE -->
+        <div class="category-block" *ngFor="let cat of categories"
+             [class.category-all-checked]="categoryChecked(cat)">
+
+            <!-- Header categoria -->
+            <div class="category-header">
+                <!-- Check categoria -->
+                <button class="category-check-btn"
+                        [class.checked]="categoryChecked(cat)"
+                        [class.indeterminate]="categoryIndeterminate(cat)"
+                        (click)="toggleCategory(cat)"
+                        [title]="categoryChecked(cat) ? 'Deseleziona tutto' : 'Seleziona tutto'">
+                    <i class="fa" [ngClass]="{
+                        'fa-circle-check': categoryChecked(cat),
+                        'fa-circle-minus': categoryIndeterminate(cat),
+                        'fa-circle': !categoryChecked(cat) && !categoryIndeterminate(cat)
+                    }"></i>
+                </button>
+
+                <!-- Nome categoria (o edit) -->
+                <div class="category-name-area" (click)="toggleCategoryCollapse(cat.id)">
+                    <ng-container *ngIf="editingCategoryId !== cat.id">
+                        <span class="category-name" [class.category-name-done]="categoryChecked(cat)">{{cat.name}}</span>
+                        <span class="category-count">{{(cat.items || []).length - uncheckedCatItems(cat).length}}/{{(cat.items || []).length}}</span>
+                    </ng-container>
+                    <div class="item-edit-form" *ngIf="editingCategoryId === cat.id" (click)="$event.stopPropagation()">
+                        <input class="edit-input" type="text" [(ngModel)]="editingCategoryName"
+                               (keydown)="onEditCategoryKeydown($event, cat)" autofocus>
+                        <button class="btn-edit-save" (click)="saveEditCategory(cat)"><i class="fa fa-check"></i></button>
+                        <button class="btn-edit-cancel" (click)="cancelEditCategory()"><i class="fa fa-times"></i></button>
+                    </div>
+                </div>
+
+                <!-- Mini progress + azioni -->
+                <div class="category-actions" *ngIf="editingCategoryId !== cat.id">
+                    <div class="category-mini-bar-wrap">
+                        <div class="category-mini-bar">
+                            <div class="category-mini-fill" [style.width.%]="categoryProgress(cat)"
+                                 [class.complete]="categoryChecked(cat)"></div>
+                        </div>
+                    </div>
+                    <button class="item-edit-btn" (click)="startEditCategory(cat, $event)" title="Rinomina">
+                        <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="item-delete-btn" (click)="deleteCategory(cat, $event)" title="Elimina categoria">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                    <button class="category-collapse-btn" [class.collapsed]="isCategoryCollapsed(cat.id)"
+                            (click)="toggleCategoryCollapse(cat.id)">
+                        <i class="fa fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Body categoria (collassabile) -->
+            <div class="category-body" [class.collapsed]="isCategoryCollapsed(cat.id)">
+                <div class="category-items-list">
+
+                    <!-- Item non spuntati -->
+                    <div class="cat-item-row" *ngFor="let item of uncheckedCatItems(cat)">
+                        <button class="item-check-btn unchecked" (click)="toggleItem(item)">
+                            <i class="fa fa-circle"></i>
+                        </button>
+                        <div class="item-content" *ngIf="editingItemId !== item.id">
+                            <span class="item-name">{{item.name}}</span>
+                            <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
+                        </div>
+                        <div class="item-edit-form" *ngIf="editingItemId === item.id">
+                            <input class="edit-input" type="text" [(ngModel)]="editingItemName"
+                                   (keydown)="onEditItemKeydown($event, item)" autofocus>
+                            <button class="btn-edit-save" (click)="saveEditItem(item)"><i class="fa fa-check"></i></button>
+                            <button class="btn-edit-cancel" (click)="cancelEditItem()"><i class="fa fa-times"></i></button>
+                        </div>
+                        <ng-container *ngIf="editingItemId !== item.id">
+                            <button class="item-edit-btn" (click)="startEditItem(item)"><i class="fa fa-pencil"></i></button>
+                            <button class="item-delete-btn" (click)="deleteItem(item, $event)"><i class="fa fa-trash"></i></button>
+                        </ng-container>
+                    </div>
+
+                    <!-- Item spuntati -->
+                    <div class="cat-item-row cat-item-checked" *ngFor="let item of checkedCatItems(cat)">
+                        <button class="item-check-btn checked" (click)="toggleItem(item)">
+                            <i class="fa fa-circle-check"></i>
+                        </button>
+                        <div class="item-content">
+                            <span class="item-name item-name-checked">{{item.name}}</span>
+                            <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
+                        </div>
+                        <button class="item-delete-btn" (click)="deleteItem(item, $event)"><i class="fa fa-trash"></i></button>
+                    </div>
+
+                    <!-- Form aggiungi item in categoria -->
+                    <div class="cat-item-add-row" *ngIf="addingItemInCategoryId === cat.id">
+                        <input class="add-input add-input-name" type="text" [(ngModel)]="newCategoryItemName"
+                               placeholder="Nome articolo" (keydown)="onCategoryItemKeydown($event, cat)" autofocus>
+                        <input class="add-input add-input-qty" type="number" [(ngModel)]="newCategoryItemQty"
+                               placeholder="Qtà" min="0">
+                        <button class="btn-add-confirm" (click)="addItemInCategory(cat)" [disabled]="!newCategoryItemName.trim()">
+                            <i class="fa fa-check"></i>
+                        </button>
+                        <button class="btn-add-cancel" (click)="cancelAddItemInCategory()">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </div>
+
+                    <!-- Bottone aggiungi item -->
+                    <button class="btn-add-cat-item" *ngIf="addingItemInCategoryId !== cat.id"
+                            (click)="startAddItemInCategory(cat.id)">
+                        <i class="fa fa-plus"></i> Aggiungi articolo
+                    </button>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- FORM NUOVA CATEGORIA -->
+        <div class="new-category-form" *ngIf="addingCategory">
+            <i class="fa fa-folder-open new-category-icon"></i>
+            <input class="add-input add-input-name" type="text" [(ngModel)]="newCategoryName"
+                   placeholder="Nome categoria" (keydown)="onCategoryKeydown($event)" autofocus maxlength="40">
+            <button class="btn-add-confirm" (click)="addCategory()" [disabled]="!newCategoryName.trim()">
+                <i class="fa fa-check"></i>
+            </button>
+            <button class="btn-add-cancel" (click)="addingCategory = false; newCategoryName = ''">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Bottone aggiungi categoria -->
+        <button class="btn-add-category" *ngIf="!addingCategory" (click)="addingCategory = true">
+            <i class="fa fa-folder-plus"></i> Nuova categoria
+        </button>
+
+        <!-- ITEM SENZA CATEGORIA -->
+        <div class="items-section" *ngIf="uncheckedUncategorized.length > 0 || addingItem">
+            <div class="items-section-label" *ngIf="categories.length > 0">
+                Senza categoria <span class="items-count">{{uncheckedUncategorized.length}}</span>
             </div>
             <div class="items-list">
-                <div class="item-row" *ngFor="let item of uncheckedItems">
+                <div class="item-row" *ngFor="let item of uncheckedUncategorized">
                     <button class="item-check-btn unchecked" (click)="toggleItem(item)">
                         <i class="fa fa-circle"></i>
                     </button>
@@ -132,20 +254,16 @@
                     </div>
                     <div class="item-edit-form" *ngIf="editingItemId === item.id">
                         <input class="edit-input" type="text" [(ngModel)]="editingItemName"
-                               (keydown)="onEditKeydown($event, item)" autofocus>
-                        <button class="btn-edit-save" (click)="saveEdit(item)"><i class="fa fa-check"></i></button>
-                        <button class="btn-edit-cancel" (click)="cancelEdit()"><i class="fa fa-times"></i></button>
+                               (keydown)="onEditItemKeydown($event, item)" autofocus>
+                        <button class="btn-edit-save" (click)="saveEditItem(item)"><i class="fa fa-check"></i></button>
+                        <button class="btn-edit-cancel" (click)="cancelEditItem()"><i class="fa fa-times"></i></button>
                     </div>
                     <ng-container *ngIf="editingItemId !== item.id">
-                        <button class="item-edit-btn" (click)="startEdit(item)" title="Modifica">
-                            <i class="fa fa-pencil"></i>
-                        </button>
-                        <button class="item-delete-btn" (click)="deleteItem(item, $event)" title="Elimina">
-                            <i class="fa fa-trash"></i>
-                        </button>
+                        <button class="item-edit-btn" (click)="startEditItem(item)"><i class="fa fa-pencil"></i></button>
+                        <button class="item-delete-btn" (click)="deleteItem(item, $event)"><i class="fa fa-trash"></i></button>
                     </ng-container>
                 </div>
-                <!-- Add item nella griglia -->
+                <!-- Form aggiungi item senza categoria -->
                 <div class="item-row add-item-card" *ngIf="addingItem">
                     <input class="add-input add-input-name" type="text" [(ngModel)]="newItemName"
                            placeholder="Nome articolo" (keydown)="onAddKeydown($event)" autofocus>
@@ -158,19 +276,21 @@
                         <i class="fa fa-times"></i>
                     </button>
                 </div>
-                <button class="btn-add-item" *ngIf="!addingItem" (click)="addingItem = true">
-                    <i class="fa fa-plus"></i> Aggiungi articolo
-                </button>
             </div>
         </div>
 
-        <!-- Già nel carrello -->
-        <div class="items-section items-section-checked" *ngIf="checkedItems.length > 0">
+        <!-- Bottone aggiungi item senza categoria -->
+        <button class="btn-add-item" *ngIf="!addingItem && addingItemInCategoryId === null" (click)="addingItem = true">
+            <i class="fa fa-plus"></i> Aggiungi articolo
+        </button>
+
+        <!-- Item senza categoria nel carrello -->
+        <div class="items-section items-section-checked" *ngIf="checkedUncategorized.length > 0">
             <div class="items-section-label items-section-label-muted">
-                Nel carrello <span class="items-count items-count-muted">{{checkedItems.length}}</span>
+                Nel carrello <span class="items-count items-count-muted">{{checkedUncategorized.length}}</span>
             </div>
             <div class="items-list">
-                <div class="item-row item-row-checked" *ngFor="let item of checkedItems">
+                <div class="item-row item-row-checked" *ngFor="let item of checkedUncategorized">
                     <button class="item-check-btn checked" (click)="toggleItem(item)">
                         <i class="fa fa-circle-check"></i>
                     </button>
@@ -178,35 +298,33 @@
                         <span class="item-name item-name-checked">{{item.name}}</span>
                         <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
                     </div>
-                    <button class="item-delete-btn" (click)="deleteItem(item, $event)" title="Elimina">
-                        <i class="fa fa-trash"></i>
-                    </button>
+                    <button class="item-delete-btn" (click)="deleteItem(item, $event)"><i class="fa fa-trash"></i></button>
                 </div>
             </div>
         </div>
 
-    </div>
+    </div><!-- /items-container normale -->
 
-    <!-- ITEMS LIST - modalità batch -->
+    <!-- BATCH MODE -->
     <div class="items-container batch-container" *ngIf="batchMode">
         <div class="items-list">
             <div class="item-row batch-row" *ngFor="let item of batchItems" [class.batch-row-delete]="item.toDelete">
                 <button class="batch-check-toggle" (click)="item.checked = !item.checked" [disabled]="item.toDelete"
-                        [class.batch-checked]="item.checked" [title]="item.checked ? 'Deseleziona' : 'Seleziona'">
+                        [class.batch-checked]="item.checked">
                     <i class="fa" [ngClass]="item.checked ? 'fa-circle-check' : 'fa-circle'"></i>
                 </button>
                 <input class="batch-input batch-input-name" type="text" [(ngModel)]="item.name"
                        [disabled]="item.toDelete" placeholder="Nome articolo"
                        [class.batch-input-error]="batchAddAttempted && item.id === null && !item.name.trim()">
                 <div class="qty-stepper" [class.qty-stepper-disabled]="item.toDelete">
-                    <button class="qty-btn" (click)="item.quantity = (item.quantity || 1) - 1 < 1 ? 1 : (item.quantity || 1) - 1" [disabled]="item.toDelete || (item.quantity || 1) <= 1">−</button>
-                    <span class="qty-value">{{item.quantity || 1}}</span>
-                    <button class="qty-btn" (click)="item.quantity = (item.quantity || 1) + 1" [disabled]="item.toDelete">+</button>
+                    <button class="qty-btn" (click)="item.quantity = (item.quantity || 1) - 1 < 1 ? null : (item.quantity || 1) - 1" [disabled]="item.toDelete || !item.quantity">−</button>
+                    <span class="qty-value">{{item.quantity || '—'}}</span>
+                    <button class="qty-btn" (click)="item.quantity = (item.quantity || 0) + 1" [disabled]="item.toDelete">+</button>
                 </div>
-                <button class="batch-delete-toggle" *ngIf="item.id !== null" (click)="toggleBatchDelete(item)" [title]="item.toDelete ? 'Ripristina' : 'Elimina'">
+                <button class="batch-delete-toggle" *ngIf="item.id !== null" (click)="toggleBatchDelete(item)">
                     <i class="fa" [ngClass]="item.toDelete ? 'fa-rotate-left' : 'fa-trash'"></i>
                 </button>
-                <button class="batch-delete-toggle batch-remove-new" *ngIf="item.id === null" (click)="removeBatchItem(item)" title="Rimuovi">
+                <button class="batch-delete-toggle batch-remove-new" *ngIf="item.id === null" (click)="removeBatchItem(item)">
                     <i class="fa fa-times"></i>
                 </button>
             </div>
@@ -215,15 +333,13 @@
             </button>
         </div>
         <div class="batch-footer" *ngIf="batchDeleteCount > 0">
-            <span class="batch-info">
-                <i class="fa fa-trash"></i> {{batchDeleteCount}} da eliminare
-            </span>
+            <span class="batch-info"><i class="fa fa-trash"></i> {{batchDeleteCount}} da eliminare</span>
         </div>
     </div>
 
     </div><!-- /detail-main -->
 
-    <!-- PARTICIPANTS SIDEBAR -->
+    <!-- SIDEBAR PARTECIPANTI -->
     <div class="participants-sidebar" *ngIf="sidebarOpen && list.list_type === 'shared'">
         <div class="sidebar-header">
             <span class="sidebar-title"><i class="fa fa-users"></i> Partecipanti</span>
@@ -239,25 +355,24 @@
                     <span class="participant-name">{{p.name}} {{p.surname || ''}}</span>
                     <span class="participant-email">{{p.email}}</span>
                 </div>
-                <span class="participant-badge" [class.badge-owner]="p.user_id === list.owner_id" [class.badge-member]="p.user_id !== list.owner_id">
+                <span class="participant-badge"
+                      [class.badge-owner]="p.user_id === list.owner_id"
+                      [class.badge-member]="p.user_id !== list.owner_id">
                     {{p.user_id === list.owner_id ? 'Owner' : 'Partecipante'}}
                 </span>
             </div>
             <div class="sidebar-empty" *ngIf="!list.participants || list.participants.length === 0">
-                <i class="fa fa-user-slash"></i>
-                <span>Nessun partecipante</span>
+                <i class="fa fa-user-slash"></i><span>Nessun partecipante</span>
             </div>
         </div>
     </div>
 
 </div><!-- /detail-layout -->
 
-<!-- DELETE CONFIRM MODAL -->
+<!-- DELETE MODAL -->
 <div class="modal-overlay" *ngIf="showDeleteModal" (click)="cancelDelete()">
     <div class="modal-box" (click)="$event.stopPropagation()">
-        <div class="modal-icon-wrap modal-icon-danger">
-            <i class="fa fa-trash"></i>
-        </div>
+        <div class="modal-icon-wrap modal-icon-danger"><i class="fa fa-trash"></i></div>
         <h3 class="modal-title">Elimina lista</h3>
         <p class="modal-desc">Sei sicuro di voler eliminare <strong>{{list.name}}</strong>?<br>L'operazione non è reversibile.</p>
         <div class="modal-actions">
@@ -269,17 +384,13 @@
     </div>
 </div>
 
-<!-- TRANSFER OWNERSHIP MODAL -->
+<!-- TRANSFER MODAL -->
 <div class="modal-overlay" *ngIf="showTransferModal" (click)="cancelTransfer()">
     <div class="modal-box" (click)="$event.stopPropagation()">
-
-        <!-- caso: nessun partecipante → elimina -->
         <ng-container *ngIf="transferCandidates.length === 0">
-            <div class="modal-icon-wrap modal-icon-danger">
-                <i class="fa fa-trash"></i>
-            </div>
+            <div class="modal-icon-wrap modal-icon-danger"><i class="fa fa-trash"></i></div>
             <h3 class="modal-title">Elimina lista</h3>
-            <p class="modal-desc">Sei l'unico membro di questa lista. Uscendo verrà eliminata definitivamente.</p>
+            <p class="modal-desc">Sei l'unico membro. Uscendo la lista verrà eliminata definitivamente.</p>
             <div class="modal-actions">
                 <button class="btn-modal-cancel" (click)="cancelTransfer()">Annulla</button>
                 <button class="btn-modal-confirm btn-modal-delete" (click)="deleteAndLeave()">
@@ -287,12 +398,8 @@
                 </button>
             </div>
         </ng-container>
-
-        <!-- caso: ci sono partecipanti → trasferisci -->
         <ng-container *ngIf="transferCandidates.length > 0">
-            <div class="modal-icon-wrap modal-icon-leave">
-                <i class="fa fa-right-from-bracket"></i>
-            </div>
+            <div class="modal-icon-wrap modal-icon-leave"><i class="fa fa-right-from-bracket"></i></div>
             <h3 class="modal-title">Esci dalla lista</h3>
             <p class="modal-desc">Sei il proprietario. Seleziona un nuovo owner prima di uscire.</p>
             <div class="transfer-candidates">
@@ -314,7 +421,6 @@
                 </button>
             </div>
         </ng-container>
-
     </div>
 </div>
 

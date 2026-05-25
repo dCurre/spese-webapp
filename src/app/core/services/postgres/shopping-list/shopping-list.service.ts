@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { ShoppingList, ShoppingItem } from './shopping-list';
+import { ShoppingList, ShoppingItem, ShoppingCategory } from './shopping-list';
 
 @Injectable({ providedIn: 'root' })
 export class ShoppingListService {
@@ -91,5 +91,28 @@ export class ShoppingItemService {
 
   reorder(listId: number, orderedIds: number[]): Observable<void> {
         return this.http.put<void>(`${this.baseUrl}/reorder`, { shopping_list_id: listId, ordered_ids: orderedIds });
+    }
+}
+
+@Injectable({ providedIn: 'root' })
+export class ShoppingCategoryService {
+    private readonly baseUrl = `${environment.pgApiUrl}/api/shopping-categories`;
+
+    constructor(private http: HttpClient) {}
+
+    create(payload: { shopping_list_id: number; name: string; sort_order?: number }): Observable<{ id: number }> {
+        return this.http.post<{ id: number }>(this.baseUrl, payload);
+    }
+
+    update(id: number, payload: { name?: string; sort_order?: number }): Observable<void> {
+        return this.http.put<void>(`${this.baseUrl}/${id}`, payload);
+    }
+
+    delete(id: number): Observable<void> {
+        return this.http.delete<void>(`${this.baseUrl}/${id}`);
+    }
+
+    checkCategory(id: number, checked: boolean): Observable<void> {
+        return this.http.patch<void>(`${this.baseUrl}/${id}/check`, { checked });
     }
 }

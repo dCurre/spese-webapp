@@ -28,9 +28,22 @@ export class AuthService {
                 return;
             }
             try {
-                const pgUser = await this.pgUserService.getByEmail(firebaseUser.email).toPromise();
+                const displayName = firebaseUser.displayName ?? '';
+                const parts = displayName.split(' ');
+                const pgUser = await this.pgUserService.upsertByEmail({
+                    email: firebaseUser.email!,
+                    name: parts[0] ?? '',
+                    surname: parts.slice(1).join(' ') || '',
+                    profile_image: firebaseUser.photoURL ?? '',
+                }).toPromise();
                 this.loggedUser$.next(pgUser ?? this.fallbackUser(firebaseUser));
-            } catch {
+            } catch (error: any) {
+                if (error?.status === 0) {
+                    await this.afAuth.signOut();
+                    this.loggedUser$.next(null);
+                    this.router.navigate(['/signin']);
+                    return;
+                }
                 this.loggedUser$.next(this.fallbackUser(firebaseUser));
             }
             const returnUrl = sessionStorage.getItem('returnUrl');
@@ -76,10 +89,23 @@ export class AuthService {
         const firebaseUser = await this.afAuth.currentUser;
         if (!firebaseUser?.email) return;
         try {
-            const pgUser = await this.pgUserService.getByEmail(firebaseUser.email).toPromise();
+            const displayName = firebaseUser.displayName ?? '';
+            const parts = displayName.split(' ');
+            const pgUser = await this.pgUserService.upsertByEmail({
+                email: firebaseUser.email!,
+                name: parts[0] ?? '',
+                surname: parts.slice(1).join(' ') || '',
+                profile_image: firebaseUser.photoURL ?? '',
+            }).toPromise();
             this.loggedUser$.next(pgUser ?? this.fallbackUser(firebaseUser));
-        } catch {
-            this.loggedUser$.next(this.fallbackUser(firebaseUser));
+        } catch (error: any) {
+            if (error?.status === 0) {
+                await this.afAuth.signOut();
+                this.loggedUser$.next(null);
+                this.router.navigate(['/signin']);
+            } else {
+                this.loggedUser$.next(this.fallbackUser(firebaseUser));
+            }
         }
     }
 

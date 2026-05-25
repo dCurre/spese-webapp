@@ -71,9 +71,14 @@ export class ExpensesListComponent implements OnInit {
   }
 
   private load() {
-    this.afAuth.currentUser.then(firebaseUser => {
-      if (!firebaseUser?.email) return;
-      this.userEmail = firebaseUser.email;
+    this.authService.getUser().then(pgUser => {
+      if (!pgUser?.email) {
+        this.hasLoaded = true;
+        this.loadError = true;
+        return;
+      }
+      this.userEmail = pgUser.email;
+      this.loggedUser = pgUser;
       this.loadLists();
     }).catch(() => {
       this.hasLoaded = true;
