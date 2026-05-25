@@ -14,12 +14,10 @@ export class ShoppingItem {
 export class ShoppingCategory {
     id: number;
     shopping_list_id: number;
-    parent_id: number | null;
     name: string;
     sort_order: number;
     created_at: string;
     items: ShoppingItem[];
-    children: ShoppingCategory[];
 }
 
 export class ShoppingList {
