@@ -363,7 +363,7 @@ body {
 
 /* ── Toast: sopra la bottom nav su mobile ── */
 @media (max-width: 768px) {
-    ngb-toast {
-        bottom: 72px !important;
+    app-toast.toast-container {
+        bottom: calc(64px + env(safe-area-inset-bottom, 0px)) !important;
     }
 }

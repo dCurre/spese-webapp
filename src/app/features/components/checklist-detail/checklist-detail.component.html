@@ -110,6 +110,25 @@
     <!-- NORMALE -->
     <div class="items-container" *ngIf="!batchMode">
 
+        <!-- Bottone aggiungi categoria -->
+        <button class="btn-add-category" *ngIf="!addingCategory" (click)="addingCategory = true">
+            <i class="fa fa-folder-plus"></i> Nuova categoria
+        </button>
+
+        <!-- FORM NUOVA CATEGORIA -->
+        <div class="new-category-form" *ngIf="addingCategory">
+            <i class="fa fa-folder-open new-category-icon"></i>
+            <input class="add-input add-input-name" type="text" [(ngModel)]="newCategoryName"
+                   placeholder="Nome categoria" (keydown)="onCategoryKeydown($event)" autofocus maxlength="40"
+                   [disabled]="savingCategory">
+            <button class="btn-add-confirm" (click)="addCategory()" [disabled]="!newCategoryName.trim() || savingCategory">
+                <i class="fa" [ngClass]="savingCategory ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+            </button>
+            <button class="btn-add-cancel" (click)="addingCategory = false; newCategoryName = ''" [disabled]="savingCategory">
+                <i class="fa fa-times"></i>
+            </button>
+        </div>
+
         <!-- CATEGORIE (ricorsive) -->
         <app-category-node *ngFor="let cat of categories"
             [cat]="cat" [depth]="0"
@@ -147,27 +166,8 @@
             (addSubcategoryNameChange)="newSubcategoryName = $event">
         </app-category-node>
 
-        <!-- FORM NUOVA CATEGORIA -->
-        <div class="new-category-form" *ngIf="addingCategory">
-            <i class="fa fa-folder-open new-category-icon"></i>
-            <input class="add-input add-input-name" type="text" [(ngModel)]="newCategoryName"
-                   placeholder="Nome categoria" (keydown)="onCategoryKeydown($event)" autofocus maxlength="40"
-                   [disabled]="savingCategory">
-            <button class="btn-add-confirm" (click)="addCategory()" [disabled]="!newCategoryName.trim() || savingCategory">
-                <i class="fa" [ngClass]="savingCategory ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-            </button>
-            <button class="btn-add-cancel" (click)="addingCategory = false; newCategoryName = ''" [disabled]="savingCategory">
-                <i class="fa fa-times"></i>
-            </button>
-        </div>
-
-        <!-- Bottone aggiungi categoria -->
-        <button class="btn-add-category" *ngIf="!addingCategory" (click)="addingCategory = true">
-            <i class="fa fa-folder-plus"></i> Nuova categoria
-        </button>
-
         <!-- ITEM SENZA CATEGORIA -->
-        <div class="uncategorized-section" *ngIf="uncategorizedItems.length > 0 || addingItem || categories.length === 0">
+        <div class="uncategorized-section">
 
             <!-- Header stile categoria -->
             <div class="category-header uncat-header" (click)="uncatCollapsed = !uncatCollapsed">
@@ -191,6 +191,10 @@
                 <span class="category-name">Senza categoria</span>
                 <span class="category-count">{{uncategorizedItems.length}}</span>
                 <span class="category-spacer"></span>
+                <button class="item-add-btn" *ngIf="!addingItem"
+                        (click)="addingItem = true; $event.stopPropagation()" title="Aggiungi articolo">
+                    <i class="fa fa-plus-circle"></i>
+                </button>
             </div>
 
             <!-- Body collassabile -->
@@ -259,11 +263,6 @@
                         </button>
                     </div>
 
-                    <!-- Bottone aggiungi articolo -->
-                    <button class="btn-add-inline" *ngIf="!addingItem" (click)="addingItem = true">
-                        <span class="item-add-icon"><i class="fa fa-plus"></i></span>
-                        <span class="btn-add-inline-label">Aggiungi articolo</span>
-                    </button>
 
                 </div>
             </div>
@@ -273,6 +272,11 @@
 
     <!-- BATCH MODE -->
     <div class="items-container batch-container" *ngIf="batchMode">
+
+        <!-- Aggiungi nuova categoria -->
+        <button class="btn-add-category batch-add-category-btn" (click)="addBatchCategory()">
+            <i class="fa fa-folder-plus"></i> Nuova categoria
+        </button>
 
         <!-- CATEGORIE (tree style) -->
         <ng-container *ngFor="let cat of batchCategories">
@@ -287,7 +291,12 @@
                            [(ngModel)]="cat.name" placeholder="Nome categoria"
                            [disabled]="cat.toDelete"
                            [class.batch-input-error]="batchAddAttempted && cat.id === null && !cat.name.trim()">
-                    <!-- aggiungi sottocategoria (visibile solo on hover) -->
+                    <!-- aggiungi articolo -->
+                    <button class="batch-tree-action-btn batch-tree-additem-btn" *ngIf="!cat.toDelete"
+                            (click)="addBatchItem(cat.items)" title="Aggiungi articolo">
+                        <i class="fa fa-plus-circle"></i>
+                    </button>
+                    <!-- aggiungi sottocategoria -->
                     <button class="batch-tree-action-btn batch-tree-subcategory-btn" *ngIf="!cat.toDelete"
                             (click)="addBatchSubcategory(cat)" title="Aggiungi sottocategoria">
                         <i class="fa fa-folder-plus"></i>
@@ -333,9 +342,6 @@
                                 <i class="fa fa-times"></i>
                             </button>
                         </div>
-                        <button class="batch-add-inline-btn" (click)="addBatchItem(cat.items)">
-                            <i class="fa fa-plus"></i> Aggiungi articolo
-                        </button>
                     </div>
                 </div>
 
@@ -348,10 +354,20 @@
             <div class="batch-cat-tree-header batch-uncat-header" *ngIf="batchCategories.length > 0">
                 <i class="fa fa-tag batch-cat-folder-icon batch-uncat-icon"></i>
                 <span class="batch-uncat-label">Senza categoria</span>
+                <span class="category-spacer"></span>
+                <button class="batch-tree-action-btn batch-tree-additem-btn"
+                        (click)="addBatchItem(batchUncategorized)" title="Aggiungi articolo">
+                    <i class="fa fa-plus-circle"></i>
+                </button>
             </div>
             <!-- Items -->
             <div class="batch-cat-tree-body" [class.batch-uncat-body-noheader]="batchCategories.length === 0">
                 <div class="batch-cat-tree-items">
+                    <!-- Aggiungi articolo inline se non ci sono categorie (nessun header) -->
+                    <button class="batch-add-inline-btn" *ngIf="batchCategories.length === 0"
+                            (click)="addBatchItem(batchUncategorized)">
+                        <i class="fa fa-plus-circle"></i> Aggiungi articolo
+                    </button>
                     <div class="batch-tree-item-row" *ngFor="let item of batchUncategorized"
                          [class.batch-row-delete]="item.toDelete">
                         <button class="batch-tree-check-btn" (click)="item.checked = !item.checked"
@@ -377,17 +393,9 @@
                             <i class="fa fa-times"></i>
                         </button>
                     </div>
-                    <button class="batch-add-inline-btn" (click)="addBatchItem(batchUncategorized)">
-                        <i class="fa fa-plus"></i> Aggiungi articolo
-                    </button>
                 </div>
             </div>
         </div>
-
-        <!-- Aggiungi nuova categoria -->
-        <button class="btn-add-category batch-add-category-btn" (click)="addBatchCategory()">
-            <i class="fa fa-folder-plus"></i> Nuova categoria
-        </button>
 
         <div class="batch-footer" *ngIf="batchDeleteCount > 0">
             <span class="batch-info"><i class="fa fa-trash"></i> {{batchDeleteCount}} da eliminare</span>
