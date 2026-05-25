@@ -44,6 +44,13 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   // Categorie collapse
   protected collapsedCategories = new Set<number>();
+  protected allCollapsed = false;
+  protected uncatCollapsed = false;
+
+  protected toggleCollapseAll(): void {
+    this.allCollapsed = !this.allCollapsed;
+    this.uncatCollapsed = this.allCollapsed;
+  }
 
   // Edit inline
   protected editingItemId: number | null = null;
@@ -59,7 +66,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   protected batchMode = false;
   // batch categories
-  protected batchCategories: { id: number | null; name: string; toDelete: boolean; items: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] }[] = [];
+  protected batchCategories: { id: number | null; name: string; toDelete: boolean; depth: number; parentId: number | null; items: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] }[] = [];
   // batch uncategorized
   protected batchUncategorized: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] = [];
   protected batchAddAttempted = false;
@@ -133,6 +140,26 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   protected get checkedUncategorized(): ShoppingItem[] {
     return this.uncategorizedItems.filter(i => i.checked);
+  }
+
+  protected get uncatAllChecked(): boolean {
+    const items = this.uncategorizedItems;
+    return items.length > 0 && items.every(i => i.checked);
+  }
+
+  protected get uncatIndeterminate(): boolean {
+    if (this.uncatAllChecked) return false;
+    return this.uncategorizedItems.some(i => i.checked);
+  }
+
+  protected toggleUncategorized(): void {
+    const items = this.uncategorizedItems;
+    if (!items.length || !this.list) return;
+    const newChecked = !this.uncatAllChecked;
+    this.shoppingItemService.checkAll(this.list.id, newChecked, true).subscribe({
+      next: () => { items.forEach(i => i.checked = newChecked); this.syncCompletedState(); },
+      error: () => {}
+    });
   }
 
   /** Tutti gli item (categorie ricorsive + senza categoria) per progress e sync */
@@ -549,14 +576,22 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   }
 
   protected enterBatchMode(): void {
-    this.batchCategories = this.categories.map(cat => ({
-      id: cat.id,
-      name: cat.name,
-      toDelete: false,
-      items: (cat.items ?? []).sort((a, b) => a.sort_order - b.sort_order).map(i => ({
-        id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false,
-      })),
-    }));
+    const flattenCats = (cats: ShoppingCategory[], depth: number, parentId: number | null): typeof this.batchCategories => {
+      return cats.flatMap(cat => [
+        {
+          id: cat.id,
+          name: cat.name,
+          toDelete: false,
+          depth,
+          parentId,
+          items: (cat.items ?? []).sort((a, b) => a.sort_order - b.sort_order).map(i => ({
+            id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false,
+          })),
+        },
+        ...flattenCats(cat.children ?? [], depth + 1, cat.id),
+      ]);
+    };
+    this.batchCategories = flattenCats(this.categories, 0, null);
     this.batchUncategorized = this.uncategorizedItems.map(i => ({
       id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false,
     }));
@@ -585,11 +620,30 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected addBatchItem(list: any[]): void {
     if (this.hasEmptyBatchItem) { this.batchAddAttempted = true; return; }
     this.batchAddAttempted = false;
-    list.push({ id: null, name: '', quantity: null, checked: false, toDelete: false });
+    list.push({ id: null, name: '', quantity: 1, checked: false, toDelete: false });
   }
 
   protected addBatchCategory(): void {
-    this.batchCategories.push({ id: null, name: '', toDelete: false, items: [] });
+    this.batchCategories.push({ id: null, name: '', toDelete: false, depth: 0, parentId: null, items: [] });
+  }
+
+  /** Aggiunge una nuova sottocategoria subito dopo il blocco del parent */
+  protected addBatchSubcategory(parentCat: typeof this.batchCategories[0]): void {
+    const parentIdx = this.batchCategories.indexOf(parentCat);
+    if (parentIdx === -1) return;
+    // Trova la posizione subito dopo l'ultimo discendente del parent
+    let insertIdx = parentIdx + 1;
+    while (insertIdx < this.batchCategories.length && this.batchCategories[insertIdx].depth > parentCat.depth) {
+      insertIdx++;
+    }
+    this.batchCategories.splice(insertIdx, 0, {
+      id: null,
+      name: '',
+      toDelete: false,
+      depth: parentCat.depth + 1,
+      parentId: parentCat.id,   // null se il parent è anch'esso nuovo
+      items: [],
+    });
   }
 
   protected removeBatchCategory(cat: any): void {
@@ -600,102 +654,88 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected saveBatch(): void {
     if (!this.list) return;
 
-    // Raccoglie tutte le operazioni
-    const itemDeleteIds: number[] = [];
-    const itemUpdates: { id: number; name: string; quantity: number | null; checked: boolean }[] = [];
-    const newItems: { shopping_list_id: number; category_id: number | null; name: string; quantity: number | null; checked: boolean; sort_order: number }[] = [];
-    const catDeleteIds: number[] = [];
-    const catUpdates: { id: number; name: string }[] = [];
-    const newCats: { shopping_list_id: number; name: string; sort_order: number; pendingItems: typeof newItems }[] = [];
+    const categories_update: { id: number; name: string }[] = [];
+    const categories_delete: number[] = [];
+    const categories_create: { temp_id: string; name: string; parent_id: number | string | null; sort_order: number }[] = [];
+    const items_update: { id: number; name: string; quantity: number | null; checked: boolean }[] = [];
+    const items_delete: number[] = [];
+    const items_create: { name: string; quantity: number | null; checked: boolean; sort_order: number; category_id: number | null; category_temp_id?: string }[] = [];
+
+    // Assegna temp_id alle nuove categorie per poterle referenziare
+    let tempCounter = 0;
+    const catTempIds = new Map<typeof this.batchCategories[0], string>();
+    this.batchCategories.forEach(cat => {
+      if (cat.id === null) catTempIds.set(cat, `t${++tempCounter}`);
+    });
+
+    /** Normalizza: quantity ≤ 0 o null → null, altrimenti il valore numerico */
+    const normQty = (q: number | null): number | null => (q && q > 0) ? q : null;
 
     // Categorie
     this.batchCategories.forEach((cat, catIdx) => {
       if (cat.id !== null && cat.toDelete) {
-        catDeleteIds.push(cat.id);
-        return; // gli item vengono cancellati in cascade
+        categories_delete.push(cat.id);
+        return;
       }
       if (cat.id !== null && !cat.toDelete) {
-        if (cat.name.trim()) catUpdates.push({ id: cat.id, name: cat.name.trim() });
+        if (cat.name.trim()) categories_update.push({ id: cat.id, name: cat.name.trim() });
         cat.items.forEach((item, idx) => {
-          if (item.id !== null && item.toDelete) { itemDeleteIds.push(item.id); return; }
-          if (item.id !== null) itemUpdates.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: item.quantity, checked: item.checked });
-          if (item.id === null && item.name.trim()) newItems.push({
-            shopping_list_id: this.list!.id, category_id: cat.id as number,
-            name: item.name.trim(), quantity: item.quantity, checked: item.checked, sort_order: idx,
+          if (item.id !== null && item.toDelete) { items_delete.push(item.id); return; }
+          if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked });
+          if (item.id === null && item.name.trim()) items_create.push({
+            name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked,
+            sort_order: idx, category_id: cat.id as number,
           });
         });
       }
       if (cat.id === null && cat.name.trim()) {
-        const pending = cat.items.filter(i => i.name.trim()).map((i, idx) => ({
-          shopping_list_id: this.list!.id, category_id: 0, // verrà sostituito dopo create
-          name: i.name.trim(), quantity: i.quantity, checked: i.checked, sort_order: idx,
-        }));
-        newCats.push({ shopping_list_id: this.list!.id, name: cat.name.trim(), sort_order: catIdx, pendingItems: pending as any });
+        const tempId = catTempIds.get(cat)!;
+        // Controlla se parentId punta a una categoria nuova (id === null, già in catTempIds)
+        const parentBatchCat = cat.parentId === null
+          ? null
+          : this.batchCategories.find(c => c.id === cat.parentId);
+        // Se il parent esiste ma è marcato toDelete, salta: non creare la sottocategoria
+        if (parentBatchCat && parentBatchCat.toDelete) return;
+        // se il parent è nel batch ed è nuovo, usa il suo temp_id
+        const parentNew = parentBatchCat && parentBatchCat.id === null ? catTempIds.get(parentBatchCat) : undefined;
+
+        categories_create.push({
+          temp_id: tempId,
+          name: cat.name.trim(),
+          parent_id: parentNew ?? cat.parentId,
+          sort_order: catIdx,
+        });
+        cat.items.forEach((item, idx) => {
+          if (!item.name.trim()) return;
+          items_create.push({
+            name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked,
+            sort_order: idx, category_id: null, category_temp_id: tempId,
+          });
+        });
       }
     });
 
     // Item senza categoria
     this.batchUncategorized.forEach((item, idx) => {
-      if (item.id !== null && item.toDelete) { itemDeleteIds.push(item.id); return; }
-      if (item.id !== null) itemUpdates.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: item.quantity, checked: item.checked });
-      if (item.id === null && item.name.trim()) newItems.push({
-        shopping_list_id: this.list!.id, category_id: null,
-        name: item.name.trim(), quantity: item.quantity, checked: item.checked, sort_order: idx,
+      if (item.id !== null && item.toDelete) { items_delete.push(item.id); return; }
+      if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked });
+      if (item.id === null && item.name.trim()) items_create.push({
+        name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked,
+        sort_order: idx, category_id: null,
       });
     });
 
-    const finish = () => { this.batchMode = false; this.batchCategories = []; this.batchUncategorized = []; this.reload(); };
-
-    // 1. Elimina categorie (cascade item) + update item + delete item
-    const step2 = () => {
-      // Crea nuove categorie in sequenza (per poi aggiungere i loro item)
-      if (!newCats.length) { finish(); return; }
-      let done = 0;
-      newCats.forEach(nc => {
-        this.shoppingCategoryService.create({ shopping_list_id: nc.shopping_list_id, name: nc.name, sort_order: nc.sort_order }).subscribe({
-          next: (res: any) => {
-            const catId = res.id;
-            const pending = nc.pendingItems.map((pi: any) => ({ ...pi, category_id: catId }));
-            if (!pending.length) { if (++done === newCats.length) finish(); return; }
-            let idone = 0;
-            pending.forEach((pi: any) => this.shoppingItemService.create(pi).subscribe({
-              next: () => { if (++idone === pending.length && ++done === newCats.length) finish(); },
-              error: () => { if (++idone === pending.length && ++done === newCats.length) finish(); }
-            }));
-          },
-          error: () => { if (++done === newCats.length) finish(); }
-        });
-      });
-    };
-
-    const step1 = () => {
-      // update items + crea nuovi item (no categoria nuova)
-      this.shoppingItemService.bulkUpdate(itemUpdates, itemDeleteIds).subscribe({
-        next: () => {
-          if (!newItems.length) { step2(); return; }
-          let done = 0;
-          newItems.forEach(item => this.shoppingItemService.create(item).subscribe({
-            next: () => { if (++done === newItems.length) step2(); },
-            error: () => { if (++done === newItems.length) step2(); }
-          }));
-        },
-        error: () => step2()
-      });
-    };
-
-    // update nomi categorie
-    if (catUpdates.length) {
-      let done = 0;
-      catUpdates.forEach(cu => this.shoppingCategoryService.update(cu.id, { name: cu.name }).subscribe({
-        next: () => { if (++done === catUpdates.length) step1(); },
-        error: () => { if (++done === catUpdates.length) step1(); }
-      }));
-    } else {
-      step1();
-    }
-
-    // Elimina categorie (fire and forget, cascade)
-    catDeleteIds.forEach(id => this.shoppingCategoryService.delete(id).subscribe({ next: () => {}, error: () => {} }));
+    this.shoppingListService.batchSave(this.list.id, {
+      categories_update,
+      categories_delete,
+      categories_create,
+      items_update,
+      items_delete,
+      items_create,
+    }).subscribe({
+      next: () => { this.batchMode = false; this.batchCategories = []; this.batchUncategorized = []; this.reload(); },
+      error: () => { /* toast già gestito dall'interceptor */ }
+    });
   }
 
   // ── Share / Leave / Delete ─────────────────────────────────────

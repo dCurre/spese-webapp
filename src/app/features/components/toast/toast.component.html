@@ -3,6 +3,8 @@
   [autohide]="true"
   [delay]="5000"
   (hidden)="toastService.remove(toast)"
-  [class]="toast.type === 'error' ? 'bg-danger text-white' : 'bg-success text-white'">
+  (click)="toastService.remove(toast)"
+  [class]="toast.type === 'error' ? 'bg-danger text-white' : 'bg-success text-white'"
+  style="cursor: pointer">
   {{ toast.message }}
 </ngb-toast>
