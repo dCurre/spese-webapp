@@ -113,13 +113,16 @@
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     font-size: 0.65rem;
-    opacity: 0;
     flex-shrink: 0;
-    transition: opacity 0.15s, background 0.15s, color 0.15s;
+    transition: background 0.15s, color 0.15s;
 }
-.item-edit-btn:hover { background: rgba(0,179,126,0.1); color: #00b37e; opacity: 1; }
-.item-delete-btn:hover { background: rgba(239,68,68,0.1); color: #ef4444; opacity: 1; }
+.item-edit-btn:hover { background: rgba(0,179,126,0.1); color: #00b37e; }
+.item-delete-btn:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
 .item-delete-btn:disabled { opacity: 0.25; cursor: not-allowed; }
+
+@media (max-width: 600px) {
+    .item-edit-btn, .item-delete-btn { width: 22px; height: 22px; font-size: 0.6rem; }
+}
 
 /* Form edit categoria */
 .item-edit-form {
