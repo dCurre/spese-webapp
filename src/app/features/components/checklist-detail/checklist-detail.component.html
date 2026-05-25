@@ -105,160 +105,41 @@
     <!-- NORMALE -->
     <div class="items-container" *ngIf="!batchMode">
 
-        <!-- CATEGORIE -->
-        <div class="category-block" *ngFor="let cat of categories"
-             [class.category-all-checked]="categoryChecked(cat)">
-
-            <!-- Header categoria -->
-            <div class="category-header">
-                <!-- Check categoria -->
-                <button class="category-check-btn"
-                        [class.checked]="categoryChecked(cat)"
-                        [class.indeterminate]="categoryIndeterminate(cat)"
-                        [class.disabled]="!(cat.items?.length)"
-                        (click)="toggleCategory(cat)"
-                        [disabled]="!(cat.items?.length)"
-                        [title]="categoryChecked(cat) ? 'Deseleziona tutto' : 'Seleziona tutto'">
-                    <i class="fa" [ngClass]="{
-                        'fa-circle-check': categoryChecked(cat),
-                        'fa-circle-minus': categoryIndeterminate(cat),
-                        'fa-circle': !categoryChecked(cat) && !categoryIndeterminate(cat)
-                    }"></i>
-                </button>
-
-                <!-- Nome categoria (o edit) -->
-                <div class="category-name-area" (click)="toggleCategoryCollapse(cat.id)">
-                    <ng-container *ngIf="editingCategoryId !== cat.id">
-                        <span class="category-name" [class.category-name-done]="categoryChecked(cat)">{{cat.name}}</span>
-                        <span class="category-count">{{(cat.items || []).length - uncheckedCatItems(cat).length}}/{{(cat.items || []).length}}</span>
-                    </ng-container>
-                    <div class="item-edit-form" *ngIf="editingCategoryId === cat.id" (click)="$event.stopPropagation()">
-                        <input class="edit-input" type="text" [(ngModel)]="editingCategoryName"
-                               (keydown)="onEditCategoryKeydown($event, cat)" autofocus
-                               [disabled]="savingEditCategoryId === cat.id">
-                        <button class="btn-edit-save" (click)="saveEditCategory(cat)"
-                                [disabled]="!editingCategoryName.trim() || savingEditCategoryId === cat.id">
-                            <i class="fa" [ngClass]="savingEditCategoryId === cat.id ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                        </button>
-                        <button class="btn-edit-cancel" (click)="cancelEditCategory()" [disabled]="savingEditCategoryId === cat.id">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Mini progress + azioni -->
-                <div class="category-actions" *ngIf="editingCategoryId !== cat.id">
-                    <div class="category-mini-bar-wrap">
-                        <div class="category-mini-bar">
-                            <div class="category-mini-fill" [style.width.%]="categoryProgress(cat)"
-                                 [class.complete]="categoryChecked(cat)"></div>
-                        </div>
-                    </div>
-                    <button class="item-edit-btn" (click)="startEditCategory(cat, $event)" title="Rinomina"
-                            [disabled]="deletingId === cat.id">
-                        <i class="fa fa-pencil"></i>
-                    </button>
-                    <button class="item-delete-btn" (click)="deleteCategory(cat, $event)" title="Elimina categoria"
-                            [disabled]="deletingId === cat.id">
-                        <i class="fa" [ngClass]="deletingId === cat.id ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
-                    </button>
-                    <button class="category-collapse-btn" [class.collapsed]="isCategoryCollapsed(cat.id)"
-                            (click)="toggleCategoryCollapse(cat.id)">
-                        <i class="fa fa-chevron-down"></i>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Body categoria (collassabile) -->
-            <div class="category-body" [class.collapsed]="isCategoryCollapsed(cat.id)">
-                <div class="category-items-list">
-
-                    <!-- Item non spuntati -->
-                    <div class="cat-item-row" *ngFor="let item of uncheckedCatItems(cat)">
-                        <button class="item-check-btn unchecked" (click)="toggleItem(item)">
-                            <i class="fa fa-circle"></i>
-                        </button>
-                        <div class="item-content" *ngIf="editingItemId !== item.id">
-                            <span class="item-name">{{item.name}}</span>
-                            <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
-                        </div>
-                        <ng-container *ngIf="editingItemId === item.id">
-                            <input class="batch-input batch-input-name" type="text" [(ngModel)]="editingItemName"
-                                   (keydown)="onEditItemKeydown($event, item)" autofocus
-                                   [disabled]="savingEditId === item.id">
-                            <div class="qty-stepper" [class.qty-stepper-disabled]="savingEditId === item.id">
-                                <button class="qty-btn" (click)="editingItemQty = (editingItemQty || 1) - 1 < 1 ? null : (editingItemQty || 1) - 1"
-                                        [disabled]="savingEditId === item.id || !editingItemQty">−</button>
-                                <span class="qty-value">{{editingItemQty || '—'}}</span>
-                                <button class="qty-btn" (click)="editingItemQty = (editingItemQty || 0) + 1"
-                                        [disabled]="savingEditId === item.id">+</button>
-                            </div>
-                            <button class="btn-edit-save" (click)="saveEditItem(item)"
-                                    [disabled]="!editingItemName.trim() || savingEditId === item.id">
-                                <i class="fa" [ngClass]="savingEditId === item.id ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                            </button>
-                            <button class="btn-edit-cancel" (click)="cancelEditItem()" [disabled]="savingEditId === item.id">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </ng-container>
-                        <ng-container *ngIf="editingItemId !== item.id">
-                            <button class="item-edit-btn" (click)="startEditItem(item)"
-                                    [disabled]="deletingId === item.id">
-                                <i class="fa fa-pencil"></i>
-                            </button>
-                            <button class="item-delete-btn" (click)="deleteItem(item, $event)"
-                                    [disabled]="deletingId === item.id">
-                                <i class="fa" [ngClass]="deletingId === item.id ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
-                            </button>
-                        </ng-container>
-                    </div>
-
-                    <!-- Item spuntati -->
-                    <div class="cat-item-row cat-item-checked" *ngFor="let item of checkedCatItems(cat)">
-                        <button class="item-check-btn checked" (click)="toggleItem(item)">
-                            <i class="fa fa-circle-check"></i>
-                        </button>
-                        <div class="item-content">
-                            <span class="item-name item-name-checked">{{item.name}}</span>
-                            <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
-                        </div>
-                        <button class="item-delete-btn" (click)="deleteItem(item, $event)"
-                                [disabled]="deletingId === item.id">
-                            <i class="fa" [ngClass]="deletingId === item.id ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
-                        </button>
-                    </div>
-
-                    <!-- Form aggiungi item in categoria (inline) -->
-                    <div class="cat-item-row cat-item-add-inline" *ngIf="addingItemInCategoryId === cat.id">
-                        <span class="item-add-icon"><i class="fa fa-plus"></i></span>
-                        <input class="batch-input batch-input-name" type="text" [(ngModel)]="newCategoryItemName"
-                               placeholder="Nome articolo" (keydown)="onCategoryItemKeydown($event, cat)" autofocus
-                               [disabled]="savingItem">
-                        <div class="qty-stepper" [class.qty-stepper-disabled]="savingItem">
-                            <button class="qty-btn" (click)="newCategoryItemQty = newCategoryItemQty > 1 ? newCategoryItemQty - 1 : 1"
-                                    [disabled]="savingItem || newCategoryItemQty <= 1">−</button>
-                            <span class="qty-value">{{newCategoryItemQty || '—'}}</span>
-                            <button class="qty-btn" (click)="newCategoryItemQty = (newCategoryItemQty || 0) + 1"
-                                    [disabled]="savingItem">+</button>
-                        </div>
-                        <button class="btn-edit-save" (click)="addItemInCategory(cat)" [disabled]="!newCategoryItemName.trim() || savingItem">
-                            <i class="fa" [ngClass]="savingItem ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                        </button>
-                        <button class="btn-edit-cancel" (click)="cancelAddItemInCategory()" [disabled]="savingItem">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
-
-                    <!-- Bottone aggiungi item -->
-                    <button class="cat-item-row btn-add-inline" *ngIf="addingItemInCategoryId !== cat.id"
-                            (click)="startAddItemInCategory(cat.id)">
-                        <span class="item-add-icon"><i class="fa fa-plus"></i></span>
-                        <span class="btn-add-inline-label">Aggiungi articolo</span>
-                    </button>
-
-                </div>
-            </div>
-        </div>
+        <!-- CATEGORIE (ricorsive) -->
+        <app-category-node *ngFor="let cat of categories"
+            [cat]="cat" [depth]="0"
+            [editingItemId]="editingItemId" [editingItemName]="editingItemName" [editingItemQty]="editingItemQty"
+            [savingEditId]="savingEditId" [deletingId]="deletingId"
+            [editingCategoryId]="editingCategoryId" [editingCategoryName]="editingCategoryName"
+            [savingEditCategoryId]="savingEditCategoryId"
+            [addingItemInCategoryId]="addingItemInCategoryId"
+            [newCategoryItemName]="newCategoryItemName" [newCategoryItemQty]="newCategoryItemQty"
+            [savingItem]="savingItem"
+            [addingSubcategoryParentId]="addingSubcategoryParentId"
+            [newSubcategoryName]="newSubcategoryName" [savingCategory]="savingCategory"
+            (itemToggle)="onNodeItemToggle($event)"
+            (itemSave)="onNodeItemSave($event)"
+            (itemDelete)="onNodeItemDelete($event)"
+            (itemEditStart)="onNodeItemEditStart($event)"
+            (itemEditCancel)="cancelEditItem()"
+            (itemEditNameChange)="editingItemName = $event"
+            (itemEditQtyChange)="editingItemQty = $event"
+            (categoryToggle)="onNodeCategoryToggle($event)"
+            (categoryDelete)="onNodeCategoryDelete($event)"
+            (categoryRenameStart)="onNodeCategoryRenameStart($event)"
+            (categoryRenameSave)="onNodeCategoryRenameSave($event)"
+            (categoryRenameCancel)="cancelEditCategory()"
+            (categoryRenameNameChange)="editingCategoryName = $event"
+            (addItemStart)="startAddItemInCategory($event)"
+            (addItemCancel)="cancelAddItemInCategory()"
+            (addItemSave)="onNodeAddItemSave($event)"
+            (addItemNameChange)="newCategoryItemName = $event"
+            (addItemQtyChange)="newCategoryItemQty = $event"
+            (addSubcategoryStart)="startAddSubcategory($event)"
+            (addSubcategoryCancel)="cancelAddSubcategory()"
+            (addSubcategorySave)="onNodeAddSubcategorySave($event)"
+            (addSubcategoryNameChange)="newSubcategoryName = $event">
+        </app-category-node>
 
         <!-- FORM NUOVA CATEGORIA -->
         <div class="new-category-form" *ngIf="addingCategory">

@@ -100,7 +100,7 @@ export class ShoppingCategoryService {
 
     constructor(private http: HttpClient) {}
 
-    create(payload: { shopping_list_id: number; name: string; sort_order?: number }): Observable<{ id: number }> {
+    create(payload: { shopping_list_id: number; name: string; sort_order?: number; parent_id?: number | null }): Observable<{ id: number }> {
         return this.http.post<{ id: number }>(this.baseUrl, payload);
     }
 
