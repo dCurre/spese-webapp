@@ -1,0 +1,10 @@
+<input class="edit-input edit-input-name" type="text" [(ngModel)]="editName"
+       (keydown)="onKeydown($event)" autofocus [disabled]="saving">
+<input class="edit-input edit-input-qty" type="number" [(ngModel)]="editQty"
+       placeholder="Qtà" [disabled]="saving">
+<button class="btn-edit-save" (click)="onSave()" [disabled]="!editName.trim() || saving">
+    <i class="fa" [ngClass]="saving ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+</button>
+<button class="btn-edit-cancel" (click)="cancel.emit()" [disabled]="saving">
+    <i class="fa fa-times"></i>
+</button>

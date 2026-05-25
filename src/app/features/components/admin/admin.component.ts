@@ -59,8 +59,9 @@ export class AdminComponent implements OnInit {
   loadUsers() {
     this.userService.getAll().subscribe({
       next: (res) => {
-        const me = res.users.find(u => u.id === this.loggedUser?.id);
-        const others = res.users.filter(u => u.id !== this.loggedUser?.id);
+        const visible = res.users.filter(u => u.email !== 'deleted@system.local');
+        const me = visible.find(u => u.id === this.loggedUser?.id);
+        const others = visible.filter(u => u.id !== this.loggedUser?.id);
         this.users = me ? [me, ...others] : others;
       }
     });

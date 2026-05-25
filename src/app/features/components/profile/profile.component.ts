@@ -62,8 +62,10 @@ export class ProfileComponent implements OnInit {
     ngOnInit(): void {
         this.authService.getStoredUser().subscribe(user => {
             this.loggedUser = user;
-            this.selectedTheme = user?.theme_preference ?? 'auto';
             if (user?.email) this.loadStats(user.email, user.id);
+        });
+        this.themeService.getTheme$().subscribe(theme => {
+            this.selectedTheme = theme;
         });
     }
 

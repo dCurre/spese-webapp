@@ -1,6 +1,38 @@
 @import url("//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css");
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
+/* ── Item edit form (shared, used by app-item-edit-form) ── */
+.edit-input {
+    flex: 1;
+    padding: 0.3rem 0.6rem;
+    border: 1.5px solid #00b37e;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: var(--color-bg-card);
+    color: var(--color-text-primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,179,126,0.1);
+}
+.edit-input.edit-input-name { flex: 1; }
+.edit-input.edit-input-qty { width: 60px; flex: none; }
+
+.btn-edit-save, .btn-edit-cancel {
+    width: 26px; height: 26px;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+}
+.btn-edit-save { background: #00b37e; color: white; }
+.btn-edit-save:hover { background: #009e6e; }
+.btn-edit-save:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-edit-cancel { background: var(--color-bg-input); color: var(--color-text-muted); }
+.btn-edit-cancel:hover { background: var(--color-border); }
+
 /* ── Theme tokens ── */
 :root,
 [data-theme="light"] {
