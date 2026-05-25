@@ -496,12 +496,9 @@
     align-items: center;
     justify-content: center;
     font-size: 0.7rem;
-    opacity: 0;
     flex-shrink: 0;
-    transition: opacity 0.15s, background 0.15s, color 0.15s, border-color 0.15s;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.item-row:hover .item-edit-btn,
-.item-row:hover .item-delete-btn { opacity: 1; }
 
 .item-edit-btn:hover {
     background: rgba(0,179,126,0.1);
@@ -1400,12 +1397,11 @@
     cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     font-size: 0.65rem;
-    opacity: 0;
     flex-shrink: 0;
-    transition: opacity 0.15s, background 0.15s, color 0.15s;
+    transition: background 0.15s, color 0.15s;
 }
 .item-edit-btn:hover { background: rgba(0,179,126,0.1); color: #00b37e; }
-.item-delete-btn:hover { background: rgba(239,68,68,0.1); color: #ef4444; opacity: 1; }
+.item-delete-btn:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
@@ -1414,7 +1410,6 @@
     .add-item-form { flex-wrap: wrap; }
     .add-input-qty, .add-input-unit { width: calc(50% - 0.25rem); }
     .items-container { padding: 16px; }
-    .item-edit-btn, .item-delete-btn { opacity: 1; }
     /* Riduci dimensione action buttons batch su mobile */
     .batch-tree-action-btn { width: 22px; height: 22px; font-size: 0.62rem; }
 
