@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ShoppingList, ShoppingItem, ShoppingCategory, ShoppingListParticipant } from 'src/app/core/services/postgres/shopping-list/shopping-list';
 import { ShoppingListService, ShoppingItemService, ShoppingCategoryService } from 'src/app/core/services/postgres/shopping-list/shopping-list.service';
+import { ItemSavePayload, ItemDeletePayload, ItemTogglePayload, CategoryTogglePayload, CategoryDeletePayload, CategoryRenameSave, AddItemPayload, AddSubcategoryPayload } from './category-node/category-node.component';
 import { User } from 'src/app/core/services/postgres/user/user';
 
 @Component({
@@ -28,10 +29,14 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected newCategoryItemName = '';
   protected newCategoryItemQty: number = 1;
 
-  // Nuova categoria
+  // Nuova categoria (root)
   protected addingCategory = false;
   protected newCategoryName = '';
   protected savingCategory = false;
+
+  // Nuova sottocategoria
+  protected addingSubcategoryParentId: number | null = null;
+  protected newSubcategoryName = '';
   protected savingItem = false;
   protected deletingId: number | null = null;
   protected savingEditId: number | null = null;
@@ -130,10 +135,11 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     return this.uncategorizedItems.filter(i => i.checked);
   }
 
-  /** Tutti gli item (categorie + senza categoria) per progress e sync */
+  /** Tutti gli item (categorie ricorsive + senza categoria) per progress e sync */
   private get allItems(): ShoppingItem[] {
-    const catItems = this.categories.flatMap(c => c.items ?? []);
-    return [...catItems, ...(this.list?.items ?? [])];
+    const collectItems = (cats: ShoppingCategory[]): ShoppingItem[] =>
+      cats.flatMap(c => [...(c.items ?? []), ...collectItems(c.children ?? [])]);
+    return [...collectItems(this.categories), ...(this.list?.items ?? [])];
   }
 
   protected get progressPercent(): number {
@@ -153,14 +159,20 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   }
 
   protected categoryChecked(cat: ShoppingCategory): boolean {
-    const items = cat.items ?? [];
-    return items.length > 0 && items.every(i => i.checked);
+    const total = this.subtreeItemCount(cat);
+    if (!total) return false;
+    return this.subtreeCheckedCount(cat) === total;
   }
 
   protected categoryIndeterminate(cat: ShoppingCategory): boolean {
-    const items = cat.items ?? [];
-    const checked = items.filter(i => i.checked).length;
-    return checked > 0 && checked < items.length;
+    const checked = this.subtreeCheckedCount(cat);
+    const total = this.subtreeItemCount(cat);
+    return checked > 0 && checked < total;
+  }
+
+  private subtreeCheckedCount(cat: ShoppingCategory): number {
+    return (cat.items ?? []).filter(i => i.checked).length
+      + (cat.children ?? []).reduce((s, c) => s + this.subtreeCheckedCount(c), 0);
   }
 
   protected categoryProgress(cat: ShoppingCategory): number {
@@ -180,15 +192,22 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   // ── Toggle categoria (spunta/despunta tutti gli item) ──────────
 
   protected toggleCategory(cat: ShoppingCategory): void {
-    if (!(cat.items ?? []).length) return;
+    const totalItems = this.subtreeItemCount(cat);
+    if (!totalItems) return;
     const newChecked = !this.categoryChecked(cat);
     this.shoppingCategoryService.checkCategory(cat.id, newChecked).subscribe({
-      next: () => {
-        (cat.items ?? []).forEach(i => i.checked = newChecked);
-        this.syncCompletedState();
-      },
+      next: () => { this.setCheckedRecursive(cat, newChecked); this.syncCompletedState(); },
       error: () => {}
     });
+  }
+
+  private subtreeItemCount(cat: ShoppingCategory): number {
+    return (cat.items ?? []).length + (cat.children ?? []).reduce((s, c) => s + this.subtreeItemCount(c), 0);
+  }
+
+  private setCheckedRecursive(cat: ShoppingCategory, checked: boolean): void {
+    (cat.items ?? []).forEach(i => i.checked = checked);
+    (cat.children ?? []).forEach(c => this.setCheckedRecursive(c, checked));
   }
 
   // ── Toggle item singolo ────────────────────────────────────────
@@ -235,6 +254,89 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected onCategoryKeydown(event: KeyboardEvent): void {
     if (event.key === 'Enter') this.addCategory();
     if (event.key === 'Escape') { this.addingCategory = false; this.newCategoryName = ''; }
+  }
+
+  // ── Aggiungi sottocategoria ────────────────────────────────────
+
+  protected startAddSubcategory(parentId: number): void {
+    this.addingSubcategoryParentId = parentId;
+    this.newSubcategoryName = '';
+    this.addingItemInCategoryId = null;
+  }
+
+  protected cancelAddSubcategory(): void {
+    this.addingSubcategoryParentId = null;
+    this.newSubcategoryName = '';
+  }
+
+  // ── Bridge: CategoryNodeComponent events → metodi esistenti ───────
+
+  protected onNodeItemToggle(e: ItemTogglePayload): void { this.toggleItem(e.item); }
+
+  protected onNodeItemSave(e: ItemSavePayload): void {
+    this.editingItemName = e.name;
+    this.editingItemQty = e.quantity;
+    this.saveEditItem(e.item);
+  }
+
+  protected onNodeItemDelete(e: ItemDeletePayload): void {
+    if (this.deletingId) return;
+    this.deletingId = e.item.id;
+    this.shoppingItemService.delete(e.item.id).subscribe({
+      next: () => { this.deletingId = null; this.reload(); },
+      error: () => { this.deletingId = null; }
+    });
+  }
+
+  protected onNodeItemEditStart(item: ShoppingItem): void { this.startEditItem(item); }
+
+  protected onNodeCategoryToggle(e: CategoryTogglePayload): void { this.toggleCategory(e.cat); }
+
+  protected onNodeCategoryDelete(e: CategoryDeletePayload): void {
+    if (this.deletingId) return;
+    this.deletingId = e.cat.id;
+    this.shoppingCategoryService.delete(e.cat.id).subscribe({
+      next: () => { this.deletingId = null; this.reload(); },
+      error: () => { this.deletingId = null; }
+    });
+  }
+
+  protected onNodeCategoryRenameStart(cat: ShoppingCategory): void {
+    this.editingCategoryId = cat.id;
+    this.editingCategoryName = cat.name;
+    this.editingItemId = null;
+  }
+
+  protected onNodeCategoryRenameSave(e: CategoryRenameSave): void {
+    this.editingCategoryName = e.name;
+    this.saveEditCategory(e.cat);
+  }
+
+  protected onNodeAddItemSave(e: AddItemPayload): void {
+    this.newCategoryItemName = e.name;
+    this.newCategoryItemQty = e.quantity;
+    this.addItemInCategory(e.cat);
+  }
+
+  protected onNodeAddSubcategorySave(e: AddSubcategoryPayload): void {
+    this.newSubcategoryName = e.name;
+    this.addSubcategory(e.parent, e.name);
+  }
+
+  // ── Fine bridge ────────────────────────────────────────────────────
+
+  protected addSubcategory(parent: ShoppingCategory, name: string): void {
+    if (!name.trim() || !this.list || this.savingCategory) return;
+    this.savingCategory = true;
+    this.shoppingCategoryService.create({
+      shopping_list_id: this.list.id,
+      parent_id: parent.id,
+      name: name.trim(),
+      sort_order: (parent.children ?? []).length,
+    }).subscribe({
+      next: () => { this.savingCategory = false; this.cancelAddSubcategory(); this.reload(); },
+      error: () => { this.savingCategory = false; }
+    });
   }
 
   // ── Aggiungi item in categoria ─────────────────────────────────
