@@ -227,7 +227,7 @@
                            [class.batch-input-error]="batchAddAttempted && cat.id === null && !cat.name.trim()">
                     <!-- aggiungi articolo -->
                     <button class="batch-tree-action-btn batch-tree-additem-btn" *ngIf="!cat.toDelete"
-                            (click)="addBatchItem(cat.items)" title="Aggiungi articolo">
+                            (click)="addBatchItem(cat.items, cat.id)" title="Aggiungi articolo">
                         <i class="fa fa-plus-circle"></i>
                     </button>
                     <!-- aggiungi sottocategoria -->
@@ -260,7 +260,8 @@
                             <input class="batch-input batch-input-name" type="text" [(ngModel)]="item.name"
                                    [disabled]="item.toDelete" placeholder="Nome articolo"
                                    [class.batch-input-error]="batchAddAttempted && item.id === null && !item.name.trim()">
-                            <select class="edit-category-select" [(ngModel)]="item.categoryId" [disabled]="item.toDelete">
+                            <select class="edit-category-select" [(ngModel)]="item.categoryId" [disabled]="item.toDelete"
+                                    *ngIf="cat.id !== null">
                                 <option [ngValue]="null">Senza categoria</option>
                                 <option *ngFor="let fc of flatCategories" [ngValue]="fc.id">{{fc.label}}</option>
                             </select>
