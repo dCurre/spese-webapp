@@ -26,6 +26,10 @@ export class UserService {
     return this.http.get<User>(`${this.baseUrl}/by-email/${encodeURIComponent(email)}`);
   }
 
+  upsertByEmail(payload: { email: string; name: string; surname: string; profile_image: string }): Observable<User> {
+    return this.http.post<User>(`${this.baseUrl}/upsert-by-email`, payload, { headers: { 'X-Silent': '1' } });
+  }
+
   getByEmailWithLists(email: string): Observable<{ user: User, expenses_lists: ExpensesList[] }> {
     return this.http.get<{ user: User, expenses_lists: ExpensesList[] }>(`${this.baseUrl}/by-email/${encodeURIComponent(email)}/expenses-lists`);
   }

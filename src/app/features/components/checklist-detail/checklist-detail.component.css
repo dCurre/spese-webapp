@@ -1058,6 +1058,234 @@
 .btn-modal-delete { background: #ef4444; }
 .btn-modal-delete:hover { background: #dc2626; }
 
+/* ── CATEGORIE (tabella separata) ── */
+.category-block {
+    margin-bottom: 0.625rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg-card);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: border-color 0.2s, opacity 0.2s;
+}
+.category-block.category-all-checked {
+    border-color: rgba(0,179,126,0.3);
+    opacity: 0.8;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.75rem 0.875rem;
+    user-select: none;
+    transition: background 0.15s;
+}
+.category-header:hover { background: var(--color-bg-input); }
+.category-header:hover .item-edit-btn,
+.category-header:hover .item-delete-btn { opacity: 1; }
+
+/* Check button categoria */
+.category-check-btn {
+    width: 26px;
+    height: 26px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+    font-size: 1.15rem;
+    color: var(--color-border);
+    transition: color 0.15s, transform 0.15s;
+}
+.category-check-btn:hover { color: #00b37e; transform: scale(1.1); }
+.category-check-btn.checked { color: #00b37e; }
+.category-check-btn.indeterminate { color: #f59e0b; }
+
+/* Nome area (cliccabile per collapse) */
+.category-name-area {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.category-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.category-name-done {
+    text-decoration: line-through;
+    color: var(--color-text-muted);
+}
+
+.category-count {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    background: var(--color-bg-input);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Azioni destra */
+.category-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+}
+
+.category-mini-bar-wrap { display: flex; align-items: center; }
+.category-mini-bar {
+    width: 44px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-border);
+    overflow: hidden;
+}
+.category-mini-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: #00b37e;
+    transition: width 0.3s ease;
+}
+.category-mini-fill.complete { background: #00b37e; }
+
+.category-collapse-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+    padding: 0;
+    transition: transform 0.2s, color 0.15s;
+}
+.category-collapse-btn.collapsed { transform: rotate(-90deg); }
+
+/* Body categoria */
+.category-body {
+    overflow: hidden;
+    max-height: 2000px;
+    opacity: 1;
+    transition: max-height 0.25s ease, opacity 0.2s;
+}
+.category-body.collapsed { max-height: 0; opacity: 0; }
+
+.category-items-list {
+    padding: 0.375rem 0.875rem 0.75rem 3.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    border-top: 1px solid var(--color-border);
+}
+
+/* Item dentro una categoria */
+.cat-item-row {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0.45rem 0.5rem;
+    border-radius: 7px;
+    transition: background 0.15s;
+    cursor: default;
+}
+.cat-item-row:hover { background: var(--color-bg-input); }
+.cat-item-row:hover .item-edit-btn,
+.cat-item-row:hover .item-delete-btn { opacity: 1; }
+.cat-item-checked { opacity: 0.6; }
+
+/* Form aggiungi item in categoria */
+.cat-item-add-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0.25rem;
+    margin-top: 0.25rem;
+}
+
+.btn-add-cat-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.625rem;
+    margin-top: 0.375rem;
+    border: 1.5px dashed rgba(0,179,126,0.35);
+    border-radius: 7px;
+    background: transparent;
+    color: rgba(0,179,126,0.75);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    align-self: flex-start;
+}
+.btn-add-cat-item:hover {
+    background: rgba(0,179,126,0.06);
+    border-color: #00b37e;
+    color: #00b37e;
+}
+
+/* Form nuova categoria */
+.new-category-form {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    margin-bottom: 0.625rem;
+    border: 1.5px solid #6366f1;
+    border-radius: 12px;
+    background: rgba(99,102,241,0.04);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.08);
+}
+.new-category-icon {
+    color: #6366f1;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+    opacity: 0.8;
+}
+
+/* Bottone nuova categoria */
+.btn-add-category {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.625rem 0.875rem;
+    margin-bottom: 1rem;
+    border: 1.5px dashed rgba(99,102,241,0.4);
+    border-radius: 10px;
+    background: var(--color-bg-card);
+    color: #6366f1;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.btn-add-category:hover {
+    background: rgba(99,102,241,0.05);
+    border-color: #6366f1;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.1);
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 600px) {
     .detail-header { flex-wrap: wrap; padding: 16px; }
@@ -1091,6 +1319,14 @@
         flex: 1 1 0;
         min-width: 0;
     }
+
+    .category-items-list {
+        padding-left: 2.5rem;
+    }
+    .category-header {
+        padding: 0.625rem 0.75rem;
+    }
+    .category-mini-bar { width: 32px; }
 
     .participants-sidebar {
         position: fixed;
