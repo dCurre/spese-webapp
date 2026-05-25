@@ -26,7 +26,6 @@ export class ProfileComponent implements OnInit {
     statExpenses = 0;
     statAmount = 0;
 
-    avatarError = false;
     emailCopied = false;
     uploadingAvatar = false;
     showAvatarPanel = false;
@@ -107,11 +106,6 @@ export class ProfileComponent implements OnInit {
 
     // ── Foto profilo ──
 
-    onAvatarError(event: Event): void {
-        (event.target as HTMLImageElement).style.display = 'none';
-        this.avatarError = true;
-    }
-
     openAvatarPanel(): void {
         if (this.uploadingAvatar) return;
         this.showAvatarPanel = true;
@@ -143,9 +137,9 @@ export class ProfileComponent implements OnInit {
             next: ({ url: newUrl, history }) => {
                 this.loggedUser!.profile_image = newUrl;
                 this.loggedUser!.profile_images_history = history;
-                this.avatarError = false;
+
                 this.uploadingAvatar = false;
-                this.authService.refreshUser();
+                this.authService.setUser(this.loggedUser!);
                 this.toastService.success('Foto profilo aggiornata');
             },
             error: () => {
@@ -174,9 +168,9 @@ export class ProfileComponent implements OnInit {
             next: ({ url, history }) => {
                 this.loggedUser!.profile_image = url;
                 this.loggedUser!.profile_images_history = history;
-                this.avatarError = false;
+
                 this.uploadingAvatar = false;
-                this.authService.refreshUser();
+                this.authService.setUser(this.loggedUser!);
                 this.toastService.success('Foto profilo aggiornata');
             },
             error: () => {

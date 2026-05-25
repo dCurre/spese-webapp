@@ -27,7 +27,7 @@
 
     <div class="sidebar-footer" *ngIf="authService.getStoredUser() | async as user">
         <a routerLink="/profile" routerLinkActive="active" class="sidebar-user-link">
-            <img [src]="user.profile_image" class="sidebar-user-avatar" />
+            <app-user-avatar [user]="user" [size]="36" shape="circle"></app-user-avatar>
             <div class="sidebar-user-info">
                 <div class="sidebar-user-name">{{user.name}} {{user.surname}}</div>
                 <div class="sidebar-user-role">{{user.role}}</div>

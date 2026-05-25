@@ -152,12 +152,9 @@
     color: var(--color-sidebar-text-active);
 }
 
-.sidebar-user-avatar {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    object-fit: cover;
-    flex-shrink: 0;
+/* avatar gestito da app-user-avatar */
+.sidebar-user-link app-user-avatar .avatar-root {
+    border-color: rgba(255,255,255,0.15);
 }
 
 .sidebar-user-info {

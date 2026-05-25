@@ -65,6 +65,7 @@ import { TransferOwnerDialogComponent } from './features/components/dialog/trans
 import { AddGuestDialogComponent } from './features/components/dialog/add-guest-dialog/add-guest-dialog.component';
 import { AboutComponent } from './features/components/about/about.component';
 import { DcLogoComponent } from './features/components/dc-logo/dc-logo.component';
+import { UserAvatarComponent } from './features/components/shared/user-avatar/user-avatar.component';
 
 @NgModule({
   declarations: [
@@ -101,6 +102,7 @@ import { DcLogoComponent } from './features/components/dc-logo/dc-logo.component
     AddGuestDialogComponent,
     AboutComponent,
     DcLogoComponent,
+    UserAvatarComponent,
   ],
   imports: [
     BrowserModule,

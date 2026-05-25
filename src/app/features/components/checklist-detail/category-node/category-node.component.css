@@ -192,6 +192,14 @@
     bottom: 0;
 }
 
+/* Nessun item diretto: nascondi linea verticale */
+.category-items-no-direct {
+    border-left-color: transparent;
+}
+.category-items-no-direct > app-category-node::after {
+    background: transparent;
+}
+
 /* ── Righe item ── */
 .cat-item-row {
     display: flex;
