@@ -19,11 +19,6 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected hasLoaded = false;
   protected loadError = false;
 
-  // Aggiunta item (senza categoria)
-  protected newItemName = '';
-  protected newItemQty: number = 1;
-  protected addingItem = false;
-
   // Aggiunta item in una categoria
   protected addingItemInCategoryId: number | null = null;
   protected newCategoryItemName = '';
@@ -45,17 +40,16 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   // Categorie collapse
   protected collapsedCategories = new Set<number>();
   protected allCollapsed = false;
-  protected uncatCollapsed = false;
 
   protected toggleCollapseAll(): void {
     this.allCollapsed = !this.allCollapsed;
-    this.uncatCollapsed = this.allCollapsed;
   }
 
   // Edit inline
   protected editingItemId: number | null = null;
   protected editingItemName = '';
   protected editingItemQty: number | null = null;
+  protected editingItemCategoryId: number | null = null;  // categoria durante edit
   protected editingCategoryId: number | null = null;
   protected editingCategoryName = '';
   private editingCategoryOriginalName = '';
@@ -67,12 +61,12 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   protected batchMode = false;
   // batch categories
-  protected batchCategories: { id: number | null; name: string; toDelete: boolean; depth: number; parentId: number | null; items: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] }[] = [];
+  protected batchCategories: { id: number | null; name: string; toDelete: boolean; depth: number; parentId: number | null; items: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean; categoryId: number | null }[] }[] = [];
   // batch uncategorized
-  protected batchUncategorized: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] = [];
+  protected batchUncategorized: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean; categoryId: number | null }[] = [];
   protected batchAddAttempted = false;
   // legacy alias for template footer counter
-  protected get batchItems(): { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean }[] {
+  protected get batchItems(): { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean; categoryId: number | null }[] {
     return [...this.batchCategories.flatMap(c => c.items), ...this.batchUncategorized];
   }
 
@@ -108,7 +102,6 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
         this.list = list;
         this.hasLoaded = true;
         this.loadError = false;
-        this.uncatCollapsed = (list.items ?? []).length === 0;
       },
       error: () => { this.hasLoaded = true; this.loadError = true; }
     });
@@ -118,7 +111,6 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     this.shoppingListService.getById(this.listId).subscribe({
       next: (list) => {
         this.list = list;
-        if ((list.items ?? []).length === 0) this.uncatCollapsed = true;
       },
       error: () => {}
     });
@@ -138,27 +130,41 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     return (this.list?.categories ?? []).sort((a, b) => a.sort_order - b.sort_order);
   }
 
+  /** Lista piatta di tutte le categorie (incluse sottocategorie) con nome indentato */
+  protected get flatCategories(): { id: number; label: string }[] {
+    const result: { id: number; label: string }[] = [];
+    const flatten = (cats: ShoppingCategory[], depth: number) => {
+      for (const cat of cats) {
+        result.push({ id: cat.id, label: '    '.repeat(depth) + cat.name });
+        if (cat.children?.length) flatten(cat.children, depth + 1);
+      }
+    };
+    flatten(this.categories, 0);
+    return result;
+  }
+
   /** Item senza categoria */
   protected get uncategorizedItems(): ShoppingItem[] {
     return this.sortItems(this.list?.items ?? []);
   }
 
-  protected get uncheckedUncategorized(): ShoppingItem[] {
-    return this.uncategorizedItems.filter(i => !i.checked);
+  /** Categoria fittizia per la sezione "Senza categoria" */
+  protected get uncategorizedNode(): ShoppingCategory {
+    const node = new ShoppingCategory();
+    node.id = 0;
+    node.shopping_list_id = this.list?.id ?? 0;
+    node.parent_id = null;
+    node.name = 'Senza categoria';
+    node.sort_order = 9999;
+    node.created_at = '';
+    node.items = this.uncategorizedItems;
+    node.children = [];
+    return node;
   }
 
-  protected get checkedUncategorized(): ShoppingItem[] {
-    return this.uncategorizedItems.filter(i => i.checked);
-  }
-
-  protected get uncatAllChecked(): boolean {
+  private get uncatAllChecked(): boolean {
     const items = this.uncategorizedItems;
     return items.length > 0 && items.every(i => i.checked);
-  }
-
-  protected get uncatIndeterminate(): boolean {
-    if (this.uncatAllChecked) return false;
-    return this.uncategorizedItems.some(i => i.checked);
   }
 
   protected toggleUncategorized(): void {
@@ -312,6 +318,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected onNodeItemSave(e: ItemSavePayload): void {
     this.editingItemName = e.name;
     this.editingItemQty = e.quantity;
+    this.editingItemCategoryId = e.categoryId;
     this.saveEditItem(e.item);
   }
 
@@ -326,7 +333,10 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
 
   protected onNodeItemEditStart(item: ShoppingItem): void { this.startEditItem(item); }
 
-  protected onNodeCategoryToggle(e: CategoryTogglePayload): void { this.toggleCategory(e.cat); }
+  protected onNodeCategoryToggle(e: CategoryTogglePayload): void {
+    if (e.cat.id === 0) { this.toggleUncategorized(); return; }
+    this.toggleCategory(e.cat);
+  }
 
   protected onNodeCategoryDelete(e: CategoryDeletePayload): void {
     if (this.deletingId) return;
@@ -347,6 +357,20 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected onNodeCategoryRenameSave(e: CategoryRenameSave): void {
     this.editingCategoryName = e.name;
     this.saveEditCategory(e.cat);
+  }
+
+  protected emptyingUncat = false;
+
+  protected onNodeCategoryEmpty(e: CategoryDeletePayload): void {
+    if (e.cat.id !== 0 || this.emptyingUncat) return;
+    const items = this.uncategorizedItems;
+    if (!items.length) return;
+    this.emptyingUncat = true;
+    let done = 0;
+    items.forEach(i => this.shoppingItemService.delete(i.id).subscribe({
+      next: () => { done++; if (done === items.length) { this.emptyingUncat = false; this.reload(); } },
+      error: () => { done++; if (done === items.length) { this.emptyingUncat = false; this.reload(); } }
+    }));
   }
 
   protected onNodeAddItemSave(e: AddItemPayload): void {
@@ -379,6 +403,12 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   // ── Aggiungi item in categoria ─────────────────────────────────
 
   protected startAddItemInCategory(catId: number): void {
+    if (catId === 0) { // sentinella "senza categoria"
+      this.addingItemInCategoryId = 0;
+      this.newCategoryItemName = '';
+      this.newCategoryItemQty = 1;
+      return;
+    }
     this.addingItemInCategoryId = catId;
     this.newCategoryItemName = '';
     this.newCategoryItemQty = 1;
@@ -394,9 +424,10 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected addItemInCategory(cat: ShoppingCategory): void {
     if (!this.newCategoryItemName.trim() || !this.list || this.savingItem) return;
     this.savingItem = true;
+    const categoryId = cat.id === 0 ? null : cat.id; // 0 = sentinella "senza categoria"
     this.shoppingItemService.create({
       shopping_list_id: this.list.id,
-      category_id: cat.id,
+      category_id: categoryId,
       name: this.newCategoryItemName.trim(),
       quantity: this.newCategoryItemQty > 0 ? this.newCategoryItemQty : null,
       checked: false,
@@ -413,27 +444,6 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   }
 
   // ── Aggiungi item senza categoria ──────────────────────────────
-
-  protected addItem(): void {
-    if (!this.newItemName.trim() || !this.list || this.savingItem) return;
-    this.savingItem = true;
-    this.shoppingItemService.create({
-      shopping_list_id: this.list.id,
-      category_id: null,
-      name: this.newItemName.trim(),
-      quantity: this.newItemQty > 0 ? this.newItemQty : null,
-      checked: false,
-      sort_order: this.uncategorizedItems.length,
-    }).subscribe({
-      next: () => { this.savingItem = false; this.newItemName = ''; this.newItemQty = 1; this.addingItem = false; this.reload(); },
-      error: () => { this.savingItem = false; }
-    });
-  }
-
-  protected onAddKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') this.addItem();
-    if (event.key === 'Escape') { this.addingItem = false; this.newItemName = ''; }
-  }
 
   // ── Delete ─────────────────────────────────────────────────────
 
@@ -463,6 +473,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     this.editingItemId = item.id;
     this.editingItemName = item.name;
     this.editingItemQty = item.quantity ?? null;
+    this.editingItemCategoryId = item.category_id ?? null;
     this.editingCategoryId = null;
   }
 
@@ -470,13 +481,14 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     if (!this.editingItemName.trim() || this.savingEditId) return;
     this.savingEditId = item.id;
     const qty = (this.editingItemQty && this.editingItemQty > 0) ? this.editingItemQty : null;
-    this.shoppingItemService.update(item.id, { name: this.editingItemName.trim(), quantity: qty }).subscribe({
-      next: () => { item.name = this.editingItemName.trim(); item.quantity = qty; this.savingEditId = null; this.cancelEditItem(); },
+    const catId = this.editingItemCategoryId;
+    this.shoppingItemService.update(item.id, { name: this.editingItemName.trim(), quantity: qty, category_id: catId }).subscribe({
+      next: () => { this.savingEditId = null; this.cancelEditItem(); this.reload(); },
       error: () => { this.savingEditId = null; this.cancelEditItem(); }
     });
   }
 
-  protected cancelEditItem(): void { this.editingItemId = null; this.editingItemName = ''; this.editingItemQty = null; }
+  protected cancelEditItem(): void { this.editingItemId = null; this.editingItemName = ''; this.editingItemQty = null; this.editingItemCategoryId = null; }
 
   protected onEditItemKeydown(event: KeyboardEvent, item: ShoppingItem): void {
     if (event.key === 'Enter') this.saveEditItem(item);
@@ -597,7 +609,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
           depth,
           parentId,
           items: (cat.items ?? []).sort((a, b) => a.sort_order - b.sort_order).map(i => ({
-            id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false,
+            id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false, categoryId: cat.id,
           })),
         },
         ...flattenCats(cat.children ?? [], depth + 1, cat.id),
@@ -605,7 +617,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     };
     this.batchCategories = flattenCats(this.categories, 0, null);
     this.batchUncategorized = this.uncategorizedItems.map(i => ({
-      id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false,
+      id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false, categoryId: null,
     }));
     this.batchMode = true;
   }
@@ -629,10 +641,10 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     if (idx !== -1) list.splice(idx, 1);
   }
 
-  protected addBatchItem(list: any[]): void {
+  protected addBatchItem(list: any[], categoryId: number | null = null): void {
     if (this.hasEmptyBatchItem) { this.batchAddAttempted = true; return; }
     this.batchAddAttempted = false;
-    list.push({ id: null, name: '', quantity: 1, checked: false, toDelete: false });
+    list.push({ id: null, name: '', quantity: 1, checked: false, toDelete: false, categoryId });
   }
 
   protected addBatchCategory(): void {
@@ -669,7 +681,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     const categories_update: { id: number; name: string }[] = [];
     const categories_delete: number[] = [];
     const categories_create: { temp_id: string; name: string; parent_id: number | string | null; sort_order: number }[] = [];
-    const items_update: { id: number; name: string; quantity: number | null; checked: boolean }[] = [];
+    const items_update: { id: number; name: string; quantity: number | null; checked: boolean; category_id?: number | null }[] = [];
     const items_delete: number[] = [];
     const items_create: { name: string; quantity: number | null; checked: boolean; sort_order: number; category_id: number | null; category_temp_id?: string }[] = [];
 
@@ -693,10 +705,10 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
         if (cat.name.trim()) categories_update.push({ id: cat.id, name: cat.name.trim() });
         cat.items.forEach((item, idx) => {
           if (item.id !== null && item.toDelete) { items_delete.push(item.id); return; }
-          if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked });
+          if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked, category_id: item.categoryId });
           if (item.id === null && item.name.trim()) items_create.push({
             name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked,
-            sort_order: idx, category_id: cat.id as number,
+            sort_order: idx, category_id: item.categoryId,
           });
         });
       }
@@ -719,10 +731,12 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
         });
         cat.items.forEach((item, idx) => {
           if (!item.name.trim()) return;
-          items_create.push({
-            name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked,
-            sort_order: idx, category_id: null, category_temp_id: tempId,
-          });
+          // Se l'item ha un categoryId esplicito (spostato), usalo; altrimenti usa il temp_id della nuova categoria
+          if (item.categoryId !== null && item.categoryId !== undefined) {
+            items_create.push({ name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked, sort_order: idx, category_id: item.categoryId });
+          } else {
+            items_create.push({ name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked, sort_order: idx, category_id: null, category_temp_id: tempId });
+          }
         });
       }
     });
@@ -730,10 +744,10 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     // Item senza categoria
     this.batchUncategorized.forEach((item, idx) => {
       if (item.id !== null && item.toDelete) { items_delete.push(item.id); return; }
-      if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked });
+      if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked, category_id: item.categoryId });
       if (item.id === null && item.name.trim()) items_create.push({
         name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked,
-        sort_order: idx, category_id: null,
+        sort_order: idx, category_id: item.categoryId,
       });
     });
 

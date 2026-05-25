@@ -125,7 +125,7 @@
 .item-addsub-btn { color: rgba(99,102,241,0.5); font-size: 0.7rem; }
 .item-addsub-btn:hover { background: rgba(99,102,241,0.1); color: #6366f1; border-color: rgba(99,102,241,0.25); }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .item-edit-btn, .item-delete-btn { width: 22px; height: 22px; font-size: 0.6rem; }
 }
 
@@ -146,15 +146,50 @@
 }
 .category-body.collapsed { max-height: 0; opacity: 0; }
 
-/* Indent con linea verticale */
+/* Indent con linea verticale + connettori orizzontali */
 .category-items-list {
     display: flex;
     flex-direction: column;
     gap: 0;
     padding-left: 1rem;
-    padding-bottom: 0.25rem;
-    border-left: 1.5px solid var(--color-border);
+    padding-bottom: 0;
     margin-left: 0.75rem;
+    position: relative;
+}
+
+/* Connettore orizzontale + linea verticale per ogni figlio */
+.category-items-list > .cat-item-row,
+.category-items-list > app-category-node {
+    position: relative;
+}
+
+/* Linea verticale: da top:0 fino al centro della riga (collegata a quella sopra) */
+.category-items-list > .cat-item-row::after,
+.category-items-list > app-category-node::after {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 0;
+    bottom: 50%;
+    width: 1.5px;
+    background: var(--color-border);
+}
+
+/* Connettore orizzontale: solo sugli item, non sulle sottocategorie */
+.category-items-list > .cat-item-row::before {
+    content: '';
+    position: absolute;
+    left: -1rem;
+    top: 50%;
+    width: 0.6rem;
+    height: 1.5px;
+    background: var(--color-border);
+}
+
+/* Tutti tranne l'ultimo: la linea verticale scende anche oltre il centro, per collegarsi al figlio successivo */
+.category-items-list > .cat-item-row:not(:last-child)::after,
+.category-items-list > app-category-node:not(:last-child)::after {
+    bottom: 0;
 }
 
 /* ── Righe item ── */
@@ -170,7 +205,9 @@
 .cat-item-row:hover { background: rgba(255,255,255,0.04); }
 .cat-item-row:hover .item-edit-btn,
 .cat-item-row:hover .item-delete-btn { opacity: 1; }
-.cat-item-checked { opacity: 0.5; }
+.cat-item-checked::before,
+.cat-item-checked::after { opacity: 1; }
+.cat-item-checked > * { opacity: 0.5; }
 
 /* Check button item */
 .item-check-btn {
@@ -265,6 +302,11 @@
     background: rgba(0,179,126,0.03);
     width: 100%; box-sizing: border-box;
 }
+/* Nasconde i connettori sul form inline (non è un vero item) */
+.category-items-list > .cat-item-add-inline::before,
+.category-items-list > .cat-item-add-inline::after {
+    display: none;
+}
 .cat-item-add-subcategory {
     border-color: rgba(99,102,241,0.25);
     background: rgba(99,102,241,0.03);
@@ -307,3 +349,16 @@
 }
 .batch-input:focus { border-color: #00b37e; box-shadow: 0 0 0 3px rgba(0,179,126,0.1); }
 .batch-input-name { flex: 1; }
+
+.edit-category-select {
+    padding: 0.35rem 0.5rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: 7px; font-size: 0.8rem;
+    background: var(--color-bg-card); color: var(--color-text-primary);
+    outline: none; transition: border-color 0.15s;
+    flex-shrink: 0;
+    max-width: 110px;
+    cursor: pointer;
+}
+.edit-category-select:focus { border-color: #00b37e; }
+.edit-category-select:disabled { opacity: 0.5; cursor: not-allowed; }
