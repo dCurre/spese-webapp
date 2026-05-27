@@ -75,6 +75,21 @@
     <div class="category-body" [class.collapsed]="collapsed">
         <div class="category-items-list" [class.category-items-no-direct]="!hasDirectItems">
 
+            <!-- Form aggiungi sottocategoria -->
+            <div class="cat-item-row cat-item-add-inline cat-item-add-subcategory" *ngIf="addingSubcategoryParentId === cat.id">
+                <span class="item-add-icon"><i class="fa fa-folder-plus"></i></span>
+                <input #addSubcategoryInput class="batch-input batch-input-name" type="text" [ngModel]="newSubcategoryName"
+                       (ngModelChange)="addSubcategoryNameChange.emit($event)"
+                       (keydown)="onAddSubcategoryKeydown($event, cat)" [disabled]="savingCategory">
+                <button class="btn-edit-save" (click)="addSubcategorySave.emit({ parent: cat, name: newSubcategoryName })"
+                        [disabled]="!newSubcategoryName.trim() || savingCategory">
+                    <i class="fa" [ngClass]="savingCategory ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                </button>
+                <button class="btn-edit-cancel" (click)="addSubcategoryCancel.emit()" [disabled]="savingCategory">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
+
             <!-- Sottocategorie ricorsive -->
             <app-category-node *ngFor="let child of (cat.children || [])"
                 [cat]="child" [depth]="depth + 1"
@@ -113,6 +128,27 @@
                 (addSubcategorySave)="addSubcategorySave.emit($event)"
                 (addSubcategoryNameChange)="addSubcategoryNameChange.emit($event)">
             </app-category-node>
+
+            <!-- Form aggiungi item -->
+            <div class="cat-item-row cat-item-add-inline" *ngIf="addingItemInCategoryId === cat.id">
+                <span class="item-add-icon"><i class="fa fa-plus"></i></span>
+                <input #addItemInput class="batch-input batch-input-name" type="text" [ngModel]="newCategoryItemName"
+                       (ngModelChange)="addItemNameChange.emit($event)"
+                       (keydown)="onAddItemKeydown($event, cat)" [disabled]="savingItem">
+                <div class="qty-stepper" [class.qty-stepper-disabled]="savingItem">
+                    <button class="qty-btn" (click)="addItemQtyChange.emit(newCategoryItemQty > 1 ? newCategoryItemQty - 1 : 1)"
+                            [disabled]="savingItem || newCategoryItemQty <= 1">−</button>
+                    <span class="qty-value">{{newCategoryItemQty}}</span>
+                    <button class="qty-btn" (click)="addItemQtyChange.emit(newCategoryItemQty + 1)" [disabled]="savingItem">+</button>
+                </div>
+                <button class="btn-edit-save" (click)="addItemSave.emit({ cat: cat, name: newCategoryItemName, quantity: newCategoryItemQty })"
+                        [disabled]="!newCategoryItemName.trim() || savingItem">
+                    <i class="fa" [ngClass]="savingItem ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                </button>
+                <button class="btn-edit-cancel" (click)="addItemCancel.emit()" [disabled]="savingItem">
+                    <i class="fa fa-times"></i>
+                </button>
+            </div>
 
             <!-- Item non spuntati -->
             <div class="cat-item-row" *ngFor="let item of uncheckedItems">
@@ -173,42 +209,6 @@
                 </button>
             </div>
 
-            <!-- Form aggiungi item -->
-            <div class="cat-item-row cat-item-add-inline" *ngIf="addingItemInCategoryId === cat.id">
-                <span class="item-add-icon"><i class="fa fa-plus"></i></span>
-                <input #addItemInput class="batch-input batch-input-name" type="text" [ngModel]="newCategoryItemName"
-                       (ngModelChange)="addItemNameChange.emit($event)"
-                       (keydown)="onAddItemKeydown($event, cat)" [disabled]="savingItem">
-                <div class="qty-stepper" [class.qty-stepper-disabled]="savingItem">
-                    <button class="qty-btn" (click)="addItemQtyChange.emit(newCategoryItemQty > 1 ? newCategoryItemQty - 1 : 1)"
-                            [disabled]="savingItem || newCategoryItemQty <= 1">−</button>
-                    <span class="qty-value">{{newCategoryItemQty}}</span>
-                    <button class="qty-btn" (click)="addItemQtyChange.emit(newCategoryItemQty + 1)" [disabled]="savingItem">+</button>
-                </div>
-                <button class="btn-edit-save" (click)="addItemSave.emit({ cat: cat, name: newCategoryItemName, quantity: newCategoryItemQty })"
-                        [disabled]="!newCategoryItemName.trim() || savingItem">
-                    <i class="fa" [ngClass]="savingItem ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                </button>
-                <button class="btn-edit-cancel" (click)="addItemCancel.emit()" [disabled]="savingItem">
-                    <i class="fa fa-times"></i>
-                </button>
-            </div>
-
-
-<!-- Form aggiungi sottocategoria -->
-            <div class="cat-item-row cat-item-add-inline cat-item-add-subcategory" *ngIf="addingSubcategoryParentId === cat.id">
-                <span class="item-add-icon"><i class="fa fa-folder-plus"></i></span>
-                <input #addSubcategoryInput class="batch-input batch-input-name" type="text" [ngModel]="newSubcategoryName"
-                       (ngModelChange)="addSubcategoryNameChange.emit($event)"
-                       (keydown)="onAddSubcategoryKeydown($event, cat)" [disabled]="savingCategory">
-                <button class="btn-edit-save" (click)="addSubcategorySave.emit({ parent: cat, name: newSubcategoryName })"
-                        [disabled]="!newSubcategoryName.trim() || savingCategory">
-                    <i class="fa" [ngClass]="savingCategory ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                </button>
-                <button class="btn-edit-cancel" (click)="addSubcategoryCancel.emit()" [disabled]="savingCategory">
-                    <i class="fa fa-times"></i>
-                </button>
-            </div>
 
         </div>
     </div>
