@@ -164,7 +164,7 @@
                            (ngModelChange)="itemEditNameChange.emit($event)"
                            (keydown)="onEditItemKeydown($event, item)"
                            [disabled]="savingEditId === item.id">
-                    <select class="edit-category-select" [ngModel]="editingItemCategoryId"
+                    <select class="edit-category-select edit-category-select-compact" [ngModel]="editingItemCategoryId"
                             (ngModelChange)="itemEditCategoryChange.emit($event)"
                             [disabled]="savingEditId === item.id">
                         <option [ngValue]="null">Senza categoria</option>

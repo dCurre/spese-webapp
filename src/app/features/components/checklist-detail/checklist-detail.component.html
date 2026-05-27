@@ -259,6 +259,12 @@
                             (click)="addBatchSubcategory(cat)" title="Aggiungi sottocategoria">
                         <i class="fa fa-folder-plus"></i>
                     </button>
+                    <!-- revert categoria modificata -->
+                    <button class="batch-tree-action-btn batch-tree-revert-btn"
+                            *ngIf="cat.id !== null && !cat.toDelete && cat.name !== cat._origName"
+                            (click)="revertBatchCategory(cat)" title="Annulla modifiche">
+                        <i class="fa fa-rotate-left"></i>
+                    </button>
                     <!-- elimina categoria esistente -->
                     <button class="batch-tree-action-btn batch-tree-delete-btn" *ngIf="cat.id !== null"
                             (click)="toggleBatchCategoryDelete(cat)"
@@ -300,6 +306,11 @@
                                 <button class="qty-btn" (click)="item.quantity = (item.quantity || 0) + 1"
                                         [disabled]="item.toDelete">+</button>
                             </div>
+                            <button class="batch-tree-action-btn batch-tree-revert-btn"
+                                    *ngIf="item.id !== null && !item.toDelete && (item.name !== item._origName || item.quantity !== item._origQty || item.categoryId !== item._origCategoryId)"
+                                    (click)="revertBatchItem(item)" title="Annulla modifiche">
+                                <i class="fa fa-rotate-left"></i>
+                            </button>
                             <button class="batch-tree-action-btn batch-tree-delete-btn" *ngIf="item.id !== null"
                                     (click)="toggleBatchDelete(item)">
                                 <i class="fa" [ngClass]="item.toDelete ? 'fa-rotate-left' : 'fa-trash'"></i>
@@ -360,6 +371,11 @@
                             <button class="qty-btn" (click)="item.quantity = (item.quantity || 0) + 1"
                                     [disabled]="item.toDelete">+</button>
                         </div>
+                        <button class="batch-tree-action-btn batch-tree-revert-btn"
+                                *ngIf="item.id !== null && !item.toDelete && (item.name !== item._origName || item.quantity !== item._origQty || item.categoryId !== item._origCategoryId)"
+                                (click)="revertBatchItem(item)" title="Annulla modifiche">
+                            <i class="fa fa-rotate-left"></i>
+                        </button>
                         <button class="batch-tree-action-btn batch-tree-delete-btn" *ngIf="item.id !== null"
                                 (click)="toggleBatchDelete(item)">
                             <i class="fa" [ngClass]="item.toDelete ? 'fa-rotate-left' : 'fa-trash'"></i>
