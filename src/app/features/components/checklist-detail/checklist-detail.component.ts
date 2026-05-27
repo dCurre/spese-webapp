@@ -65,13 +65,15 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected nameEditEmpty = false;
 
   protected batchMode = false;
+  protected batchSaving = false;
+  private batchTempCounter = 0;
   // batch categories
-  protected batchCategories: { id: number | null; name: string; toDelete: boolean; depth: number; parentId: number | null; items: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean; categoryId: number | null }[] }[] = [];
+  protected batchCategories: { id: number | null; tempId: string | null; name: string; _origName?: string; toDelete: boolean; depth: number; parentId: number | null; items: { id: number | null; name: string; _origName?: string; quantity: number | null; _origQty?: number | null; checked: boolean; toDelete: boolean; categoryId: number | null; _origCategoryId?: number | null; categoryTempId: string | null }[] }[] = [];
   // batch uncategorized
-  protected batchUncategorized: { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean; categoryId: number | null }[] = [];
+  protected batchUncategorized: { id: number | null; name: string; _origName?: string; quantity: number | null; _origQty?: number | null; checked: boolean; toDelete: boolean; categoryId: number | null; _origCategoryId?: number | null; categoryTempId: string | null }[] = [];
   protected batchAddAttempted = false;
   // legacy alias for template footer counter
-  protected get batchItems(): { id: number | null; name: string; quantity: number | null; checked: boolean; toDelete: boolean; categoryId: number | null }[] {
+  protected get batchItems(): { id: number | null; name: string; _origName?: string; quantity: number | null; _origQty?: number | null; checked: boolean; toDelete: boolean; categoryId: number | null; _origCategoryId?: number | null; categoryTempId: string | null }[] {
     return [...this.batchCategories.flatMap(c => c.items), ...this.batchUncategorized];
   }
 
@@ -97,7 +99,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
       const el = document.querySelector<HTMLInputElement>('input[data-batch-focus="true"]');
       if (el) {
         el.focus();
-        this.batchFocusItem = null;
+        setTimeout(() => { this.batchFocusItem = null; }, 0);
       }
     }
   }
@@ -144,6 +146,17 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
 
   protected get categories(): ShoppingCategory[] {
     return (this.list?.categories ?? []).sort((a, b) => a.sort_order - b.sort_order);
+  }
+
+  /** Lista piatta per il select in batch mode: include categorie esistenti (id reale) e nuove (tempId) */
+  protected get flatBatchCategories(): { id: number | null; tempId: string | null; label: string }[] {
+    return this.batchCategories
+      .filter(c => !c.toDelete)
+      .map(c => ({
+        id: c.id,
+        tempId: c.tempId,
+        label: '    '.repeat(c.depth) + (c.name.trim() || '(senza nome)'),
+      }));
   }
 
   /** Lista piatta di tutte le categorie (incluse sottocategorie) con nome indentato */
@@ -606,10 +619,36 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
 
   // ── Batch mode ────────────────────────────────────────────────
 
+  protected get batchDeleteCatCount(): number {
+    return this.batchCategories.filter(c => c.id !== null && c.toDelete).length;
+  }
+  protected get batchDeleteItemCount(): number {
+    return this.batchItems.filter(i => i.id !== null && i.toDelete).length;
+  }
   protected get batchDeleteCount(): number {
-    const cats = this.batchCategories.filter(c => c.id !== null && c.toDelete).length;
-    const items = this.batchItems.filter(i => i.id !== null && i.toDelete).length;
-    return cats + items;
+    return this.batchDeleteCatCount + this.batchDeleteItemCount;
+  }
+
+  protected get batchNewCatCount(): number {
+    return this.batchCategories.filter(c => c.id === null && c.name.trim()).length;
+  }
+  protected get batchNewItemCount(): number {
+    return this.batchItems.filter(i => i.id === null && i.name.trim()).length;
+  }
+  protected get batchNewCount(): number {
+    return this.batchNewCatCount + this.batchNewItemCount;
+  }
+
+  protected get batchModifiedCatCount(): number {
+    return this.batchCategories.filter(c => c.id !== null && !c.toDelete && c.name !== c._origName).length;
+  }
+  protected get batchModifiedItemCount(): number {
+    return this.batchItems.filter(i => i.id !== null && !i.toDelete && (
+      i.name !== i._origName || i.quantity !== i._origQty || i.categoryId !== i._origCategoryId
+    )).length;
+  }
+  protected get batchModifiedCount(): number {
+    return this.batchModifiedCatCount + this.batchModifiedItemCount;
   }
   protected get hasEmptyBatchItem(): boolean {
     return this.batchItems.some(i => i.id === null && !i.name.trim());
@@ -620,12 +659,14 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
       return cats.flatMap(cat => [
         {
           id: cat.id,
+          tempId: null,
           name: cat.name,
+          _origName: cat.name,
           toDelete: false,
           depth,
           parentId,
           items: (cat.items ?? []).sort((a, b) => a.sort_order - b.sort_order).map(i => ({
-            id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false, categoryId: cat.id,
+            id: i.id, name: i.name, _origName: i.name, quantity: i.quantity ?? null, _origQty: i.quantity ?? null, checked: i.checked, toDelete: false, categoryId: cat.id, _origCategoryId: cat.id, categoryTempId: null,
           })),
         },
         ...flattenCats(cat.children ?? [], depth + 1, cat.id),
@@ -633,7 +674,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     };
     this.batchCategories = flattenCats(this.categories, 0, null);
     this.batchUncategorized = this.uncategorizedItems.map(i => ({
-      id: i.id, name: i.name, quantity: i.quantity ?? null, checked: i.checked, toDelete: false, categoryId: null,
+      id: i.id, name: i.name, _origName: i.name, quantity: i.quantity ?? null, _origQty: i.quantity ?? null, checked: i.checked, toDelete: false, categoryId: null, _origCategoryId: null, categoryTempId: null,
     }));
     this.batchMode = true;
   }
@@ -657,16 +698,32 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     if (idx !== -1) list.splice(idx, 1);
   }
 
-  protected addBatchItem(list: any[], categoryId: number | null = null): void {
+  protected onBatchItemCategoryChange(item: any, value: string | number | null): void {
+    if (value === null) {
+      item.categoryId = null;
+      item.categoryTempId = null;
+    } else if (typeof value === 'string') {
+      // tempId — categoria nuova non ancora salvata
+      item.categoryId = null;
+      item.categoryTempId = value;
+    } else {
+      // id numerico — categoria esistente
+      item.categoryId = value;
+      item.categoryTempId = null;
+    }
+  }
+
+  protected addBatchItem(list: any[], categoryId: number | null = null, categoryTempId: string | null = null): void {
     if (this.hasEmptyBatchItem) { this.batchAddAttempted = true; return; }
     this.batchAddAttempted = false;
-    const newItem = { id: null, name: '', quantity: 1, checked: false, toDelete: false, categoryId };
+    const newItem = { id: null, name: '', quantity: 1, checked: false, toDelete: false, categoryId, categoryTempId };
     list.unshift(newItem);
     this.batchFocusItem = newItem;
   }
 
   protected addBatchCategory(): void {
-    const newCat = { id: null, name: '', toDelete: false, depth: 0, parentId: null, items: [] };
+    const tempId = `t${++this.batchTempCounter}`;
+    const newCat = { id: null, tempId, name: '', toDelete: false, depth: 0, parentId: null, items: [] };
     this.batchCategories.unshift(newCat);
     this.batchFocusItem = newCat;
   }
@@ -675,9 +732,9 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected addBatchSubcategory(parentCat: typeof this.batchCategories[0]): void {
     const parentIdx = this.batchCategories.indexOf(parentCat);
     if (parentIdx === -1) return;
-    // Inserisce subito dopo il parent, prima di eventuali figli esistenti
     const insertIdx = parentIdx + 1;
-    const newSub = { id: null, name: '', toDelete: false, depth: parentCat.depth + 1, parentId: parentCat.id, items: [] };
+    const tempId = `t${++this.batchTempCounter}`;
+    const newSub = { id: null, tempId, name: '', toDelete: false, depth: parentCat.depth + 1, parentId: parentCat.id, items: [] };
     this.batchCategories.splice(insertIdx, 0, newSub);
     this.batchFocusItem = newSub;
   }
@@ -688,7 +745,8 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   }
 
   protected saveBatch(): void {
-    if (!this.list) return;
+    if (!this.list || this.batchSaving) return;
+    this.batchSaving = true;
 
     const categories_update: { id: number; name: string }[] = [];
     const categories_delete: number[] = [];
@@ -697,15 +755,14 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     const items_delete: number[] = [];
     const items_create: { name: string; quantity: number | null; checked: boolean; sort_order: number; category_id: number | null; category_temp_id?: string }[] = [];
 
-    // Assegna temp_id alle nuove categorie per poterle referenziare
-    let tempCounter = 0;
-    const catTempIds = new Map<typeof this.batchCategories[0], string>();
-    this.batchCategories.forEach(cat => {
-      if (cat.id === null) catTempIds.set(cat, `t${++tempCounter}`);
-    });
-
     /** Normalizza: quantity ≤ 0 o null → null, altrimenti il valore numerico */
     const normQty = (q: number | null): number | null => (q && q > 0) ? q : null;
+
+    // Helper: risolve categoryId/categoryTempId di un item
+    const resolveItemCategory = (item: { categoryId: number | null; categoryTempId: string | null }) => {
+      if (item.categoryTempId) return { category_id: null, category_temp_id: item.categoryTempId };
+      return { category_id: item.categoryId };
+    };
 
     // Categorie
     this.batchCategories.forEach((cat, catIdx) => {
@@ -717,38 +774,36 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
         if (cat.name.trim()) categories_update.push({ id: cat.id, name: cat.name.trim() });
         cat.items.forEach((item, idx) => {
           if (item.id !== null && item.toDelete) { items_delete.push(item.id); return; }
-          if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked, category_id: item.categoryId });
+          if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked, ...resolveItemCategory(item) });
           if (item.id === null && item.name.trim()) items_create.push({
             name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked,
-            sort_order: idx, category_id: item.categoryId,
+            sort_order: idx, ...resolveItemCategory(item),
           });
         });
       }
       if (cat.id === null && cat.name.trim()) {
-        const tempId = catTempIds.get(cat)!;
-        // Controlla se parentId punta a una categoria nuova (id === null, già in catTempIds)
+        const tempId = cat.tempId!;
+        // Trova il parent batch cat per gestire parent nuovo
         const parentBatchCat = cat.parentId === null
           ? null
           : this.batchCategories.find(c => c.id === cat.parentId);
-        // Se il parent esiste ma è marcato toDelete, salta: non creare la sottocategoria
         if (parentBatchCat && parentBatchCat.toDelete) return;
-        // se il parent è nel batch ed è nuovo, usa il suo temp_id
-        const parentNew = parentBatchCat && parentBatchCat.id === null ? catTempIds.get(parentBatchCat) : undefined;
+        const parentTempId = parentBatchCat?.tempId ?? undefined;
 
         categories_create.push({
           temp_id: tempId,
           name: cat.name.trim(),
-          parent_id: parentNew ?? cat.parentId,
+          parent_id: parentTempId ?? cat.parentId,
           sort_order: catIdx,
         });
         cat.items.forEach((item, idx) => {
           if (!item.name.trim()) return;
-          // Se l'item ha un categoryId esplicito (spostato), usalo; altrimenti usa il temp_id della nuova categoria
-          if (item.categoryId !== null && item.categoryId !== undefined) {
-            items_create.push({ name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked, sort_order: idx, category_id: item.categoryId });
-          } else {
-            items_create.push({ name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked, sort_order: idx, category_id: null, category_temp_id: tempId });
-          }
+          items_create.push({
+            name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked,
+            sort_order: idx, ...resolveItemCategory(item),
+            // se l'item non ha un categoryTempId esplicito, appartiene a questa nuova categoria
+            ...(item.categoryTempId || item.categoryId !== null ? {} : { category_id: null, category_temp_id: tempId }),
+          });
         });
       }
     });
@@ -756,10 +811,10 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     // Item senza categoria
     this.batchUncategorized.forEach((item, idx) => {
       if (item.id !== null && item.toDelete) { items_delete.push(item.id); return; }
-      if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked, category_id: item.categoryId });
+      if (item.id !== null) items_update.push({ id: item.id, name: item.name.trim() || 'Articolo', quantity: normQty(item.quantity), checked: item.checked, ...resolveItemCategory(item) });
       if (item.id === null && item.name.trim()) items_create.push({
         name: item.name.trim(), quantity: normQty(item.quantity), checked: item.checked,
-        sort_order: idx, category_id: item.categoryId,
+        sort_order: idx, ...resolveItemCategory(item),
       });
     });
 
@@ -771,8 +826,8 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
       items_delete,
       items_create,
     }).subscribe({
-      next: () => { this.batchMode = false; this.batchCategories = []; this.batchUncategorized = []; this.reload(); },
-      error: () => { /* toast già gestito dall'interceptor */ }
+      next: () => { this.batchSaving = false; this.batchMode = false; this.batchCategories = []; this.batchUncategorized = []; this.reload(); },
+      error: () => { this.batchSaving = false; }
     });
   }
 

@@ -92,11 +92,31 @@
                 </button>
             </ng-container>
             <ng-container *ngIf="batchMode">
+                <div class="batch-badges" *ngIf="batchNewCount > 0 || batchDeleteCount > 0 || batchModifiedCount > 0">
+                    <span class="batch-modified-badge" *ngIf="batchModifiedCatCount > 0" title="Categorie modificate">
+                        <i class="fa fa-folder"></i> {{batchModifiedCatCount}}
+                    </span>
+                    <span class="batch-modified-badge" *ngIf="batchModifiedItemCount > 0" title="Articoli modificati">
+                        <i class="fa fa-pencil"></i> {{batchModifiedItemCount}}
+                    </span>
+                    <span class="batch-new-badge" *ngIf="batchNewCatCount > 0" title="Categorie nuove">
+                        <i class="fa fa-folder-plus"></i> {{batchNewCatCount}}
+                    </span>
+                    <span class="batch-new-badge" *ngIf="batchNewItemCount > 0" title="Articoli nuovi">
+                        <i class="fa fa-plus"></i> {{batchNewItemCount}}
+                    </span>
+                    <span class="batch-delete-badge" *ngIf="batchDeleteCatCount > 0" title="Categorie da eliminare">
+                        <i class="fa fa-folder-open"></i> {{batchDeleteCatCount}}
+                    </span>
+                    <span class="batch-delete-badge" *ngIf="batchDeleteItemCount > 0" title="Articoli da eliminare">
+                        <i class="fa fa-trash"></i> {{batchDeleteItemCount}}
+                    </span>
+                </div>
                 <button class="btn-action btn-batch-cancel" (click)="cancelBatch()">
                     <i class="fa fa-times"></i><span>Annulla</span>
                 </button>
-                <button class="btn-action btn-batch-save" (click)="saveBatch()">
-                    <i class="fa fa-check"></i><span>Salva</span>
+                <button class="btn-action btn-batch-save" (click)="saveBatch()" [disabled]="batchSaving">
+                    <i class="fa" [ngClass]="batchSaving ? 'fa-spinner fa-spin' : 'fa-check'"></i><span>Salva</span>
                 </button>
             </ng-container>
         </div>
@@ -217,7 +237,7 @@
 
         <!-- CATEGORIE (tree style) -->
         <ng-container *ngFor="let cat of batchCategories">
-            <div class="batch-cat-tree-block" [class.batch-category-delete]="cat.toDelete"
+            <div class="batch-cat-tree-block" [class.batch-category-delete]="cat.toDelete" [class.batch-category-new]="cat.id === null && !cat.toDelete" [class.batch-category-modified]="cat.id !== null && !cat.toDelete && cat.name !== cat._origName"
                  [style.padding-left.px]="cat.depth * 18">
 
                 <!-- Header stile tree -->
@@ -231,7 +251,7 @@
                            [class.batch-input-error]="batchAddAttempted && cat.id === null && !cat.name.trim()">
                     <!-- aggiungi articolo -->
                     <button class="batch-tree-action-btn batch-tree-additem-btn" *ngIf="!cat.toDelete"
-                            (click)="addBatchItem(cat.items, cat.id)" title="Aggiungi articolo">
+                            (click)="addBatchItem(cat.items, cat.id, cat.tempId)" title="Aggiungi articolo">
                         <i class="fa fa-plus-circle"></i>
                     </button>
                     <!-- aggiungi sottocategoria -->
@@ -256,7 +276,9 @@
                 <div class="batch-cat-tree-body" *ngIf="!cat.toDelete">
                     <div class="batch-cat-tree-items">
                         <div class="batch-tree-item-row" *ngFor="let item of cat.items"
-                             [class.batch-row-delete]="item.toDelete">
+                             [class.batch-row-delete]="item.toDelete"
+                             [class.batch-row-new]="item.id === null && !item.toDelete"
+                             [class.batch-row-modified]="item.id !== null && !item.toDelete && (item.name !== item._origName || item.quantity !== item._origQty || item.categoryId !== item._origCategoryId)">
                             <button class="batch-tree-check-btn" (click)="item.checked = !item.checked"
                                     [disabled]="item.toDelete" [class.batch-checked]="item.checked">
                                 <i class="fa" [ngClass]="item.checked ? 'fa-circle-check' : 'fa-circle'"></i>
@@ -265,10 +287,11 @@
                                    [disabled]="item.toDelete" placeholder="Nome articolo"
                                    [attr.data-batch-focus]="item === batchFocusItem ? true : null"
                                    [class.batch-input-error]="batchAddAttempted && item.id === null && !item.name.trim()">
-                            <select class="edit-category-select" [(ngModel)]="item.categoryId" [disabled]="item.toDelete"
-                                    *ngIf="cat.id !== null">
+                            <select class="edit-category-select" [disabled]="item.toDelete"
+                                    [ngModel]="item.categoryTempId ?? item.categoryId"
+                                    (ngModelChange)="onBatchItemCategoryChange(item, $event)">
                                 <option [ngValue]="null">Senza categoria</option>
-                                <option *ngFor="let fc of flatCategories" [ngValue]="fc.id">{{fc.label}}</option>
+                                <option *ngFor="let fc of flatBatchCategories" [ngValue]="fc.tempId ?? fc.id">{{fc.label}}</option>
                             </select>
                             <div class="qty-stepper" [class.qty-stepper-disabled]="item.toDelete">
                                 <button class="qty-btn" (click)="item.quantity = item.quantity && item.quantity > 1 ? item.quantity - 1 : null"
@@ -313,7 +336,9 @@
                         <i class="fa fa-plus-circle"></i> Aggiungi articolo
                     </button>
                     <div class="batch-tree-item-row" *ngFor="let item of batchUncategorized"
-                         [class.batch-row-delete]="item.toDelete">
+                         [class.batch-row-delete]="item.toDelete"
+                         [class.batch-row-new]="item.id === null && !item.toDelete"
+                         [class.batch-row-modified]="item.id !== null && !item.toDelete && (item.name !== item._origName || item.quantity !== item._origQty || item.categoryId !== item._origCategoryId)">
                         <button class="batch-tree-check-btn" (click)="item.checked = !item.checked"
                                 [disabled]="item.toDelete" [class.batch-checked]="item.checked">
                             <i class="fa" [ngClass]="item.checked ? 'fa-circle-check' : 'fa-circle'"></i>
@@ -322,9 +347,11 @@
                                [disabled]="item.toDelete" placeholder="Nome articolo"
                                [attr.data-batch-focus]="item === batchFocusItem ? true : null"
                                [class.batch-input-error]="batchAddAttempted && item.id === null && !item.name.trim()">
-                        <select class="edit-category-select" [(ngModel)]="item.categoryId" [disabled]="item.toDelete">
+                        <select class="edit-category-select" [disabled]="item.toDelete"
+                                [ngModel]="item.categoryTempId ?? item.categoryId"
+                                (ngModelChange)="onBatchItemCategoryChange(item, $event)">
                             <option [ngValue]="null">Senza categoria</option>
-                            <option *ngFor="let fc of flatCategories" [ngValue]="fc.id">{{fc.label}}</option>
+                            <option *ngFor="let fc of flatBatchCategories" [ngValue]="fc.tempId ?? fc.id">{{fc.label}}</option>
                         </select>
                         <div class="qty-stepper" [class.qty-stepper-disabled]="item.toDelete">
                             <button class="qty-btn" (click)="item.quantity = item.quantity && item.quantity > 1 ? item.quantity - 1 : null"
@@ -346,9 +373,6 @@
             </div>
         </div>
 
-        <div class="batch-footer" *ngIf="batchDeleteCount > 0">
-            <span class="batch-info"><i class="fa fa-trash"></i> {{batchDeleteCount}} da eliminare</span>
-        </div>
     </div>
 
     </div><!-- /detail-main -->
