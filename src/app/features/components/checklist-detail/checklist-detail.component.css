@@ -563,6 +563,54 @@
 
 .btn-batch-cancel:hover { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.05); }
 
+.batch-badges {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-right: auto;
+}
+
+.batch-modified-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #f59e0b;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.2);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+}
+
+.batch-new-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #00b37e;
+    background: rgba(0,179,126,0.08);
+    border: 1px solid rgba(0,179,126,0.2);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    margin-right: auto;
+}
+
+.batch-delete-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ef4444;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+}
+
+
 .add-item-card {
     grid-column: span 2;
     min-width: 0;
@@ -714,6 +762,42 @@
 .batch-tree-delete-btn:hover { background: rgba(239,68,68,0.1); color: #ef4444; border-color: rgba(239,68,68,0.25); }
 .batch-tree-remove-btn { color: var(--color-text-muted); }
 .batch-tree-remove-btn:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
+
+/* Evidenziazione elementi in cancellazione */
+.batch-row-delete {
+    background: rgba(239,68,68,0.06);
+    border-radius: 6px;
+    opacity: 0.6;
+}
+.batch-category-delete > .batch-cat-tree-header {
+    background: rgba(239,68,68,0.06);
+    border-radius: 6px;
+    opacity: 0.6;
+}
+
+/* Evidenziazione elementi modificati */
+.batch-row-modified {
+    background: rgba(245,158,11,0.06);
+    border-radius: 6px;
+    outline: 1px solid rgba(245,158,11,0.2);
+}
+.batch-category-modified > .batch-cat-tree-header {
+    background: rgba(245,158,11,0.06);
+    border-radius: 6px;
+    outline: 1px solid rgba(245,158,11,0.2);
+}
+
+/* Evidenziazione elementi nuovi */
+.batch-row-new {
+    background: rgba(0,179,126,0.06);
+    border-radius: 6px;
+    outline: 1px solid rgba(0,179,126,0.2);
+}
+.batch-category-new > .batch-cat-tree-header {
+    background: rgba(0,179,126,0.06);
+    border-radius: 6px;
+    outline: 1px solid rgba(0,179,126,0.2);
+}
 
 /* Body con indent + linea verticale (come category-items-list) */
 .batch-cat-tree-body {
