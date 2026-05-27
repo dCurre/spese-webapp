@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, ViewChild, ElementRef } from '@angular/core';
 import { ShoppingCategory, ShoppingItem } from 'src/app/core/services/postgres/shopping-list/shopping-list';
 
 export interface ItemSavePayload { item: ShoppingItem; name: string; quantity: number | null; categoryId: number | null; }
@@ -67,6 +67,11 @@ export class CategoryNodeComponent implements OnChanges {
   @Output() addSubcategorySave = new EventEmitter<AddSubcategoryPayload>();
   @Output() addSubcategoryNameChange = new EventEmitter<string>();
 
+  @ViewChild('addItemInput') addItemInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('editItemInput') editItemInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('editCategoryInput') editCategoryInput?: ElementRef<HTMLInputElement>;
+  @ViewChild('addSubcategoryInput') addSubcategoryInput?: ElementRef<HTMLInputElement>;
+
   protected collapsed = false;
   private collapsedByEmpty = false;
 
@@ -85,13 +90,23 @@ export class CategoryNodeComponent implements OnChanges {
       this.collapsed = false;
       this.collapsedByEmpty = false;
     }
-    // Se si sta aggiungendo un item in questa categoria, aprila
+    // Se si sta aggiungendo un item in questa categoria, aprila e metti il focus sull'input
     if (changes['addingItemInCategoryId'] && this.addingItemInCategoryId === this.cat.id) {
       this.collapsed = false;
+      setTimeout(() => this.addItemInput?.nativeElement.focus(), 0);
     }
-    // Se si sta aggiungendo una sottocategoria in questa categoria, aprila
+    // Se si sta aggiungendo una sottocategoria in questa categoria, aprila e metti il focus sull'input
     if (changes['addingSubcategoryParentId'] && this.addingSubcategoryParentId === this.cat.id) {
       this.collapsed = false;
+      setTimeout(() => this.addSubcategoryInput?.nativeElement.focus(), 0);
+    }
+    // Focus sull'input di edit item
+    if (changes['editingItemId'] && this.editingItemId !== null) {
+      setTimeout(() => this.editItemInput?.nativeElement.focus(), 0);
+    }
+    // Focus sull'input di rename categoria
+    if (changes['editingCategoryId'] && this.editingCategoryId === this.cat.id) {
+      setTimeout(() => this.editCategoryInput?.nativeElement.focus(), 0);
     }
   }
 

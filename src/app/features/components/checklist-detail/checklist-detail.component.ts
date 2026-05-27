@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { switchMap } from 'rxjs/operators';
@@ -15,7 +15,10 @@ import { User } from 'src/app/core/services/postgres/user/user';
   templateUrl: './checklist-detail.component.html',
   styleUrls: ['./checklist-detail.component.css']
 })
-export class ChecklistDetailComponent implements OnInit, OnDestroy {
+export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChecked {
+  @ViewChildren('batchNameInput') batchNameInputs!: QueryList<ElementRef<HTMLInputElement>>;
+  protected batchFocusItem: any = null;
+
   protected list: ShoppingList | null = null;
   protected loggedUser: User | null = null;
   protected hasLoaded = false;
@@ -88,6 +91,16 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     private shoppingCategoryService: ShoppingCategoryService,
     private modalService: NgbModal,
   ) {}
+
+  ngAfterViewChecked(): void {
+    if (this.batchFocusItem) {
+      const el = document.querySelector<HTMLInputElement>('input[data-batch-focus="true"]');
+      if (el) {
+        el.focus();
+        this.batchFocusItem = null;
+      }
+    }
+  }
 
   ngOnInit(): void {
     this.listId = Number(this.route.snapshot.paramMap.get('id'));
@@ -647,11 +660,15 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
   protected addBatchItem(list: any[], categoryId: number | null = null): void {
     if (this.hasEmptyBatchItem) { this.batchAddAttempted = true; return; }
     this.batchAddAttempted = false;
-    list.push({ id: null, name: '', quantity: 1, checked: false, toDelete: false, categoryId });
+    const newItem = { id: null, name: '', quantity: 1, checked: false, toDelete: false, categoryId };
+    list.push(newItem);
+    this.batchFocusItem = newItem;
   }
 
   protected addBatchCategory(): void {
-    this.batchCategories.push({ id: null, name: '', toDelete: false, depth: 0, parentId: null, items: [] });
+    const newCat = { id: null, name: '', toDelete: false, depth: 0, parentId: null, items: [] };
+    this.batchCategories.push(newCat);
+    this.batchFocusItem = newCat;
   }
 
   /** Aggiunge una nuova sottocategoria subito dopo il blocco del parent */
@@ -663,14 +680,9 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy {
     while (insertIdx < this.batchCategories.length && this.batchCategories[insertIdx].depth > parentCat.depth) {
       insertIdx++;
     }
-    this.batchCategories.splice(insertIdx, 0, {
-      id: null,
-      name: '',
-      toDelete: false,
-      depth: parentCat.depth + 1,
-      parentId: parentCat.id,   // null se il parent è anch'esso nuovo
-      items: [],
-    });
+    const newSub = { id: null, name: '', toDelete: false, depth: parentCat.depth + 1, parentId: parentCat.id, items: [] };
+    this.batchCategories.splice(insertIdx, 0, newSub);
+    this.batchFocusItem = newSub;
   }
 
   protected removeBatchCategory(cat: any): void {

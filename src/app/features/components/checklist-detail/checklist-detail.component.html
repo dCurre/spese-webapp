@@ -224,9 +224,10 @@
                 <div class="batch-cat-tree-header" [class.batch-cat-header-delete]="cat.toDelete">
                     <i class="fa batch-cat-folder-icon"
                        [ngClass]="cat.toDelete ? 'fa-folder-open batch-cat-icon-delete' : (cat.depth > 0 ? 'fa-folder batch-cat-icon-sub' : 'fa-folder')"></i>
-                    <input class="batch-input batch-cat-name-input" type="text"
+                    <input #batchNameInput class="batch-input batch-cat-name-input" type="text"
                            [(ngModel)]="cat.name" placeholder="Nome categoria"
                            [disabled]="cat.toDelete"
+                           [attr.data-batch-focus]="cat === batchFocusItem ? true : null"
                            [class.batch-input-error]="batchAddAttempted && cat.id === null && !cat.name.trim()">
                     <!-- aggiungi articolo -->
                     <button class="batch-tree-action-btn batch-tree-additem-btn" *ngIf="!cat.toDelete"
@@ -260,8 +261,9 @@
                                     [disabled]="item.toDelete" [class.batch-checked]="item.checked">
                                 <i class="fa" [ngClass]="item.checked ? 'fa-circle-check' : 'fa-circle'"></i>
                             </button>
-                            <input class="batch-input batch-input-name" type="text" [(ngModel)]="item.name"
+                            <input #batchNameInput class="batch-input batch-input-name" type="text" [(ngModel)]="item.name"
                                    [disabled]="item.toDelete" placeholder="Nome articolo"
+                                   [attr.data-batch-focus]="item === batchFocusItem ? true : null"
                                    [class.batch-input-error]="batchAddAttempted && item.id === null && !item.name.trim()">
                             <select class="edit-category-select" [(ngModel)]="item.categoryId" [disabled]="item.toDelete"
                                     *ngIf="cat.id !== null">
@@ -316,8 +318,9 @@
                                 [disabled]="item.toDelete" [class.batch-checked]="item.checked">
                             <i class="fa" [ngClass]="item.checked ? 'fa-circle-check' : 'fa-circle'"></i>
                         </button>
-                        <input class="batch-input batch-input-name" type="text" [(ngModel)]="item.name"
+                        <input #batchNameInput class="batch-input batch-input-name" type="text" [(ngModel)]="item.name"
                                [disabled]="item.toDelete" placeholder="Nome articolo"
+                               [attr.data-batch-focus]="item === batchFocusItem ? true : null"
                                [class.batch-input-error]="batchAddAttempted && item.id === null && !item.name.trim()">
                         <select class="edit-category-select" [(ngModel)]="item.categoryId" [disabled]="item.toDelete">
                             <option [ngValue]="null">Senza categoria</option>

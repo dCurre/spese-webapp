@@ -32,9 +32,9 @@
             <span class="category-spacer"></span>
         </ng-container>
         <div class="item-edit-form" *ngIf="!readonly && editingCategoryId === cat.id" (click)="$event.stopPropagation()">
-            <input class="edit-input" type="text" [ngModel]="editingCategoryName"
+            <input #editCategoryInput class="edit-input" type="text" [ngModel]="editingCategoryName"
                    (ngModelChange)="categoryRenameNameChange.emit($event)"
-                   (keydown)="onEditCategoryKeydown($event, cat)" autofocus
+                   (keydown)="onEditCategoryKeydown($event, cat)"
                    [disabled]="savingEditCategoryId === cat.id">
             <button class="btn-edit-save" (click)="categoryRenameSave.emit({ cat: cat, name: editingCategoryName }); $event.stopPropagation()"
                     [disabled]="!editingCategoryName.trim() || savingEditCategoryId === cat.id">
@@ -124,9 +124,9 @@
                     <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
                 </div>
                 <ng-container *ngIf="editingItemId === item.id">
-                    <input class="batch-input batch-input-name" type="text" [ngModel]="editingItemName"
+                    <input #editItemInput class="batch-input batch-input-name" type="text" [ngModel]="editingItemName"
                            (ngModelChange)="itemEditNameChange.emit($event)"
-                           (keydown)="onEditItemKeydown($event, item)" autofocus
+                           (keydown)="onEditItemKeydown($event, item)"
                            [disabled]="savingEditId === item.id">
                     <select class="edit-category-select" [ngModel]="editingItemCategoryId"
                             (ngModelChange)="itemEditCategoryChange.emit($event)"
@@ -176,9 +176,9 @@
             <!-- Form aggiungi item -->
             <div class="cat-item-row cat-item-add-inline" *ngIf="addingItemInCategoryId === cat.id">
                 <span class="item-add-icon"><i class="fa fa-plus"></i></span>
-                <input class="batch-input batch-input-name" type="text" [ngModel]="newCategoryItemName"
+                <input #addItemInput class="batch-input batch-input-name" type="text" [ngModel]="newCategoryItemName"
                        (ngModelChange)="addItemNameChange.emit($event)"
-                       (keydown)="onAddItemKeydown($event, cat)" autofocus [disabled]="savingItem">
+                       (keydown)="onAddItemKeydown($event, cat)" [disabled]="savingItem">
                 <div class="qty-stepper" [class.qty-stepper-disabled]="savingItem">
                     <button class="qty-btn" (click)="addItemQtyChange.emit(newCategoryItemQty > 1 ? newCategoryItemQty - 1 : 1)"
                             [disabled]="savingItem || newCategoryItemQty <= 1">−</button>
@@ -198,9 +198,9 @@
 <!-- Form aggiungi sottocategoria -->
             <div class="cat-item-row cat-item-add-inline cat-item-add-subcategory" *ngIf="addingSubcategoryParentId === cat.id">
                 <span class="item-add-icon"><i class="fa fa-folder-plus"></i></span>
-                <input class="batch-input batch-input-name" type="text" [ngModel]="newSubcategoryName"
+                <input #addSubcategoryInput class="batch-input batch-input-name" type="text" [ngModel]="newSubcategoryName"
                        (ngModelChange)="addSubcategoryNameChange.emit($event)"
-                       (keydown)="onAddSubcategoryKeydown($event, cat)" autofocus [disabled]="savingCategory">
+                       (keydown)="onAddSubcategoryKeydown($event, cat)" [disabled]="savingCategory">
                 <button class="btn-edit-save" (click)="addSubcategorySave.emit({ parent: cat, name: newSubcategoryName })"
                         [disabled]="!newSubcategoryName.trim() || savingCategory">
                     <i class="fa" [ngClass]="savingCategory ? 'fa-spinner fa-spin' : 'fa-check'"></i>
