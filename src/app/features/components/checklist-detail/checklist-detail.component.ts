@@ -56,7 +56,8 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected editingItemId: number | null = null;
   protected editingItemName = '';
   protected editingItemQty: number | null = null;
-  protected editingItemCategoryId: number | null = null;  // categoria durante edit
+  protected editingItemCategoryId: number | null = null;
+  protected editingItemChecked: boolean = false;
   protected editingCategoryId: number | null = null;
   protected editingCategoryName = '';
   private editingCategoryOriginalName = '';
@@ -346,7 +347,14 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
 
   // ── Bridge: CategoryNodeComponent events → metodi esistenti ───────
 
-  protected onNodeItemToggle(e: ItemTogglePayload): void { this.toggleItem(e.item); }
+  protected onNodeItemToggle(e: ItemTogglePayload): void {
+    // Se l'item è in edit mode, aggiorna solo il flag locale — verrà salvato con conferma
+    if (this.editingItemId === e.item.id) {
+      this.editingItemChecked = !this.editingItemChecked;
+      return;
+    }
+    this.toggleItem(e.item);
+  }
 
   protected onNodeItemSave(e: ItemSavePayload): void {
     this.editingItemName = e.name;
@@ -507,6 +515,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     this.editingItemName = item.name;
     this.editingItemQty = item.quantity ?? null;
     this.editingItemCategoryId = item.category_id ?? null;
+    this.editingItemChecked = item.checked;
     this.editingCategoryId = null;
   }
 
@@ -515,13 +524,13 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     this.savingEditId = item.id;
     const qty = (this.editingItemQty && this.editingItemQty > 0) ? this.editingItemQty : null;
     const catId = this.editingItemCategoryId;
-    this.shoppingItemService.update(item.id, { name: this.editingItemName.trim(), quantity: qty, category_id: catId }).subscribe({
+    this.shoppingItemService.update(item.id, { name: this.editingItemName.trim(), quantity: qty, category_id: catId, checked: this.editingItemChecked }).subscribe({
       next: () => { this.savingEditId = null; this.cancelEditItem(); this.reload(); },
       error: () => { this.savingEditId = null; this.cancelEditItem(); }
     });
   }
 
-  protected cancelEditItem(): void { this.editingItemId = null; this.editingItemName = ''; this.editingItemQty = null; this.editingItemCategoryId = null; }
+  protected cancelEditItem(): void { this.editingItemId = null; this.editingItemName = ''; this.editingItemQty = null; this.editingItemCategoryId = null; this.editingItemChecked = false; }
 
   protected onEditItemKeydown(event: KeyboardEvent, item: ShoppingItem): void {
     if (event.key === 'Enter') this.saveEditItem(item);

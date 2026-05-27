@@ -26,6 +26,7 @@ export class CategoryNodeComponent implements OnChanges {
   @Input() editingItemName = '';
   @Input() editingItemQty: number | null = null;
   @Input() editingItemCategoryId: number | null = null;
+  @Input() editingItemChecked: boolean = false;
   @Input() allCategories: { id: number; label: string }[] = [];
   @Input() savingEditId: number | null = null;
   @Input() deletingId: number | null = null;

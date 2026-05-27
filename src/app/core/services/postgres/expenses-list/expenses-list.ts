@@ -10,6 +10,7 @@ export class ExpensesList {
     created_at: string;
     list_type: ListType;
     max_participants?: number;
-    participants?: ExpensesListParticipant[];
+    participants_count?: number;      // solo nella lista
+    participants?: ExpensesListParticipant[];  // solo nel dettaglio
     expenses_count?: number;
 }

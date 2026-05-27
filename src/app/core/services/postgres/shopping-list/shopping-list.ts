@@ -35,7 +35,8 @@ export class ShoppingList {
     categories?: ShoppingCategory[];  // categorie con i loro item
     items_count?: number;
     checked_count?: number;
-    participants?: ShoppingListParticipant[];
+    participants_count?: number;      // solo nella lista (by-user)
+    participants?: ShoppingListParticipant[];  // solo nel dettaglio
 }
 
 export class ShoppingListParticipant {

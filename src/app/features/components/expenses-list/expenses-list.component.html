@@ -99,13 +99,13 @@
                 <span class="group-date" *ngIf="!expensesList.paid">Creato il {{formatDate(expensesList.created_at)}}</span>
                 <div class="group-progress-row" *ngIf="expensesList.list_type === 'shared'">
                     <div class="group-progress-bar">
-                        <div class="group-progress-fill" [style.width.%]="((expensesList.participants?.length ?? 0) / (expensesList.max_participants ?? 8)) * 100"></div>
+                        <div class="group-progress-fill" [style.width.%]="((expensesList.participants_count ?? 0) / (expensesList.max_participants ?? 8)) * 100"></div>
                     </div>
-                    <span class="group-progress-text">{{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
+                    <span class="group-progress-text">{{expensesList.participants_count ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
                 </div>
                 <div class="group-card-footer">
                     <span class="group-expenses-count"><i class="fa fa-receipt"></i> {{expensesList.expenses_count ?? 0}}</span>
-                    <span class="group-participants" *ngIf="expensesList.list_type === 'shared'"><i class="fa fa-users"></i> {{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
+                    <span class="group-participants" *ngIf="expensesList.list_type === 'shared'"><i class="fa fa-users"></i> {{expensesList.participants_count ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
                 </div>
             </div>
         </div>
@@ -139,13 +139,13 @@
                 </div>
                 <div class="group-progress-row" *ngIf="expensesList.list_type === 'shared'">
                     <div class="group-progress-bar">
-                        <div class="group-progress-fill" [style.width.%]="((expensesList.participants?.length ?? 0) / (expensesList.max_participants ?? 8)) * 100"></div>
+                        <div class="group-progress-fill" [style.width.%]="((expensesList.participants_count ?? 0) / (expensesList.max_participants ?? 8)) * 100"></div>
                     </div>
-                    <span class="group-progress-text">{{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
+                    <span class="group-progress-text">{{expensesList.participants_count ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
                 </div>
                 <div class="group-card-footer">
                     <span class="group-expenses-count"><i class="fa fa-receipt"></i> {{expensesList.expenses_count ?? 0}}</span>
-                    <span class="group-participants" *ngIf="expensesList.list_type === 'shared'"><i class="fa fa-users"></i> {{expensesList.participants?.length ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
+                    <span class="group-participants" *ngIf="expensesList.list_type === 'shared'"><i class="fa fa-users"></i> {{expensesList.participants_count ?? 0}}/{{expensesList.max_participants ?? 8}}</span>
                 </div>
             </div>
         </div>
