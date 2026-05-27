@@ -661,25 +661,22 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     if (this.hasEmptyBatchItem) { this.batchAddAttempted = true; return; }
     this.batchAddAttempted = false;
     const newItem = { id: null, name: '', quantity: 1, checked: false, toDelete: false, categoryId };
-    list.push(newItem);
+    list.unshift(newItem);
     this.batchFocusItem = newItem;
   }
 
   protected addBatchCategory(): void {
     const newCat = { id: null, name: '', toDelete: false, depth: 0, parentId: null, items: [] };
-    this.batchCategories.push(newCat);
+    this.batchCategories.unshift(newCat);
     this.batchFocusItem = newCat;
   }
 
-  /** Aggiunge una nuova sottocategoria subito dopo il blocco del parent */
+  /** Aggiunge una nuova sottocategoria subito dopo il parent (prima delle sue sottocategorie esistenti) */
   protected addBatchSubcategory(parentCat: typeof this.batchCategories[0]): void {
     const parentIdx = this.batchCategories.indexOf(parentCat);
     if (parentIdx === -1) return;
-    // Trova la posizione subito dopo l'ultimo discendente del parent
-    let insertIdx = parentIdx + 1;
-    while (insertIdx < this.batchCategories.length && this.batchCategories[insertIdx].depth > parentCat.depth) {
-      insertIdx++;
-    }
+    // Inserisce subito dopo il parent, prima di eventuali figli esistenti
+    const insertIdx = parentIdx + 1;
     const newSub = { id: null, name: '', toDelete: false, depth: parentCat.depth + 1, parentId: parentCat.id, items: [] };
     this.batchCategories.splice(insertIdx, 0, newSub);
     this.batchFocusItem = newSub;
