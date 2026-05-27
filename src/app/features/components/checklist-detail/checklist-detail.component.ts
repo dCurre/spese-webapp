@@ -687,6 +687,17 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
 
   protected toggleBatchDelete(item: any): void { item.toDelete = !item.toDelete; }
 
+  protected revertBatchItem(item: any): void {
+    item.name = item._origName;
+    item.quantity = item._origQty;
+    item.categoryId = item._origCategoryId;
+    item.categoryTempId = null;
+  }
+
+  protected revertBatchCategory(cat: any): void {
+    cat.name = cat._origName;
+  }
+
   protected toggleBatchCategoryDelete(cat: any): void {
     cat.toDelete = !cat.toDelete;
     // marca/demarks anche tutti i suoi item
