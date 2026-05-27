@@ -5,7 +5,7 @@ import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ShoppingList } from 'src/app/core/services/postgres/shopping-list/shopping-list';
 import { ShoppingListService } from 'src/app/core/services/postgres/shopping-list/shopping-list.service';
 import { NewChecklistDialogComponent } from '../dialog/new-checklist-dialog/new-checklist-dialog.component';
-import { ImportChecklistDialogComponent, ImportChecklistResult } from '../dialog/import-checklist-dialog/import-checklist-dialog.component';
+import { ImportChecklistDialogComponent, ImportChecklistResult, ParsedCategory } from '../dialog/import-checklist-dialog/import-checklist-dialog.component';
 import { User } from 'src/app/core/services/postgres/user/user';
 
 @Component({
@@ -99,6 +99,7 @@ export class ChecklistComponent implements OnInit, OnDestroy {
 
   protected newChecklist(): void {
     if (!this.loggedUser) return;
+    (document.activeElement as HTMLElement)?.blur();
     const modal = this.modalService.open(NewChecklistDialogComponent, { centered: true });
     modal.result.then((result) => {
       if (!result) return;
@@ -143,6 +144,7 @@ export class ChecklistComponent implements OnInit, OnDestroy {
 
   protected importChecklist(): void {
     if (!this.loggedUser) return;
+    (document.activeElement as HTMLElement)?.blur();
     const modal = this.modalService.open(ImportChecklistDialogComponent, { centered: true, size: 'lg' });
     modal.componentInstance.mode = 'new';
     modal.result.then((result: ImportChecklistResult | null) => {
@@ -154,16 +156,8 @@ export class ChecklistComponent implements OnInit, OnDestroy {
         completed: false,
       }).subscribe({
         next: (res) => {
-          // Usa batch-save per creare tutti gli item in una sola chiamata
-          this.shoppingListService.batchSave(res.id, {
-            items_create: result.items.map((item, idx) => ({
-              name: item.name,
-              quantity: null,
-              checked: item.checked,
-              sort_order: idx,
-              category_id: null,
-            })),
-          }).subscribe({
+          const payload = this.buildImportBatchPayload(result);
+          this.shoppingListService.batchSave(res.id, payload).subscribe({
             next: () => {
               this.reloadLists();
               this.router.navigate(['/checklist', res.id]);
@@ -174,6 +168,37 @@ export class ChecklistComponent implements OnInit, OnDestroy {
         error: () => {},
       });
     }).catch(() => {});
+  }
+
+  private buildImportBatchPayload(result: ImportChecklistResult): {
+    categories_create: { temp_id: string; name: string; parent_id: string | null; sort_order: number }[];
+    items_create: { name: string; quantity: number | null; checked: boolean; sort_order: number; category_id: null; category_temp_id?: string }[];
+  } {
+    const categories_create: { temp_id: string; name: string; parent_id: string | null; sort_order: number }[] = [];
+    const items_create: { name: string; quantity: number | null; checked: boolean; sort_order: number; category_id: null; category_temp_id?: string }[] = [];
+    let sortIdx = 0;
+    let catIdx = 0;
+
+    for (const item of (result.items ?? [])) {
+      items_create.push({ name: item.name, quantity: item.quantity ?? null, checked: item.checked, sort_order: sortIdx++, category_id: null });
+    }
+
+    const flattenCategory = (cat: ParsedCategory, parentTempId: string | null) => {
+      const tempId = `import_cat_${catIdx++}`;
+      categories_create.push({ temp_id: tempId, name: cat.name, parent_id: parentTempId, sort_order: catIdx });
+      for (const item of (cat.items ?? [])) {
+        items_create.push({ name: item.name, quantity: item.quantity ?? null, checked: item.checked, sort_order: sortIdx++, category_id: null, category_temp_id: tempId });
+      }
+      for (const child of (cat.children ?? [])) {
+        flattenCategory(child, tempId);
+      }
+    };
+
+    for (const cat of (result.categories ?? [])) {
+      flattenCategory(cat, null);
+    }
+
+    return { categories_create, items_create };
   }
 
   protected retry(): void {

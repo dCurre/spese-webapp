@@ -56,6 +56,9 @@
                         [title]="shareCopied ? 'Link copiato!' : 'Condividi'">
                     <i class="fa" [ngClass]="shareCopied ? 'fa-check' : 'fa-link'"></i>
                 </button>
+                <button class="btn-share-inline" *ngIf="!batchMode" (click)="exportList()" title="Esporta">
+                    <i class="fa fa-file-export"></i>
+                </button>
             </div>
             <span class="detail-date" *ngIf="!batchMode">Creata il {{formatDate(list.created_at)}}</span>
             <span class="detail-date" *ngIf="batchMode">Modifica nome e quantità, poi conferma</span>
@@ -431,8 +434,9 @@
         <p class="modal-desc">Sei sicuro di voler eliminare <strong>{{list.name}}</strong>?<br>L'operazione non è reversibile.</p>
         <div class="modal-actions">
             <button class="btn-modal-cancel" (click)="cancelDelete()">Annulla</button>
-            <button class="btn-modal-confirm btn-modal-delete" (click)="confirmDelete()">
-                <i class="fa fa-trash"></i> Elimina
+            <button class="btn-modal-confirm btn-modal-delete" (click)="confirmDelete()" [disabled]="deletingList">
+                <i class="fa" [ngClass]="deletingList ? 'fa-spinner fa-spin' : 'fa-trash'"></i>
+                {{ deletingList ? 'Eliminazione...' : 'Elimina' }}
             </button>
         </div>
     </div>

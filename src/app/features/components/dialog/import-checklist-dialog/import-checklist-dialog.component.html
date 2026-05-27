@@ -10,6 +10,23 @@
 
 <div class="dialog-body">
 
+    <!-- Selettore formato -->
+    <div class="field-group">
+        <label class="field-label">Formato</label>
+        <div class="type-selector">
+            <button type="button" class="type-btn" [class.active]="importFormat === 'text'" (click)="onFormatChange('text')">
+                <i class="fa fa-align-left"></i>
+                <span class="type-btn-label">Testo</span>
+                <span class="type-btn-desc">Samsung Notes, testo libero</span>
+            </button>
+            <button type="button" class="type-btn" [class.active]="importFormat === 'json'" (click)="onFormatChange('json')">
+                <i class="fa fa-code"></i>
+                <span class="type-btn-label">JSON</span>
+                <span class="type-btn-desc">Export da questa app</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Nome checklist (solo mode=new) -->
     <div class="field-group" *ngIf="mode === 'new'">
         <label class="field-label">Nome della checklist</label>
@@ -23,35 +40,80 @@
         </span>
     </div>
 
-    <!-- Textarea testo -->
-    <div class="field-group">
-        <label class="field-label">Incolla il testo della lista</label>
-        <textarea class="field-textarea"
-                  [(ngModel)]="rawText"
-                  placeholder="[v] Pane&#10;[v] Latte&#10;[  ] Uova&#10;..."
-                  rows="10"
-                  [autofocus]="mode === 'add'"></textarea>
-        <span class="field-hint">Supportato: Samsung Notes (<code>[v]</code> / <code>[  ]</code>)</span>
-    </div>
-
-    <!-- Preview -->
-    <div class="preview-wrap" *ngIf="parsedItems.length > 0">
-        <div class="preview-header">
-            <span class="preview-title">Anteprima</span>
-            <span class="preview-count">{{ parsedItems.length }} articoli</span>
+    <!-- ── TESTO ── -->
+    <ng-container *ngIf="importFormat === 'text'">
+        <div class="field-group">
+            <label class="field-label">Incolla il testo della lista</label>
+            <textarea class="field-textarea"
+                      [ngModel]="rawText"
+                      (ngModelChange)="onRawTextChange($event)"
+                      placeholder="[v] Pane&#10;[v] Latte&#10;[  ] Uova&#10;..."
+                      rows="8"
+                      [autofocus]="mode === 'add'"></textarea>
+            <span class="field-hint">Supportati: Samsung Notes (<code>[v]</code> / <code>[  ]</code>), export testo app (<code>✓</code> / <code>○</code>)</span>
         </div>
-        <div class="preview-list">
-            <div class="preview-item" *ngFor="let item of parsedItems">
-                <i class="fa preview-icon"
-                   [ngClass]="item.checked ? 'fa-circle-check preview-icon-checked' : 'fa-circle preview-icon-unchecked'"></i>
-                <span class="preview-name" [class.preview-name-checked]="item.checked">{{ item.name }}</span>
+
+        <div class="preview-wrap" *ngIf="parsedItems.length > 0">
+            <div class="preview-header">
+                <span class="preview-title">Anteprima</span>
+                <span class="preview-count">{{ parsedItems.length }} articoli</span>
+            </div>
+            <div class="preview-list">
+                <div class="preview-item" *ngFor="let item of parsedItems">
+                    <i class="fa preview-icon"
+                       [ngClass]="item.checked ? 'fa-circle-check preview-icon-checked' : 'fa-circle preview-icon-unchecked'"></i>
+                    <span class="preview-name" [class.preview-name-checked]="item.checked">{{ item.name }}</span>
+                    <span class="preview-qty" *ngIf="item.quantity">×{{ item.quantity }}</span>
+                </div>
             </div>
         </div>
-    </div>
 
-    <span class="field-error" *ngIf="attempted && parsedItems.length === 0">
-        Nessun articolo riconosciuto. Controlla il formato del testo.
-    </span>
+        <span class="field-error" *ngIf="attempted && parsedItems.length === 0">
+            Nessun articolo riconosciuto. Controlla il formato del testo.
+        </span>
+    </ng-container>
+
+    <!-- ── JSON ── -->
+    <ng-container *ngIf="importFormat === 'json'">
+        <div class="field-group">
+            <label class="field-label">Incolla il JSON esportato</label>
+            <textarea class="field-textarea field-textarea-mono"
+                      [ngModel]="rawText"
+                      (ngModelChange)="onRawTextChange($event)"
+                      placeholder='{ "name": "Spesa", "categories": [...] }'
+                      rows="8"></textarea>
+            <span class="field-hint">Incolla il contenuto copiato dal tasto "Copia JSON" o dal file .json scaricato.</span>
+        </div>
+
+        <span class="field-error" *ngIf="rawText.trim() && jsonError">{{ jsonError }}</span>
+
+        <!-- Preview JSON valido -->
+        <div class="preview-wrap" *ngIf="parsedJson && !jsonError">
+            <div class="preview-header">
+                <span class="preview-title">Anteprima</span>
+                <span class="preview-count">
+                    {{ (parsedJson.items.length || 0) + countAllItems(parsedJson.categories || []) }} articoli
+                </span>
+            </div>
+            <div class="preview-list">
+                <!-- Item senza categoria -->
+                <div class="preview-item" *ngFor="let item of jsonPreviewItems">
+                    <i class="fa preview-icon"
+                       [ngClass]="item.checked ? 'fa-circle-check preview-icon-checked' : 'fa-circle preview-icon-unchecked'"></i>
+                    <span class="preview-name" [class.preview-name-checked]="item.checked">{{ item.name }}</span>
+                    <span class="preview-qty" *ngIf="item.quantity">×{{ item.quantity }}</span>
+                </div>
+                <!-- Categorie -->
+                <ng-container *ngFor="let cat of jsonPreviewCategories">
+                    <ng-container *ngTemplateOutlet="catPreview; context: { cat: cat, depth: 0 }"></ng-container>
+                </ng-container>
+            </div>
+        </div>
+
+        <span class="field-error" *ngIf="attempted && !parsedJson">
+            Incolla un JSON valido esportato dall'app.
+        </span>
+    </ng-container>
 
 </div>
 
@@ -63,3 +125,22 @@
         {{ mode === 'new' ? 'Crea e importa' : 'Importa' }}
     </button>
 </div>
+
+<!-- Template ricorsivo anteprima categoria JSON -->
+<ng-template #catPreview let-cat="cat" let-depth="depth">
+    <div class="preview-category" [style.padding-left.rem]="depth * 0.75">
+        <i class="fa fa-folder preview-folder-icon"></i>
+        <span class="preview-category-name">{{ cat.name }}</span>
+        <span class="preview-count preview-count-inline">{{ cat.items.length }}</span>
+    </div>
+    <div class="preview-item preview-item-indented" *ngFor="let item of cat.items"
+         [style.padding-left.rem]="(depth + 1) * 0.75 + 0.75">
+        <i class="fa preview-icon"
+           [ngClass]="item.checked ? 'fa-circle-check preview-icon-checked' : 'fa-circle preview-icon-unchecked'"></i>
+        <span class="preview-name" [class.preview-name-checked]="item.checked">{{ item.name }}</span>
+        <span class="preview-qty" *ngIf="item.quantity">×{{ item.quantity }}</span>
+    </div>
+    <ng-container *ngFor="let child of cat.children">
+        <ng-container *ngTemplateOutlet="catPreview; context: { cat: child, depth: depth + 1 }"></ng-container>
+    </ng-container>
+</ng-template>
