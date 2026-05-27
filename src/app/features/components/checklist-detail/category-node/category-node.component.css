@@ -370,3 +370,17 @@
 }
 .edit-category-select:focus { border-color: #00b37e; }
 .edit-category-select:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Mobile: form aggiungi item ── */
+@media (max-width: 768px) {
+    .cat-item-add-inline .batch-input-name {
+        min-width: 0;
+        flex: 1;
+    }
+    .qty-btn {
+        width: 22px;
+    }
+    .qty-value {
+        min-width: 22px;
+    }
+}
