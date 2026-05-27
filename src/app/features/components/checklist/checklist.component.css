@@ -369,9 +369,25 @@
     margin-top: auto;
 }
 
+.group-card-footer .group-date {
+    margin-left: auto;
+}
+
+.group-card-footer .group-participants {
+    margin-left: 0.6rem;
+}
+
 .group-expenses-count {
     font-size: 0.72rem;
     color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.group-participants {
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
     display: flex;
     align-items: center;
     gap: 0.3rem;

@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
 import { AngularFireAuth } from '@angular/fire/compat/auth';
 import { GoogleAuthProvider } from 'firebase/auth';
 import firebase from 'firebase/compat';
 import { BehaviorSubject, Observable, firstValueFrom } from 'rxjs';
-import { filter } from 'rxjs/operators';
+import { filter, distinctUntilChanged } from 'rxjs/operators';
 import { User } from '../postgres/user/user';
 import { UserService } from '../postgres/user/user.service';
 import { PathService } from '../path/path.service';
@@ -21,8 +21,14 @@ export class AuthService {
         private pgUserService: UserService,
         private pathService: PathService,
         private router: Router,
+        private ngZone: NgZone,
     ) {
+        let lastUid: string | null = undefined as any;
         this.afAuth.authState.subscribe(async firebaseUser => {
+            const uid = firebaseUser?.uid ?? null;
+            if (uid === lastUid) return;  // stessa emissione, ignora
+            lastUid = uid;
+
             if (!firebaseUser?.email) {
                 this.loggedUser$.next(null);  // null = caricato, utente non loggato
                 return;
@@ -41,7 +47,7 @@ export class AuthService {
                 if (error?.status === 0) {
                     await this.afAuth.signOut();
                     this.loggedUser$.next(null);
-                    this.router.navigate(['/signin']);
+                    this.ngZone.run(() => this.router.navigate(['/signin']));
                     return;
                 }
                 this.loggedUser$.next(this.fallbackUser(firebaseUser));
@@ -49,7 +55,7 @@ export class AuthService {
             const returnUrl = sessionStorage.getItem('returnUrl');
             if (returnUrl) {
                 sessionStorage.removeItem('returnUrl');
-                this.router.navigateByUrl(returnUrl);
+                this.ngZone.run(() => this.router.navigateByUrl(returnUrl));
             }
         });
     }
@@ -60,7 +66,7 @@ export class AuthService {
 
     signOut(): void {
         this.afAuth.signOut().then(() => {
-            this.router.navigate(['/signin']);
+            this.ngZone.run(() => this.router.navigate(['/signin']));
         });
     }
 
@@ -71,7 +77,10 @@ export class AuthService {
     }
 
     getStoredUser(): Observable<User | null> {
-        return this.loggedUser$.pipe(filter((u): u is User | null => u !== undefined));
+        return this.loggedUser$.pipe(
+            filter((u): u is User | null => u !== undefined),
+            distinctUntilChanged((a, b) => a?.id === b?.id),
+        );
     }
 
     setUser(user: User): void {
@@ -102,7 +111,7 @@ export class AuthService {
             if (error?.status === 0) {
                 await this.afAuth.signOut();
                 this.loggedUser$.next(null);
-                this.router.navigate(['/signin']);
+                this.ngZone.run(() => this.router.navigate(['/signin']));
             } else {
                 this.loggedUser$.next(this.fallbackUser(firebaseUser));
             }

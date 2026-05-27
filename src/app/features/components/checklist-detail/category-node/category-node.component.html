@@ -95,7 +95,7 @@
                 [cat]="child" [depth]="depth + 1"
                 [collapseAll]="collapseAll"
                 [editingItemId]="editingItemId" [editingItemName]="editingItemName" [editingItemQty]="editingItemQty"
-                [editingItemCategoryId]="editingItemCategoryId" [allCategories]="allCategories"
+                [editingItemCategoryId]="editingItemCategoryId" [editingItemChecked]="editingItemChecked" [allCategories]="allCategories"
                 [savingEditId]="savingEditId" [deletingId]="deletingId"
                 [editingCategoryId]="editingCategoryId" [editingCategoryName]="editingCategoryName"
                 [savingEditCategoryId]="savingEditCategoryId"
@@ -151,39 +151,49 @@
             </div>
 
             <!-- Item non spuntati -->
-            <div class="cat-item-row" *ngFor="let item of uncheckedItems">
-                <button class="item-check-btn unchecked" (click)="itemToggle.emit({ item: item })">
-                    <i class="fa fa-circle"></i>
+            <div class="cat-item-row" *ngFor="let item of uncheckedItems"
+                 [class.cat-item-checked]="editingItemId === item.id && editingItemChecked">
+                <button class="item-check-btn"
+                        [class.unchecked]="!(editingItemId === item.id && editingItemChecked)"
+                        [class.checked]="editingItemId === item.id && editingItemChecked"
+                        (click)="itemToggle.emit({ item: item })">
+                    <i class="fa" [ngClass]="editingItemId === item.id && editingItemChecked ? 'fa-circle-check' : 'fa-circle'"></i>
                 </button>
                 <div class="item-content" *ngIf="editingItemId !== item.id">
                     <span class="item-name">{{item.name}}</span>
                     <span class="item-qty" *ngIf="item.quantity">{{item.quantity}}</span>
                 </div>
                 <ng-container *ngIf="editingItemId === item.id">
-                    <input #editItemInput class="batch-input batch-input-name" type="text" [ngModel]="editingItemName"
-                           (ngModelChange)="itemEditNameChange.emit($event)"
-                           (keydown)="onEditItemKeydown($event, item)"
-                           [disabled]="savingEditId === item.id">
-                    <select class="edit-category-select edit-category-select-compact" [ngModel]="editingItemCategoryId"
-                            (ngModelChange)="itemEditCategoryChange.emit($event)"
-                            [disabled]="savingEditId === item.id">
-                        <option [ngValue]="null">Senza categoria</option>
-                        <option *ngFor="let c of allCategories" [ngValue]="c.id">{{c.label}}</option>
-                    </select>
-                    <div class="qty-stepper" [class.qty-stepper-disabled]="savingEditId === item.id">
-                        <button class="qty-btn" (click)="itemEditQtyChange.emit(editingItemQty && editingItemQty > 1 ? editingItemQty - 1 : null)"
-                                [disabled]="savingEditId === item.id || !editingItemQty">−</button>
-                        <span class="qty-value">{{editingItemQty || '—'}}</span>
-                        <button class="qty-btn" (click)="itemEditQtyChange.emit((editingItemQty || 0) + 1)"
-                                [disabled]="savingEditId === item.id">+</button>
+                    <div class="item-edit-multiline">
+                        <div class="item-edit-row1">
+                            <input #editItemInput class="batch-input batch-input-name" type="text" [ngModel]="editingItemName"
+                                   (ngModelChange)="itemEditNameChange.emit($event)"
+                                   (keydown)="onEditItemKeydown($event, item)"
+                                   [disabled]="savingEditId === item.id">
+                        </div>
+                        <div class="item-edit-row2">
+                            <select class="edit-category-select" [ngModel]="editingItemCategoryId"
+                                    (ngModelChange)="itemEditCategoryChange.emit($event)"
+                                    [disabled]="savingEditId === item.id">
+                                <option [ngValue]="null">Senza categoria</option>
+                                <option *ngFor="let c of allCategories" [ngValue]="c.id">{{c.label}}</option>
+                            </select>
+                            <div class="qty-stepper" [class.qty-stepper-disabled]="savingEditId === item.id">
+                                <button class="qty-btn" (click)="itemEditQtyChange.emit(editingItemQty && editingItemQty > 1 ? editingItemQty - 1 : null)"
+                                        [disabled]="savingEditId === item.id || !editingItemQty">−</button>
+                                <span class="qty-value">{{editingItemQty || '—'}}</span>
+                                <button class="qty-btn" (click)="itemEditQtyChange.emit((editingItemQty || 0) + 1)"
+                                        [disabled]="savingEditId === item.id">+</button>
+                            </div>
+                            <button class="btn-edit-save" (click)="itemSave.emit({ item: item, name: editingItemName, quantity: editingItemQty, categoryId: editingItemCategoryId })"
+                                    [disabled]="!editingItemName.trim() || savingEditId === item.id">
+                                <i class="fa" [ngClass]="savingEditId === item.id ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                            </button>
+                            <button class="btn-edit-cancel" (click)="itemEditCancel.emit()" [disabled]="savingEditId === item.id">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
                     </div>
-                    <button class="btn-edit-save" (click)="itemSave.emit({ item: item, name: editingItemName, quantity: editingItemQty, categoryId: editingItemCategoryId })"
-                            [disabled]="!editingItemName.trim() || savingEditId === item.id">
-                        <i class="fa" [ngClass]="savingEditId === item.id ? 'fa-spinner fa-spin' : 'fa-check'"></i>
-                    </button>
-                    <button class="btn-edit-cancel" (click)="itemEditCancel.emit()" [disabled]="savingEditId === item.id">
-                        <i class="fa fa-times"></i>
-                    </button>
                 </ng-container>
                 <ng-container *ngIf="editingItemId !== item.id">
                     <button class="item-edit-btn" (click)="itemEditStart.emit(item)" [disabled]="deletingId === item.id">

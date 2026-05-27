@@ -371,14 +371,54 @@
 .edit-category-select:focus { border-color: #00b37e; }
 .edit-category-select:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* Desktop: tutto su una riga */
+.item-edit-multiline {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+}
+
+.item-edit-row1 { display: contents; }
+.item-edit-row2 { display: contents; }
+
+.item-edit-row1 .batch-input-name {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Mobile: due righe */
 @media (max-width: 768px) {
-    .edit-category-select-compact {
-        max-width: 80px;
-        min-width: 0;
+    .item-edit-multiline {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.3rem;
     }
-    .batch-input-name {
-        max-width: 90px;
+
+    .item-edit-row1 {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .item-edit-row2 {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .item-edit-row1 .batch-input-name {
+        flex: 1;
         min-width: 0;
+        max-width: none;
+    }
+
+    .item-edit-row2 .edit-category-select {
+        flex: 1;
+        min-width: 0;
+        max-width: none;
     }
 }
 

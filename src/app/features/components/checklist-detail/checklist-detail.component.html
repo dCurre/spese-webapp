@@ -52,7 +52,7 @@
                         [title]="list.starred ? 'Rimuovi dai preferiti' : 'Aggiungi ai preferiti'">
                     <i class="fa fa-star"></i>
                 </button>
-                <button class="btn-share-inline" *ngIf="!batchMode" (click)="shareList()"
+                <button class="btn-share-inline" *ngIf="!batchMode && list.list_type === 'shared'" (click)="shareList()"
                         [title]="shareCopied ? 'Link copiato!' : 'Condividi'">
                     <i class="fa" [ngClass]="shareCopied ? 'fa-check' : 'fa-link'"></i>
                 </button>
@@ -160,7 +160,7 @@
             [cat]="cat" [depth]="0"
             [collapseAll]="allCollapsed"
             [editingItemId]="editingItemId" [editingItemName]="editingItemName" [editingItemQty]="editingItemQty"
-            [editingItemCategoryId]="editingItemCategoryId" [allCategories]="flatCategories"
+            [editingItemCategoryId]="editingItemCategoryId" [editingItemChecked]="editingItemChecked" [allCategories]="flatCategories"
             [savingEditId]="savingEditId" [deletingId]="deletingId"
             [editingCategoryId]="editingCategoryId" [editingCategoryName]="editingCategoryName"
             [savingEditCategoryId]="savingEditCategoryId"
@@ -202,7 +202,7 @@
             [categoryIcon]="'fa-tag'"
             [collapseAll]="allCollapsed"
             [editingItemId]="editingItemId" [editingItemName]="editingItemName" [editingItemQty]="editingItemQty"
-            [editingItemCategoryId]="editingItemCategoryId" [allCategories]="flatCategories"
+            [editingItemCategoryId]="editingItemCategoryId" [editingItemChecked]="editingItemChecked" [allCategories]="flatCategories"
             [savingEditId]="savingEditId" [deletingId]="emptyingUncat ? 0 : deletingId"
             [editingCategoryId]="editingCategoryId" [editingCategoryName]="editingCategoryName"
             [savingEditCategoryId]="savingEditCategoryId"
