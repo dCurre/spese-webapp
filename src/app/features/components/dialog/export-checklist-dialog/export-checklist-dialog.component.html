@@ -1,0 +1,45 @@
+<div class="dialog-header">
+    <h5 class="dialog-title">Esporta checklist</h5>
+    <button class="dialog-close" (click)="modal.close()" aria-label="Close">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+
+<div class="dialog-body">
+
+    <!-- Selettore formato -->
+    <div class="field-group">
+        <label class="field-label">Formato</label>
+        <div class="type-selector">
+            <button type="button" class="type-btn" [class.active]="selectedFormat === 'text'" (click)="selectedFormat = 'text'">
+                <i class="fa fa-align-left"></i>
+                <span class="type-btn-label">Testo</span>
+                <span class="type-btn-desc">Copia negli appunti</span>
+            </button>
+            <button type="button" class="type-btn" [class.active]="selectedFormat === 'json'" (click)="selectedFormat = 'json'">
+                <i class="fa fa-code"></i>
+                <span class="type-btn-label">JSON</span>
+                <span class="type-btn-desc">Scarica o copia</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Anteprima -->
+    <div class="field-group">
+        <label class="field-label">Anteprima</label>
+        <pre class="export-preview">{{previewText}}</pre>
+    </div>
+
+</div>
+
+<div class="dialog-footer">
+    <button class="btn-cancel" type="button" (click)="modal.close()">Chiudi</button>
+    <button class="btn-secondary" type="button" (click)="copyText()" *ngIf="selectedFormat === 'json'">
+        <i class="fa" [ngClass]="textCopied ? 'fa-check' : 'fa-copy'"></i>
+        {{ textCopied ? 'Copiato!' : 'Copia JSON' }}
+    </button>
+    <button class="btn-confirm" type="button" (click)="selectedFormat === 'text' ? copyText() : downloadJson()">
+        <i class="fa" [ngClass]="selectedFormat === 'text' ? (textCopied ? 'fa-check' : 'fa-copy') : 'fa-download'"></i>
+        {{ selectedFormat === 'text' ? (textCopied ? 'Copiato!' : 'Copia testo') : 'Scarica JSON' }}
+    </button>
+</div>

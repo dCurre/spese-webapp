@@ -7,8 +7,10 @@ import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ShoppingList, ShoppingItem, ShoppingCategory, ShoppingListParticipant } from 'src/app/core/services/postgres/shopping-list/shopping-list';
 import { ShoppingListService, ShoppingItemService, ShoppingCategoryService } from 'src/app/core/services/postgres/shopping-list/shopping-list.service';
 import { ItemSavePayload, ItemDeletePayload, ItemTogglePayload, CategoryTogglePayload, CategoryDeletePayload, CategoryRenameSave, AddItemPayload, AddSubcategoryPayload } from './category-node/category-node.component';
-import { ImportChecklistDialogComponent, ImportChecklistResult } from '../dialog/import-checklist-dialog/import-checklist-dialog.component';
+import { ImportChecklistDialogComponent, ImportChecklistResult, ParsedCategory } from '../dialog/import-checklist-dialog/import-checklist-dialog.component';
+import { ExportChecklistDialogComponent } from '../dialog/export-checklist-dialog/export-checklist-dialog.component';
 import { User } from 'src/app/core/services/postgres/user/user';
+import { ToastService } from 'src/app/core/services/toast/toast.service';
 
 @Component({
   selector: 'app-checklist-detail',
@@ -81,6 +83,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected showTransferModal = false;
   protected selectedNewOwnerId: number | null = null;
   protected showDeleteModal = false;
+  protected deletingList = false;
 
   private listId!: number;
 
@@ -92,6 +95,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     private shoppingItemService: ShoppingItemService,
     private shoppingCategoryService: ShoppingCategoryService,
     private modalService: NgbModal,
+    private toastService: ToastService,
   ) {}
 
   ngAfterViewChecked(): void {
@@ -846,26 +850,61 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
 
   protected importItems(): void {
     if (!this.list) return;
+    (document.activeElement as HTMLElement)?.blur();
     const modal = this.modalService.open(ImportChecklistDialogComponent, { centered: true, size: 'lg' });
     modal.componentInstance.mode = 'add';
     modal.result.then((result: ImportChecklistResult | null) => {
-      if (!result || result.items.length === 0) return;
-      this.shoppingListService.batchSave(this.list!.id, {
-        items_create: result.items.map((item, idx) => ({
-          name: item.name,
-          quantity: null,
-          checked: item.checked,
-          sort_order: idx,
-          category_id: null,
-        })),
-      }).subscribe({
+      if (!result) return;
+      const payload = this.buildImportBatchPayload(result);
+      if (!payload.items_create?.length && !payload.categories_create?.length) return;
+      this.shoppingListService.batchSave(this.list!.id, payload).subscribe({
         next: () => this.reload(),
         error: () => {},
       });
     }).catch(() => {});
   }
 
-  // ── Share / Leave / Delete ─────────────────────────────────────
+  private buildImportBatchPayload(result: ImportChecklistResult): {
+    categories_create: { temp_id: string; name: string; parent_id: string | null; sort_order: number }[];
+    items_create: { name: string; quantity: number | null; checked: boolean; sort_order: number; category_id: null; category_temp_id?: string }[];
+  } {
+    const categories_create: { temp_id: string; name: string; parent_id: string | null; sort_order: number }[] = [];
+    const items_create: { name: string; quantity: number | null; checked: boolean; sort_order: number; category_id: null; category_temp_id?: string }[] = [];
+    let sortIdx = 0;
+    let catIdx = 0;
+
+    // Item senza categoria
+    for (const item of (result.items ?? [])) {
+      items_create.push({ name: item.name, quantity: item.quantity ?? null, checked: item.checked, sort_order: sortIdx++, category_id: null });
+    }
+
+    // Categorie con item (ricorsivo)
+    const flattenCategory = (cat: ParsedCategory, parentTempId: string | null) => {
+      const tempId = `import_cat_${catIdx++}`;
+      categories_create.push({ temp_id: tempId, name: cat.name, parent_id: parentTempId, sort_order: catIdx });
+      for (const item of (cat.items ?? [])) {
+        items_create.push({ name: item.name, quantity: item.quantity ?? null, checked: item.checked, sort_order: sortIdx++, category_id: null, category_temp_id: tempId });
+      }
+      for (const child of (cat.children ?? [])) {
+        flattenCategory(child, tempId);
+      }
+    };
+
+    for (const cat of (result.categories ?? [])) {
+      flattenCategory(cat, null);
+    }
+
+    return { categories_create, items_create };
+  }
+
+  // ── Share / Export / Leave / Delete ───────────────────────────
+
+  protected exportList(): void {
+    if (!this.list) return;
+    (document.activeElement as HTMLElement)?.blur();
+    const modal = this.modalService.open(ExportChecklistDialogComponent, { centered: true, size: 'md' });
+    modal.componentInstance.list = this.list;
+  }
 
   protected shareList(): void {
     if (!this.list) return;
@@ -879,6 +918,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   private copyLink(token: string): void {
     navigator.clipboard.writeText(`${window.location.origin}/checklist/join/${token}`).then(() => {
       this.shareCopied = true;
+      this.toastService.success('Link copiato negli appunti!');
       setTimeout(() => this.shareCopied = false, 2000);
     });
   }
@@ -916,8 +956,11 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected deleteList(): void { this.showDeleteModal = true; }
   protected cancelDelete(): void { this.showDeleteModal = false; }
   protected confirmDelete(): void {
+    if (this.deletingList) return;
+    this.deletingList = true;
     this.shoppingListService.delete(this.list!.id).subscribe({
-      next: () => this.router.navigate(['/checklist']), error: () => {}
+      next: () => this.router.navigate(['/checklist']),
+      error: () => { this.deletingList = false; },
     });
   }
 
