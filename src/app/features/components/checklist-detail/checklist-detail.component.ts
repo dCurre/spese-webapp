@@ -164,9 +164,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
         this.list = list;
         this.hasLoaded = true;
         this.loadError = false;
-        if (list.list_type === 'shared') {
-          this.subscribeRealtime();
-        }
+        if (list.list_type === 'shared') this.subscribeRealtime();
       },
       error: () => { this.hasLoaded = true; this.loadError = true; }
     });
@@ -178,14 +176,17 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     const cats$ = this.realtimeService.watch('shopping_categories', 'spese');
     this.realtimeSub = new Subscription();
     this.realtimeSub.add(items$.subscribe((payload: any) => {
-      const row = payload?.new ?? payload?.old;
-      if (row?.shopping_list_id === this.listId && !this.batchMode) this.reload();
+      if (payload?.new?.shopping_list_id === this.listId || payload?.old?.shopping_list_id === this.listId) {
+        this.reload();
+      }
     }));
     this.realtimeSub.add(cats$.subscribe((payload: any) => {
-      const row = payload?.new ?? payload?.old;
-      if (row?.shopping_list_id === this.listId && !this.batchMode) this.reload();
+      if (payload?.new?.shopping_list_id === this.listId || payload?.old?.shopping_list_id === this.listId) {
+        this.reload();
+      }
     }));
   }
+
 
   private reload(): void {
     this.shoppingListService.getById(this.listId).subscribe({
@@ -239,18 +240,23 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     return this.sortItems(this.list?.items ?? []);
   }
 
-  /** Categoria fittizia per la sezione "Senza categoria" */
+  private _uncategorizedNode: ShoppingCategory | null = null;
+
+  /** Categoria fittizia per la sezione "Senza categoria" — oggetto stabile, aggiorna solo items */
   protected get uncategorizedNode(): ShoppingCategory {
-    const node = new ShoppingCategory();
-    node.id = 0;
-    node.shopping_list_id = this.list?.id ?? 0;
-    node.parent_id = null;
-    node.name = 'Senza categoria';
-    node.sort_order = 9999;
-    node.created_at = '';
-    node.items = this.uncategorizedItems;
-    node.children = [];
-    return node;
+    if (!this._uncategorizedNode) {
+      const node = new ShoppingCategory();
+      node.id = 0;
+      node.shopping_list_id = this.list?.id ?? 0;
+      node.parent_id = null;
+      node.name = 'Senza categoria';
+      node.sort_order = 9999;
+      node.created_at = '';
+      node.children = [];
+      this._uncategorizedNode = node;
+    }
+    this._uncategorizedNode.items = this.uncategorizedItems;
+    return this._uncategorizedNode;
   }
 
   /** Tutte le categorie + nodo virtuale "Senza categoria" in coda */
