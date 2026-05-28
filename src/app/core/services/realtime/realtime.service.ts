@@ -8,7 +8,9 @@ type Table = 'shopping_items' | 'shopping_categories' | 'shopping_lists' | 'expe
 @Injectable({ providedIn: 'root' })
 export class RealtimeService implements OnDestroy {
 
-  private supabase: SupabaseClient = createClient(environment.supabaseUrl, environment.supabaseAnonKey);
+  private supabase: SupabaseClient = createClient(environment.supabaseUrl, environment.supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
   private channels = new Map<string, { channel: RealtimeChannel; subject: Subject<void>; refs: number }>();
 
   /** Ritorna un Observable che emette ogni volta che la tabella/riga specificata cambia. */
