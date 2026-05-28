@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
+import { RealtimeService } from 'src/app/core/services/realtime/realtime.service';
 import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expense-dialog.component';
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
@@ -26,7 +27,7 @@ import { expenseTypeIcon, expenseTypeAccent } from 'src/app/shared/utils/expense
   templateUrl: './expenses-list-details.component.html',
   styleUrls: ['./expenses-list-details.component.css']
 })
-export class ExpenseListDetailsComponent implements OnInit {
+export class ExpenseListDetailsComponent implements OnInit, OnDestroy {
 
   protected expenses: Expense[] = [];
   protected expensesList: ExpensesList | null = null;
@@ -43,6 +44,7 @@ export class ExpenseListDetailsComponent implements OnInit {
   protected balanceTotals: { name: string; amount: number }[] = [];
   protected balanceOpen = window.innerWidth > 768;
   protected drawerOpen = false;
+  private realtimeSub: Subscription | null = null;
 
   readonly expenseTypeIcon = expenseTypeIcon;
   readonly expenseTypeAccent = expenseTypeAccent;
@@ -61,15 +63,25 @@ export class ExpenseListDetailsComponent implements OnInit {
     private listActionsService: ExpensesListActionsService,
     private modalService: NgbModal,
     private route: ActivatedRoute,
-    public router: Router) { }
+    public router: Router,
+    private realtimeService: RealtimeService,
+  ) { }
 
   ngOnInit(): void {
     this.listID = Number(this.route.snapshot.paramMap.get('id'));
     this.loadData(this.listID);
+    this.subscribeRealtime();
   }
 
   ngOnDestroy() {
     this.modalService.dismissAll();
+    this.realtimeSub?.unsubscribe();
+  }
+
+  private subscribeRealtime(): void {
+    const filter = `expense_list_id=eq.${this.listID}`;
+    this.realtimeSub = this.realtimeService.watch('expenses', 'spese', filter)
+      .subscribe(() => this.reloadExpenses());
   }
 
   private loadData(id: number) {

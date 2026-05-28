@@ -25,6 +25,7 @@
     "@mdi/font": "^7.0.96",
     "@ng-bootstrap/ng-bootstrap": "^13.0.0",
     "@popperjs/core": "^2.10.2",
+    "@supabase/supabase-js": "^2.106.2",
     "@types/chart.js": "^2.9.37",
     "bootstrap": "^5.2.0",
     "chart.js": "^3.9.1",
