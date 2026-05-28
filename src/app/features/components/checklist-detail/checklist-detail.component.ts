@@ -174,12 +174,17 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
 
   private subscribeRealtime(): void {
     if (this.realtimeSub) return;
-    const filter = `shopping_list_id=eq.${this.listId}`;
-    const items$ = this.realtimeService.watch('shopping_items', 'spese', filter);
-    const cats$ = this.realtimeService.watch('shopping_categories', 'spese', filter);
+    const items$ = this.realtimeService.watch('shopping_items', 'spese');
+    const cats$ = this.realtimeService.watch('shopping_categories', 'spese');
     this.realtimeSub = new Subscription();
-    this.realtimeSub.add(items$.subscribe(() => { if (!this.batchMode) this.reload(); }));
-    this.realtimeSub.add(cats$.subscribe(() => { if (!this.batchMode) this.reload(); }));
+    this.realtimeSub.add(items$.subscribe((payload: any) => {
+      const row = payload?.new ?? payload?.old;
+      if (row?.shopping_list_id === this.listId && !this.batchMode) this.reload();
+    }));
+    this.realtimeSub.add(cats$.subscribe((payload: any) => {
+      const row = payload?.new ?? payload?.old;
+      if (row?.shopping_list_id === this.listId && !this.batchMode) this.reload();
+    }));
   }
 
   private reload(): void {

@@ -79,9 +79,11 @@ export class ExpenseListDetailsComponent implements OnInit, OnDestroy {
   }
 
   private subscribeRealtime(): void {
-    const filter = `expense_list_id=eq.${this.listID}`;
-    this.realtimeSub = this.realtimeService.watch('expenses', 'spese', filter)
-      .subscribe(() => this.reloadExpenses());
+    this.realtimeSub = this.realtimeService.watch('expenses', 'spese')
+      .subscribe((payload: any) => {
+        const row = payload?.new ?? payload?.old;
+        if (row?.expense_list_id === this.listID) this.reloadExpenses();
+      });
   }
 
   private loadData(id: number) {
