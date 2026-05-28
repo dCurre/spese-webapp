@@ -174,6 +174,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     if (this.realtimeSub) return;
     const items$ = this.realtimeService.watch('shopping_items', 'spese');
     const cats$ = this.realtimeService.watch('shopping_categories', 'spese');
+    const participants$ = this.realtimeService.watch('shopping_list_participants', 'spese');
     this.realtimeSub = new Subscription();
     this.realtimeSub.add(items$.subscribe((payload: any) => {
       if (payload?.new?.shopping_list_id === this.listId || payload?.old?.shopping_list_id === this.listId) {
@@ -181,6 +182,11 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
       }
     }));
     this.realtimeSub.add(cats$.subscribe((payload: any) => {
+      if (payload?.new?.shopping_list_id === this.listId || payload?.old?.shopping_list_id === this.listId) {
+        this.reload();
+      }
+    }));
+    this.realtimeSub.add(participants$.subscribe((payload: any) => {
       if (payload?.new?.shopping_list_id === this.listId || payload?.old?.shopping_list_id === this.listId) {
         this.reload();
       }

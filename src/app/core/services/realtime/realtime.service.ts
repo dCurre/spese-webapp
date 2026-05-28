@@ -3,7 +3,7 @@ import { createClient, RealtimeChannel, SupabaseClient } from '@supabase/supabas
 import { Observable, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
-type Table = 'shopping_items' | 'shopping_categories' | 'shopping_lists' | 'expenses' | 'expenses_lists';
+type Table = 'shopping_items' | 'shopping_categories' | 'shopping_lists' | 'shopping_list_participants' | 'expenses' | 'expenses_lists' | 'expenses_list_participants';
 
 @Injectable({ providedIn: 'root' })
 export class RealtimeService implements OnDestroy {
