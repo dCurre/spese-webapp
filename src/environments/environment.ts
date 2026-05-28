@@ -17,4 +17,5 @@ export const environment = {
   pgApiUrl: 'http://localhost:5000',
   supabaseUrl: 'https://ysucbvilxwaduksccakz.supabase.co',
   supabaseAnonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzdWNidmlseHdhZHVrc2NjYWt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NDg1MTksImV4cCI6MjA5NTEyNDUxOX0.PbkCHHRUJkEMHT6-qnfbCOHg7eCzBl7BZlyuNdNPeU8',
+  appVersion: '0.0.0',
 };
