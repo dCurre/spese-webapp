@@ -7,6 +7,7 @@ import { ShoppingListService } from 'src/app/core/services/postgres/shopping-lis
 import { NewChecklistDialogComponent } from '../dialog/new-checklist-dialog/new-checklist-dialog.component';
 import { ImportChecklistDialogComponent, ImportChecklistResult, ParsedCategory } from '../dialog/import-checklist-dialog/import-checklist-dialog.component';
 import { User } from 'src/app/core/services/postgres/user/user';
+import ListUtils from 'src/app/shared/utils/list-utils';
 
 @Component({
   selector: 'app-checklist',
@@ -71,18 +72,7 @@ export class ChecklistComponent implements OnInit, OnDestroy {
   }
 
   protected get filteredLists(): ShoppingList[] {
-    let lists = [...this.allLists];
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.trim().toLowerCase();
-      lists = lists.filter(l => l.name.toLowerCase().includes(term));
-    }
-    lists.sort((a, b) => {
-      const cmp = this.sortBy === 'name'
-        ? a.name.localeCompare(b.name)
-        : new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      return this.sortAsc ? cmp : -cmp;
-    });
-    return lists;
+    return ListUtils.filterAndSort(this.allLists, this.searchTerm, this.sortBy, this.sortAsc);
   }
 
   protected get starredLists(): ShoppingList[] {
@@ -97,9 +87,13 @@ export class ChecklistComponent implements OnInit, OnDestroy {
     return this.filteredLists.filter(l => l.completed && !l.starred);
   }
 
+  private blurActive(): void {
+    (document.activeElement as HTMLElement)?.blur();
+  }
+
   protected newChecklist(): void {
     if (!this.loggedUser) return;
-    (document.activeElement as HTMLElement)?.blur();
+    this.blurActive();
     const modal = this.modalService.open(NewChecklistDialogComponent, { centered: true });
     modal.result.then((result) => {
       if (!result) return;
@@ -137,14 +131,9 @@ export class ChecklistComponent implements OnInit, OnDestroy {
     return Math.round(((list.checked_count ?? 0) / list.items_count) * 100);
   }
 
-  protected formatDate(dateStr: string): string {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('it-IT');
-  }
-
   protected importChecklist(): void {
     if (!this.loggedUser) return;
-    (document.activeElement as HTMLElement)?.blur();
+    this.blurActive();
     const modal = this.modalService.open(ImportChecklistDialogComponent, { centered: true, size: 'lg' });
     modal.componentInstance.mode = 'new';
     modal.result.then((result: ImportChecklistResult | null) => {

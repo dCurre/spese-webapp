@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ExpensesList } from './expenses-list';
+import { SaldoDetails } from 'src/app/features/components/saldo-details/list-details-dialog-fields';
 
 @Injectable({
   providedIn: 'root'
@@ -38,5 +39,9 @@ export class ExpensesListService {
       current_owner_id: currentOwnerId,
       new_owner_id: newOwnerId,
     });
+  }
+
+  getBalance(listId: number): Observable<{ balance: SaldoDetails[]; totals: { name: string; amount: number }[] }> {
+    return this.http.get<{ balance: SaldoDetails[]; totals: { name: string; amount: number }[] }>(`${this.baseUrl}/${listId}/balance`);
   }
 }

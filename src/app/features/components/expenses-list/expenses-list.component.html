@@ -51,13 +51,10 @@
 </div>
 
 <!-- Errore -->
-<div *ngIf="hasLoaded && loadError" class="load-error">
-    <i class="fa fa-triangle-exclamation"></i>
-    <span>Impossibile caricare le liste. Riprova più tardi.</span>
-    <button class="btn-retry" (click)="retry()">
-        <i class="fa fa-rotate-right"></i> Riprova
-    </button>
-</div>
+<app-load-error *ngIf="hasLoaded && loadError"
+    message="Impossibile caricare le liste. Riprova più tardi."
+    (retry)="retry()">
+</app-load-error>
 
 <div *ngIf="hasLoaded && !loadError && expensesLists.length === 0">
     <app-not-found subject="lista"></app-not-found>
@@ -96,7 +93,7 @@
                     <app-badge variant="paid" *ngIf="expensesList.paid"></app-badge>
                     <app-badge variant="owner" *ngIf="expensesList.list_type === 'shared' && expensesList.user_id === loggedUser?.id"></app-badge>
                 </div>
-                <span class="group-date" *ngIf="!expensesList.paid">Creato il {{formatDate(expensesList.created_at)}}</span>
+                <span class="group-date" *ngIf="!expensesList.paid">Creato il {{expensesList.created_at | dateIt}}</span>
                 <div class="group-progress-row" *ngIf="expensesList.list_type === 'shared'">
                     <div class="group-progress-bar">
                         <div class="group-progress-fill" [style.width.%]="((expensesList.participants_count ?? 0) / (expensesList.max_participants ?? 8)) * 100"></div>

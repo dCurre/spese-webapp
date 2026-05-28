@@ -11,6 +11,7 @@ import { UserService } from 'src/app/core/services/postgres/user/user.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
 import { ExpensesListActionsService } from 'src/app/core/services/postgres/expenses-list/expenses-list-actions.service';
 import GenericUtils from 'src/app/shared/utils/generic-utils';
+import ListUtils from 'src/app/shared/utils/list-utils';
 
 @Component({
   selector: 'app-expenses-list',
@@ -29,18 +30,7 @@ export class ExpensesListComponent implements OnInit {
   protected sortAsc = false;
 
   get expensesLists(): ExpensesList[] {
-    let lists = [...this.allLists];
-    if (this.searchTerm.trim()) {
-      const term = this.searchTerm.trim().toLowerCase();
-      lists = lists.filter(l => l.name.toLowerCase().includes(term));
-    }
-    lists.sort((a, b) => {
-      let cmp = this.sortBy === 'name'
-        ? a.name.localeCompare(b.name)
-        : new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-      return this.sortAsc ? cmp : -cmp;
-    });
-    return lists;
+    return ListUtils.filterAndSort(this.allLists, this.searchTerm, this.sortBy, this.sortAsc);
   }
 
   get activeLists(): ExpensesList[] {
@@ -139,11 +129,6 @@ export class ExpensesListComponent implements OnInit {
 
   deleteOrLeave(expensesList: ExpensesList) {
     this.listActionsService.deleteOrLeave(expensesList, () => this.reloadLists());
-  }
-
-  formatDate(dateStr: string): string {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('it-IT');
   }
 
   formatTime(dateStr: string): string {

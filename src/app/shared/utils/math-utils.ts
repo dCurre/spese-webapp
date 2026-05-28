@@ -20,4 +20,8 @@ export default class MathUtils {
     static formatToEur(amount: number){
         return this.formatAmount(amount) + " €"
     }
+
+    static totalAmount(expenses: { amount: number | string }[]): number {
+        return expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+    }
 }

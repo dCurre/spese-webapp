@@ -60,7 +60,7 @@
                     <i class="fa fa-file-export"></i>
                 </button>
             </div>
-            <span class="detail-date" *ngIf="!batchMode">Creata il {{formatDate(list.created_at)}}</span>
+            <span class="detail-date" *ngIf="!batchMode">Creata il {{list.created_at | dateIt:'long'}}</span>
             <span class="detail-date" *ngIf="batchMode">Modifica nome e quantità, poi conferma</span>
         </div>
         <div class="detail-header-actions">
@@ -155,13 +155,15 @@
             </button>
         </div>
 
-        <!-- CATEGORIE (ricorsive) -->
-        <app-category-node *ngFor="let cat of categories"
+        <!-- CATEGORIE (ricorsive) + nodo virtuale "Senza categoria" -->
+        <app-category-node *ngFor="let cat of allCategoryNodes"
             [cat]="cat" [depth]="0"
+            [readonly]="cat.id === 0"
+            [categoryIcon]="cat.id === 0 ? 'fa-tag' : 'fa-folder'"
             [collapseAll]="allCollapsed"
             [editingItemId]="editingItemId" [editingItemName]="editingItemName" [editingItemQty]="editingItemQty"
             [editingItemCategoryId]="editingItemCategoryId" [editingItemChecked]="editingItemChecked" [allCategories]="flatCategories"
-            [savingEditId]="savingEditId" [deletingId]="deletingId"
+            [savingEditId]="savingEditId" [deletingId]="cat.id === 0 ? (emptyingUncat ? 0 : deletingId) : deletingId"
             [editingCategoryId]="editingCategoryId" [editingCategoryName]="editingCategoryName"
             [savingEditCategoryId]="savingEditCategoryId"
             [addingItemInCategoryId]="addingItemInCategoryId"
@@ -179,6 +181,7 @@
             (itemEditCategoryChange)="editingItemCategoryId = $event"
             (categoryToggle)="onNodeCategoryToggle($event)"
             (categoryDelete)="onNodeCategoryDelete($event)"
+            (categoryEmpty)="onNodeCategoryEmpty($event)"
             (categoryRenameStart)="onNodeCategoryRenameStart($event)"
             (categoryRenameSave)="onNodeCategoryRenameSave($event)"
             (categoryRenameCancel)="cancelEditCategory()"
@@ -194,40 +197,6 @@
             (addSubcategoryNameChange)="newSubcategoryName = $event">
         </app-category-node>
 
-        <!-- SENZA CATEGORIA (come category-node readonly) -->
-        <app-category-node
-            [cat]="uncategorizedNode"
-            [depth]="0"
-            [readonly]="true"
-            [categoryIcon]="'fa-tag'"
-            [collapseAll]="allCollapsed"
-            [editingItemId]="editingItemId" [editingItemName]="editingItemName" [editingItemQty]="editingItemQty"
-            [editingItemCategoryId]="editingItemCategoryId" [editingItemChecked]="editingItemChecked" [allCategories]="flatCategories"
-            [savingEditId]="savingEditId" [deletingId]="emptyingUncat ? 0 : deletingId"
-            [editingCategoryId]="editingCategoryId" [editingCategoryName]="editingCategoryName"
-            [savingEditCategoryId]="savingEditCategoryId"
-            [addingItemInCategoryId]="addingItemInCategoryId"
-            [newCategoryItemName]="newCategoryItemName" [newCategoryItemQty]="newCategoryItemQty"
-            [savingItem]="savingItem"
-            [addingSubcategoryParentId]="addingSubcategoryParentId"
-            [newSubcategoryName]="newSubcategoryName" [savingCategory]="savingCategory"
-            (itemToggle)="onNodeItemToggle($event)"
-            (itemSave)="onNodeItemSave($event)"
-            (itemDelete)="onNodeItemDelete($event)"
-            (itemEditStart)="onNodeItemEditStart($event)"
-            (itemEditCancel)="cancelEditItem()"
-            (itemEditNameChange)="editingItemName = $event"
-            (itemEditQtyChange)="editingItemQty = $event"
-            (itemEditCategoryChange)="editingItemCategoryId = $event"
-            (categoryToggle)="onNodeCategoryToggle($event)"
-            (categoryEmpty)="onNodeCategoryEmpty($event)"
-            (addItemStart)="startAddItemInCategory($event)"
-            (addItemCancel)="cancelAddItemInCategory()"
-            (addItemSave)="onNodeAddItemSave($event)"
-            (addItemNameChange)="newCategoryItemName = $event"
-            (addItemQtyChange)="newCategoryItemQty = $event">
-        </app-category-node>
-
     </div><!-- /items-container normale -->
 
     <!-- BATCH MODE -->
@@ -240,7 +209,7 @@
 
         <!-- CATEGORIE (tree style) -->
         <ng-container *ngFor="let cat of batchCategories">
-            <div class="batch-cat-tree-block" [class.batch-category-delete]="cat.toDelete" [class.batch-category-new]="cat.id === null && !cat.toDelete" [class.batch-category-modified]="cat.id !== null && !cat.toDelete && cat.name !== cat._origName"
+            <div class="batch-cat-tree-block" [class.batch-category-delete]="cat.toDelete" [class.batch-category-new]="cat.id === null && !cat.toDelete" [class.batch-category-modified]="isBatchCategoryModified(cat)"
                  [style.padding-left.px]="cat.depth * 18">
 
                 <!-- Header stile tree -->
@@ -264,7 +233,7 @@
                     </button>
                     <!-- revert categoria modificata -->
                     <button class="batch-tree-action-btn batch-tree-revert-btn"
-                            *ngIf="cat.id !== null && !cat.toDelete && cat.name !== cat._origName"
+                            *ngIf="isBatchCategoryModified(cat)"
                             (click)="revertBatchCategory(cat)" title="Annulla modifiche">
                         <i class="fa fa-rotate-left"></i>
                     </button>
@@ -287,7 +256,7 @@
                         <div class="batch-tree-item-row" *ngFor="let item of cat.items"
                              [class.batch-row-delete]="item.toDelete"
                              [class.batch-row-new]="item.id === null && !item.toDelete"
-                             [class.batch-row-modified]="item.id !== null && !item.toDelete && (item.name !== item._origName || item.quantity !== item._origQty || item.categoryId !== item._origCategoryId)">
+                             [class.batch-row-modified]="isBatchItemModified(item)">
                             <button class="batch-tree-check-btn" (click)="item.checked = !item.checked"
                                     [disabled]="item.toDelete" [class.batch-checked]="item.checked">
                                 <i class="fa" [ngClass]="item.checked ? 'fa-circle-check' : 'fa-circle'"></i>
@@ -310,7 +279,7 @@
                                         [disabled]="item.toDelete">+</button>
                             </div>
                             <button class="batch-tree-action-btn batch-tree-revert-btn"
-                                    *ngIf="item.id !== null && !item.toDelete && (item.name !== item._origName || item.quantity !== item._origQty || item.categoryId !== item._origCategoryId)"
+                                    *ngIf="isBatchItemModified(item)"
                                     (click)="revertBatchItem(item)" title="Annulla modifiche">
                                 <i class="fa fa-rotate-left"></i>
                             </button>
@@ -352,7 +321,7 @@
                     <div class="batch-tree-item-row" *ngFor="let item of batchUncategorized"
                          [class.batch-row-delete]="item.toDelete"
                          [class.batch-row-new]="item.id === null && !item.toDelete"
-                         [class.batch-row-modified]="item.id !== null && !item.toDelete && (item.name !== item._origName || item.quantity !== item._origQty || item.categoryId !== item._origCategoryId)">
+                         [class.batch-row-modified]="isBatchItemModified(item)">
                         <button class="batch-tree-check-btn" (click)="item.checked = !item.checked"
                                 [disabled]="item.toDelete" [class.batch-checked]="item.checked">
                             <i class="fa" [ngClass]="item.checked ? 'fa-circle-check' : 'fa-circle'"></i>
@@ -375,7 +344,7 @@
                                     [disabled]="item.toDelete">+</button>
                         </div>
                         <button class="batch-tree-action-btn batch-tree-revert-btn"
-                                *ngIf="item.id !== null && !item.toDelete && (item.name !== item._origName || item.quantity !== item._origQty || item.categoryId !== item._origCategoryId)"
+                                *ngIf="isBatchItemModified(item)"
                                 (click)="revertBatchItem(item)" title="Annulla modifiche">
                             <i class="fa fa-rotate-left"></i>
                         </button>
@@ -405,8 +374,7 @@
         <div class="sidebar-body">
             <div class="participant-item" *ngFor="let p of sortedParticipants">
                 <div class="participant-avatar">
-                    <img *ngIf="p.profile_image" [src]="p.profile_image" [alt]="p.name" class="avatar-img">
-                    <div *ngIf="!p.profile_image" class="avatar-initials">{{getInitials(p)}}</div>
+                    <app-user-avatar [user]="p" [size]="36" shape="circle" [noBorder]="true"></app-user-avatar>
                 </div>
                 <div class="participant-info">
                     <span class="participant-name">{{p.name}} {{p.surname || ''}}</span>
@@ -465,8 +433,7 @@
                        [class.selected]="selectedNewOwnerId === p.user_id"
                        (click)="selectedNewOwnerId = p.user_id">
                     <div class="participant-avatar">
-                        <img *ngIf="p.profile_image" [src]="p.profile_image" [alt]="p.name" class="avatar-img">
-                        <div *ngIf="!p.profile_image" class="avatar-initials">{{getInitials(p)}}</div>
+                        <app-user-avatar [user]="p" [size]="36" shape="circle" [noBorder]="true"></app-user-avatar>
                     </div>
                     <span class="transfer-name">{{p.name}} {{p.surname || ''}}</span>
                     <i class="fa fa-circle-check transfer-check" *ngIf="selectedNewOwnerId === p.user_id"></i>
