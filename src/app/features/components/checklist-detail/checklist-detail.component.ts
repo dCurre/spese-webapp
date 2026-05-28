@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewChecked, ViewChildren, QueryList, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -11,6 +12,7 @@ import { ImportChecklistDialogComponent, ImportChecklistResult, ParsedCategory }
 import { ExportChecklistDialogComponent } from '../dialog/export-checklist-dialog/export-checklist-dialog.component';
 import { User } from 'src/app/core/services/postgres/user/user';
 import { ToastService } from 'src/app/core/services/toast/toast.service';
+import { RealtimeService } from 'src/app/core/services/realtime/realtime.service';
 
 export interface BatchItem {
   id: number | null;
@@ -120,6 +122,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected deletingList = false;
 
   private listId!: number;
+  private realtimeSub: Subscription | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -130,6 +133,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     private shoppingCategoryService: ShoppingCategoryService,
     private modalService: NgbModal,
     private toastService: ToastService,
+    private realtimeService: RealtimeService,
   ) {}
 
   ngAfterViewChecked(): void {
@@ -150,7 +154,9 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     });
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    this.realtimeSub?.unsubscribe();
+  }
 
   private loadList(): void {
     this.shoppingListService.getById(this.listId).subscribe({
@@ -158,9 +164,22 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
         this.list = list;
         this.hasLoaded = true;
         this.loadError = false;
+        if (list.list_type === 'shared') {
+          this.subscribeRealtime();
+        }
       },
       error: () => { this.hasLoaded = true; this.loadError = true; }
     });
+  }
+
+  private subscribeRealtime(): void {
+    if (this.realtimeSub) return;
+    const filter = `shopping_list_id=eq.${this.listId}`;
+    const items$ = this.realtimeService.watch('shopping_items', 'spese', filter);
+    const cats$ = this.realtimeService.watch('shopping_categories', 'spese', filter);
+    this.realtimeSub = new Subscription();
+    this.realtimeSub.add(items$.subscribe(() => { if (!this.batchMode) this.reload(); }));
+    this.realtimeSub.add(cats$.subscribe(() => { if (!this.batchMode) this.reload(); }));
   }
 
   private reload(): void {
