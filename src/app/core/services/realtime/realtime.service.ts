@@ -23,13 +23,8 @@ export class RealtimeService implements OnDestroy {
 
       const channel = this.supabase
         .channel(key)
-        .on('postgres_changes', channelConfig, (payload: any) => {
-          console.log('[Realtime] event received:', key, payload);
-          subject.next(payload);
-        })
-        .subscribe((status: string, err?: any) => {
-          console.log('[Realtime] channel status:', key, status, err ?? '');
-        });
+        .on('postgres_changes', channelConfig, (payload: any) => subject.next(payload))
+        .subscribe();
 
       this.channels.set(key, { channel, subject, refs: 0 });
     }
