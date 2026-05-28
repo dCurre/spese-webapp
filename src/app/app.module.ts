@@ -39,6 +39,8 @@ import { AuthService } from './core/services/auth/auth.service';
 
 // Pipe
 import { ExpenseFilterPipe } from './features/components/filter-pipes/expense-filter/expense-filter.pipe';
+import { DateItPipe } from './features/components/filter-pipes/date-it/date-it.pipe';
+import { EurPipe } from './features/components/filter-pipes/eur/eur.pipe';
 import { ChecklistComponent } from './features/components/checklist/checklist.component';
 import { ChecklistDetailComponent } from './features/components/checklist-detail/checklist-detail.component';
 import { CategoryNodeComponent } from './features/components/checklist-detail/category-node/category-node.component';
@@ -55,6 +57,7 @@ import { AddGuestDialogComponent } from './features/components/dialog/add-guest-
 import { AboutComponent } from './features/components/about/about.component';
 import { DcLogoComponent } from './features/components/dc-logo/dc-logo.component';
 import { UserAvatarComponent } from './features/components/shared/user-avatar/user-avatar.component';
+import { LoadErrorComponent } from './features/components/shared/load-error/load-error.component';
 import { ImportChecklistDialogComponent } from './features/components/dialog/import-checklist-dialog/import-checklist-dialog.component';
 import { ExportChecklistDialogComponent } from './features/components/dialog/export-checklist-dialog/export-checklist-dialog.component';
 
@@ -77,6 +80,8 @@ import { ExportChecklistDialogComponent } from './features/components/dialog/exp
     SaldoDetailsComponent,
     NotFoundComponent,
     ExpenseFilterPipe,
+    DateItPipe,
+    EurPipe,
     ToastComponent,
     ChecklistComponent,
     ChecklistDetailComponent,
@@ -94,6 +99,7 @@ import { ExportChecklistDialogComponent } from './features/components/dialog/exp
     AboutComponent,
     DcLogoComponent,
     UserAvatarComponent,
+    LoadErrorComponent,
     ImportChecklistDialogComponent,
     ExportChecklistDialogComponent,
   ],

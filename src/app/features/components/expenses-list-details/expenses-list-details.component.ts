@@ -18,6 +18,8 @@ import { UserService } from 'src/app/core/services/postgres/user/user.service';
 import { ExpensesListParticipantService } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant.service';
 import DateUtils from 'src/app/shared/utils/date-utils';
 import MathUtils from 'src/app/shared/utils/math-utils';
+import ListUtils from 'src/app/shared/utils/list-utils';
+import { expenseTypeIcon, expenseTypeAccent } from 'src/app/shared/utils/expense-type.utils';
 
 @Component({
   selector: 'app-expenses-list-details',
@@ -38,56 +40,17 @@ export class ExpenseListDetailsComponent implements OnInit {
   protected sortAsc = false;
 
   protected balanceDetails: SaldoDetails[] = [];
-  protected mapPagato = new Map<string, number>();
+  protected balanceTotals: { name: string; amount: number }[] = [];
   protected balanceOpen = window.innerWidth > 768;
   protected drawerOpen = false;
 
-  protected readonly expenseTypeIcons: Record<string, string> = {
-    'Alimentari':   'fa-basket-shopping',
-    'Ristorante':   'fa-utensils',
-    'Trasporti':    'fa-car',
-    'Alloggio':     'fa-house',
-    'Svago':        'fa-masks-theater',
-    'Salute':       'fa-heart-pulse',
-    'Abbigliamento':'fa-shirt',
-    'Utenze':       'fa-bolt',
-    'Altro':        'fa-circle-question',
-  };
-
-  expenseTypeIcon(type: string | null): string {
-    return type ? (this.expenseTypeIcons[type] ?? 'fa-tag') : 'fa-tag';
-  }
-
-  private readonly expenseTypeAccents: Record<string, string> = {
-    'Alimentari':    '#00d88a',
-    'Ristorante':    '#f59e0b',
-    'Trasporti':     '#a78bfa',
-    'Alloggio':      '#60a5fa',
-    'Svago':         '#f59e0b',
-    'Salute':        '#f87171',
-    'Abbigliamento': '#e879f9',
-    'Utenze':        '#f87171',
-    'Altro':         '#7b849e',
-  };
-
-  expenseTypeAccent(type: string | null): string {
-    return type ? (this.expenseTypeAccents[type] ?? '#00b37e') : '#00b37e';
-  }
+  readonly expenseTypeIcon = expenseTypeIcon;
+  readonly expenseTypeAccent = expenseTypeAccent;
 
   togglePanel(i: number) { this.openPanel = this.openPanel === i ? null : i; }
 
   get sortedExpenses(): Expense[] {
-    let list = this.searchTerm?.trim()
-      ? this.expenses.filter(e => e.name.toLowerCase().includes(this.searchTerm.trim().toLowerCase()))
-      : [...this.expenses];
-    list = list.sort((a, b) => {
-      let cmp = 0;
-      if (this.sortBy === 'name') cmp = a.name.localeCompare(b.name);
-      else if (this.sortBy === 'amount') cmp = Number(a.amount) - Number(b.amount);
-      else cmp = new Date(a.expense_date).getTime() - new Date(b.expense_date).getTime();
-      return this.sortAsc ? cmp : -cmp;
-    });
-    return list;
+    return ListUtils.filterAndSortExpenses(this.expenses, this.searchTerm, this.sortBy, this.sortAsc);
   }
 
   constructor(
@@ -113,43 +76,32 @@ export class ExpenseListDetailsComponent implements OnInit {
     forkJoin({
       list: this.pgExpensesListService.getById(id),
       expenses: this.pgExpenseService.getByListId(id),
+      balance: this.pgExpensesListService.getBalance(id),
     }).subscribe({
-      next: ({ list, expenses: res }) => {
+      next: ({ list, expenses: res, balance }) => {
         this.expensesList = list;
         this.expenses = res.expenses;
-        this.expensesListTotalAmount = res.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+        this.expensesListTotalAmount = MathUtils.totalAmount(res.expenses);
         this.expensesLoaded = true;
-        this.computeBalance(res.expenses);
+        this.balanceDetails = balance.balance;
+        this.balanceTotals = balance.totals;
       },
       error: (e) => console.error('ExpenseListDetailsComponent.loadData: ', e)
     });
   }
 
   reloadExpenses() {
-    this.pgExpenseService.getByListId(this.listID).subscribe({
-      next: (res) => {
+    forkJoin({
+      expenses: this.pgExpenseService.getByListId(this.listID),
+      balance: this.pgExpensesListService.getBalance(this.listID),
+    }).subscribe({
+      next: ({ expenses: res, balance }) => {
         this.expenses = res.expenses;
-        this.expensesListTotalAmount = res.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
-        this.computeBalance(res.expenses);
+        this.expensesListTotalAmount = MathUtils.totalAmount(res.expenses);
+        this.balanceDetails = balance.balance;
+        this.balanceTotals = balance.totals;
       },
       error: (e) => console.error('ExpenseListDetailsComponent.reloadExpenses: ', e)
-    });
-  }
-
-  private computeBalance(expenses: Expense[]) {
-    this.mapPagato = new Map();
-    expenses.forEach(e => {
-      const buyer = `${e.owner.name} ${e.owner.surname ?? ''}`;
-      this.mapPagato.set(buyer, (this.mapPagato.get(buyer) ?? 0) + Number(e.amount));
-    });
-
-    this.balanceDetails = [];
-    this.mapPagato.forEach((buyerPaid, buyer) => {
-      this.mapPagato.forEach((receiverPaid, receiver) => {
-        if (buyer !== receiver) {
-          this.balanceDetails.push(new SaldoDetails(buyer, receiver, (receiverPaid - buyerPaid) / this.mapPagato.size));
-        }
-      });
     });
   }
 
@@ -188,9 +140,7 @@ export class ExpenseListDetailsComponent implements OnInit {
     return !!expense.updated_at && !!expense.modified_by;
   }
 
-  formatToEur(amount: number) {
-    return MathUtils.formatToEur(amount);
-  }
+
 
   shareLink() {
     const link = `${window.location.origin}/join?list=${this.listID}`;

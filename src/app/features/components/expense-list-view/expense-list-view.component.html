@@ -56,7 +56,7 @@
             </button>
             <div class="total-badge">
                 <span class="total-label">Totale</span>
-                <span class="total-amount">{{formatToEur(expensesListTotalAmount)}}</span>
+                <span class="total-amount">{{expensesListTotalAmount | eur}}</span>
             </div>
         </div>
     </div>
@@ -89,12 +89,12 @@
                         <span class="balance-arrow"><i class="fa fa-arrow-right"></i></span>
                         <span class="balance-name">{{b.receiver}}</span>
                         <span class="balance-amount" [ngClass]="b.toPay > 0 ? 'amount-negative' : 'amount-positive'">
-                            {{formatToEur(b.toPay)}}
+                            {{b.toPay | eur}}
                         </span>
                     </div>
                 </div>
             </div>
-            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses" (removeGuest)="removeGuest.emit($event)"></app-saldo-details>
+            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses" [totals]="balanceTotals" (removeGuest)="removeGuest.emit($event)"></app-saldo-details>
         </div>
 
         <!-- Colonna destra: toolbar + grid -->
@@ -145,7 +145,7 @@
                     <div class="expense-card" *ngFor="let expense of sortedExpenses; let i = index" [style.--c-accent]="expenseTypeAccent(expense.expense_type)">
                         <div class="expense-card-header">
                             <span class="expense-card-name">{{expense.name}}</span>
-                            <span class="expense-card-amount">{{formatToEur(expense.amount)}}</span>
+                            <span class="expense-card-amount">{{expense.amount | eur}}</span>
                         </div>
                         <div class="expense-card-meta">
                             <span>
@@ -206,12 +206,12 @@
                         <span class="balance-arrow"><i class="fa fa-arrow-right"></i></span>
                         <span class="balance-name">{{b.receiver}}</span>
                         <span class="balance-amount" [ngClass]="b.toPay > 0 ? 'amount-negative' : 'amount-positive'">
-                            {{formatToEur(b.toPay)}}
+                            {{b.toPay | eur}}
                         </span>
                     </div>
                 </div>
             </div>
-            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses" (removeGuest)="removeGuest.emit($event)"></app-saldo-details>
+            <app-saldo-details [expensesList]="expensesList" [expenses]="expenses" [totals]="balanceTotals" (removeGuest)="removeGuest.emit($event)"></app-saldo-details>
         </ng-container>
 
         <div class="drawer-spacer"></div>

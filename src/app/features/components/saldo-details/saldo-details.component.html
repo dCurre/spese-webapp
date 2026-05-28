@@ -47,7 +47,7 @@
                     <div class="chart-legend-item" *ngFor="let label of pieChartData.labels; let i = index">
                         <span class="chart-legend-dot" [style.background]="chartColors[i]"></span>
                         <span class="chart-legend-name">{{label}}</span>
-                        <span class="chart-legend-value">{{formatToEur(pieChartData.datasets[0].data[i])}}</span>
+                        <span class="chart-legend-value">{{pieChartData.datasets[0].data[i] | eur}}</span>
                     </div>
                 </div>
             </ng-container>

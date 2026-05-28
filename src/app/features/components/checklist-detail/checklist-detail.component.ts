@@ -12,6 +12,30 @@ import { ExportChecklistDialogComponent } from '../dialog/export-checklist-dialo
 import { User } from 'src/app/core/services/postgres/user/user';
 import { ToastService } from 'src/app/core/services/toast/toast.service';
 
+export interface BatchItem {
+  id: number | null;
+  name: string;
+  _origName?: string;
+  quantity: number | null;
+  _origQty?: number | null;
+  checked: boolean;
+  toDelete: boolean;
+  categoryId: number | null;
+  _origCategoryId?: number | null;
+  categoryTempId: string | null;
+}
+
+export interface BatchCategory {
+  id: number | null;
+  tempId: string | null;
+  name: string;
+  _origName?: string;
+  toDelete: boolean;
+  depth: number;
+  parentId: number | null;
+  items: BatchItem[];
+}
+
 @Component({
   selector: 'app-checklist-detail',
   templateUrl: './checklist-detail.component.html',
@@ -71,13 +95,22 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected batchSaving = false;
   private batchTempCounter = 0;
   // batch categories
-  protected batchCategories: { id: number | null; tempId: string | null; name: string; _origName?: string; toDelete: boolean; depth: number; parentId: number | null; items: { id: number | null; name: string; _origName?: string; quantity: number | null; _origQty?: number | null; checked: boolean; toDelete: boolean; categoryId: number | null; _origCategoryId?: number | null; categoryTempId: string | null }[] }[] = [];
+  protected batchCategories: BatchCategory[] = [];
   // batch uncategorized
-  protected batchUncategorized: { id: number | null; name: string; _origName?: string; quantity: number | null; _origQty?: number | null; checked: boolean; toDelete: boolean; categoryId: number | null; _origCategoryId?: number | null; categoryTempId: string | null }[] = [];
+  protected batchUncategorized: BatchItem[] = [];
   protected batchAddAttempted = false;
-  // legacy alias for template footer counter
-  protected get batchItems(): { id: number | null; name: string; _origName?: string; quantity: number | null; _origQty?: number | null; checked: boolean; toDelete: boolean; categoryId: number | null; _origCategoryId?: number | null; categoryTempId: string | null }[] {
+  // alias per template footer counter
+  protected get batchItems(): BatchItem[] {
     return [...this.batchCategories.flatMap(c => c.items), ...this.batchUncategorized];
+  }
+
+  protected isBatchItemModified(item: BatchItem): boolean {
+    return item.id !== null && !item.toDelete &&
+      (item.name !== item._origName || item.quantity !== item._origQty || item.categoryId !== item._origCategoryId);
+  }
+
+  protected isBatchCategoryModified(cat: BatchCategory): boolean {
+    return cat.id !== null && !cat.toDelete && cat.name !== cat._origName;
   }
 
   protected sidebarOpen = false;
@@ -194,6 +227,11 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     node.items = this.uncategorizedItems;
     node.children = [];
     return node;
+  }
+
+  /** Tutte le categorie + nodo virtuale "Senza categoria" in coda */
+  protected get allCategoryNodes(): ShoppingCategory[] {
+    return [...this.categories, this.uncategorizedNode];
   }
 
   private get uncatAllChecked(): boolean {
@@ -403,15 +441,16 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected emptyingUncat = false;
 
   protected onNodeCategoryEmpty(e: CategoryDeletePayload): void {
-    if (e.cat.id !== 0 || this.emptyingUncat) return;
+    if (e.cat.id !== 0 || this.emptyingUncat || !this.list) return;
     const items = this.uncategorizedItems;
     if (!items.length) return;
     this.emptyingUncat = true;
-    let done = 0;
-    items.forEach(i => this.shoppingItemService.delete(i.id).subscribe({
-      next: () => { done++; if (done === items.length) { this.emptyingUncat = false; this.reload(); } },
-      error: () => { done++; if (done === items.length) { this.emptyingUncat = false; this.reload(); } }
-    }));
+    this.shoppingListService.batchSave(this.list.id, {
+      items_delete: items.map(i => i.id),
+    }).subscribe({
+      next: () => { this.emptyingUncat = false; this.reload(); },
+      error: () => { this.emptyingUncat = false; },
+    });
   }
 
   protected onNodeAddItemSave(e: AddItemPayload): void {
@@ -653,12 +692,10 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   }
 
   protected get batchModifiedCatCount(): number {
-    return this.batchCategories.filter(c => c.id !== null && !c.toDelete && c.name !== c._origName).length;
+    return this.batchCategories.filter(c => this.isBatchCategoryModified(c)).length;
   }
   protected get batchModifiedItemCount(): number {
-    return this.batchItems.filter(i => i.id !== null && !i.toDelete && (
-      i.name !== i._origName || i.quantity !== i._origQty || i.categoryId !== i._origCategoryId
-    )).length;
+    return this.batchItems.filter(i => this.isBatchItemModified(i)).length;
   }
   protected get batchModifiedCount(): number {
     return this.batchModifiedCatCount + this.batchModifiedItemCount;
@@ -855,11 +892,17 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     });
   }
 
+  // ── Utils ──────────────────────────────────────────────────────
+
+  private blurActive(): void {
+    (document.activeElement as HTMLElement)?.blur();
+  }
+
   // ── Import ────────────────────────────────────────────────────
 
   protected importItems(): void {
     if (!this.list) return;
-    (document.activeElement as HTMLElement)?.blur();
+    this.blurActive();
     const modal = this.modalService.open(ImportChecklistDialogComponent, { centered: true, size: 'lg' });
     modal.componentInstance.mode = 'add';
     modal.result.then((result: ImportChecklistResult | null) => {
@@ -910,7 +953,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
 
   protected exportList(): void {
     if (!this.list) return;
-    (document.activeElement as HTMLElement)?.blur();
+    this.blurActive();
     const modal = this.modalService.open(ExportChecklistDialogComponent, { centered: true, size: 'md' });
     modal.componentInstance.list = this.list;
   }
@@ -987,12 +1030,4 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     });
   }
 
-  protected getInitials(p: ShoppingListParticipant): string {
-    return `${p.name?.[0] ?? ''}${p.surname?.[0] ?? ''}`.toUpperCase() || '?';
-  }
-
-  protected formatDate(dateStr: string): string {
-    if (!dateStr) return '';
-    return new Date(dateStr).toLocaleDateString('it-IT', { day: '2-digit', month: 'long', year: 'numeric' });
-  }
 }

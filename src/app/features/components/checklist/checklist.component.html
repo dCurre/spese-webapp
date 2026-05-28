@@ -76,7 +76,7 @@
             <span class="group-expenses-count">
                 <i class="fa fa-cart-shopping"></i> {{list.items_count ?? 0}} articoli
             </span>
-            <span class="group-date">{{formatDate(list.created_at)}}</span>
+            <span class="group-date">{{list.created_at | dateIt}}</span>
             <span class="group-participants" *ngIf="list.list_type === 'shared'">
                 <i class="fa fa-users"></i> {{list.participants_count ?? 0}}
             </span>
@@ -98,13 +98,10 @@
     </div>
 
     <!-- Errore -->
-    <div *ngIf="hasLoaded && loadError" class="load-error">
-        <i class="fa fa-triangle-exclamation"></i>
-        <span>Impossibile caricare le checklist. Riprova più tardi.</span>
-        <button class="btn-retry" (click)="retry()">
-            <i class="fa fa-rotate-right"></i> Riprova
-        </button>
-    </div>
+    <app-load-error *ngIf="hasLoaded && loadError"
+        message="Impossibile caricare le checklist. Riprova più tardi."
+        (retry)="retry()">
+    </app-load-error>
 
     <!-- Empty state -->
     <div *ngIf="hasLoaded && !loadError && allLists.length === 0" class="empty-state">

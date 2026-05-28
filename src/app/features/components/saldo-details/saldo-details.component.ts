@@ -51,8 +51,14 @@ export class SaldoDetailsComponent implements OnInit {
     if (this._expensesList) this.processData(this._expensesList, expenses);
   }
 
+  @Input() set totals(value: { name: string; amount: number }[]) {
+    this._totals = value;
+    if (this._expensesList) this.processData(this._expensesList, this._expenses);
+  }
+
   private _expenses: Expense[] = [];
   private _expensesList: ExpensesList | null = null;
+  private _totals: { name: string; amount: number }[] | null = null;
 
   constructor() {}
 
@@ -68,26 +74,21 @@ export class SaldoDetailsComponent implements OnInit {
     const others = sorted.filter(p => p.user_id !== list.user_id);
     this.partecipantsList = owner ? [owner, ...others] : others;
 
-    this.expensesListTotalAmount = expenses.reduce((acc, e) => acc + Number(e.amount), 0);
-
-    this.mapPagato = new Map();
-    expenses.forEach(e => {
-      const key = this.groupBy === 'type'
-        ? (e.expense_type ?? 'Altro')
-        : `${e.owner.name} ${e.owner.surname ?? ''}`;
-      this.mapPagato.set(key, (this.mapPagato.get(key) ?? 0) + Number(e.amount));
-    });
-
-    this.mapPagato = new Map([...this.mapPagato.entries()].sort());
-
-    this.balanceDetails = [];
-    this.mapPagato.forEach((buyerPaid, buyer) => {
-      this.mapPagato.forEach((receiverPaid, receiver) => {
-        if (buyer !== receiver) {
-          this.balanceDetails.push(new SaldoDetails(buyer, receiver, (receiverPaid - buyerPaid) / this.mapPagato.size));
-        }
+    if (this._totals !== null) {
+      // Use totals from backend
+      this.mapPagato = new Map(this._totals.map(t => [t.name, t.amount]));
+    } else {
+      // Compute locally from expenses
+      this.expensesListTotalAmount = MathUtils.totalAmount(expenses);
+      this.mapPagato = new Map();
+      expenses.forEach(e => {
+        const key = this.groupBy === 'type'
+          ? (e.expense_type ?? 'Altro')
+          : `${e.owner.name} ${e.owner.surname ?? ''}`;
+        this.mapPagato.set(key, (this.mapPagato.get(key) ?? 0) + Number(e.amount));
       });
-    });
+      this.mapPagato = new Map([...this.mapPagato.entries()].sort());
+    }
 
     this.dataLoaded = true;
     this.fillChart();
@@ -118,10 +119,6 @@ export class SaldoDetailsComponent implements OnInit {
         },
       }
     };
-  }
-
-  formatToEur(amount: number) {
-    return MathUtils.formatToEur(amount);
   }
 
   filterByElement(balanceDetails: SaldoDetails[], filterKey: string) {

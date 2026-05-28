@@ -16,6 +16,7 @@ import { UserService } from 'src/app/core/services/postgres/user/user.service';
 import { environment } from 'src/environments/environment';
 import DateUtils from 'src/app/shared/utils/date-utils';
 import MathUtils from 'src/app/shared/utils/math-utils';
+import ListUtils from 'src/app/shared/utils/list-utils';
 
 @Component({
   selector: 'app-expenses-list-personal',
@@ -37,16 +38,7 @@ export class ExpensesListPersonalComponent implements OnInit {
   togglePanel(i: number) { this.openPanel = this.openPanel === i ? null : i; }
 
   get sortedExpenses(): Expense[] {
-    let list = this.searchTerm?.trim()
-      ? this.expenses.filter(e => e.name.toLowerCase().includes(this.searchTerm.trim().toLowerCase()))
-      : [...this.expenses];
-    return list.sort((a, b) => {
-      let cmp = 0;
-      if (this.sortBy === 'name') cmp = a.name.localeCompare(b.name);
-      else if (this.sortBy === 'amount') cmp = Number(a.amount) - Number(b.amount);
-      else cmp = new Date(a.expense_date).getTime() - new Date(b.expense_date).getTime();
-      return this.sortAsc ? cmp : -cmp;
-    });
+    return ListUtils.filterAndSortExpenses(this.expenses, this.searchTerm, this.sortBy, this.sortAsc);
   }
 
   constructor(
@@ -69,7 +61,7 @@ export class ExpensesListPersonalComponent implements OnInit {
     this.pgExpenseService.getByListId(this.listID).subscribe({
       next: (res) => {
         this.expenses = res.expenses;
-        this.expensesListTotalAmount = res.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+        this.expensesListTotalAmount = MathUtils.totalAmount(res.expenses);
         this.expensesLoaded = true;
       },
       error: (e) => console.error('ExpensesListPersonalComponent.getExpenses: ', e)
@@ -92,7 +84,7 @@ export class ExpensesListPersonalComponent implements OnInit {
     this.pgExpenseService.getByListId(this.listID).subscribe({
       next: (res) => {
         this.expenses = res.expenses;
-        this.expensesListTotalAmount = res.expenses.reduce((sum, e) => sum + Number(e.amount), 0);
+        this.expensesListTotalAmount = MathUtils.totalAmount(res.expenses);
       },
       error: (e) => console.error('ExpensesListPersonalComponent.reload: ', e)
     });
@@ -144,7 +136,7 @@ export class ExpensesListPersonalComponent implements OnInit {
     return !!expense.updated_at && !!expense.modified_by;
   }
 
-  formatToEur(amount: number) { return MathUtils.formatToEur(amount); }
+
 
   shareLink() {
     const link = `${environment.pgApiUrl.replace('localhost:5000', location.host)}/join?list=${this.listID}`;
