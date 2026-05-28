@@ -192,6 +192,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     this.shoppingListService.getById(this.listId).subscribe({
       next: (list) => {
         this.list = list;
+        this._uncategorizedNode = null;
       },
       error: () => {}
     });
