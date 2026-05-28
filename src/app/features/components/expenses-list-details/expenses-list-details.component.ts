@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { forkJoin, Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { RealtimeService } from 'src/app/core/services/realtime/realtime.service';
 import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expense-dialog.component';
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
@@ -79,11 +79,17 @@ export class ExpenseListDetailsComponent implements OnInit, OnDestroy {
   }
 
   private subscribeRealtime(): void {
-    this.realtimeSub = this.realtimeService.watch('expenses', 'spese')
+    this.realtimeSub = new Subscription();
+    this.realtimeSub.add(this.realtimeService.watch('expenses', 'spese')
       .subscribe((payload: any) => {
         const row = payload?.new ?? payload?.old;
         if (row?.expense_list_id === this.listID) this.reloadExpenses();
-      });
+      }));
+    this.realtimeSub.add(this.realtimeService.watch('expenses_list_participants', 'spese')
+      .subscribe((payload: any) => {
+        const row = payload?.new ?? payload?.old;
+        if (row?.expenses_list_id === this.listID) this.loadData(this.listID);
+      }));
   }
 
   private loadData(id: number) {
