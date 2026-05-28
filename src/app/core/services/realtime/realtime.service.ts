@@ -11,21 +11,25 @@ export class RealtimeService implements OnDestroy {
   private supabase: SupabaseClient = createClient(environment.supabaseUrl, environment.supabaseAnonKey, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   });
-  private channels = new Map<string, { channel: RealtimeChannel; subject: Subject<void>; refs: number }>();
+  private channels = new Map<string, { channel: RealtimeChannel; subject: Subject<any>; refs: number }>();
 
-  /** Ritorna un Observable che emette ogni volta che la tabella/riga specificata cambia. */
-  watch(table: Table, schema = 'spese', filter?: string): Observable<void> {
-    const key = filter ? `${schema}:${table}:${filter}` : `${schema}:${table}`;
+  /** Ritorna un Observable che emette il payload ogni volta che la tabella specificata cambia. */
+  watch(table: Table, schema = 'spese'): Observable<any> {
+    const key = `${schema}:${table}`;
 
     if (!this.channels.has(key)) {
-      const subject = new Subject<void>();
+      const subject = new Subject<any>();
       const channelConfig: any = { event: '*', schema, table };
-      if (filter) channelConfig.filter = filter;
 
       const channel = this.supabase
         .channel(key)
-        .on('postgres_changes', channelConfig, () => subject.next())
-        .subscribe();
+        .on('postgres_changes', channelConfig, (payload: any) => {
+          console.log('[Realtime] event received:', key, payload);
+          subject.next(payload);
+        })
+        .subscribe((status: string, err?: any) => {
+          console.log('[Realtime] channel status:', key, status, err ?? '');
+        });
 
       this.channels.set(key, { channel, subject, refs: 0 });
     }
@@ -33,7 +37,7 @@ export class RealtimeService implements OnDestroy {
     const entry = this.channels.get(key)!;
     entry.refs++;
 
-    return new Observable<void>(observer => {
+    return new Observable<any>(observer => {
       const sub = entry.subject.subscribe(observer);
       return () => {
         sub.unsubscribe();
