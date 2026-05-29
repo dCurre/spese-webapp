@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastService } from 'src/app/core/services/toast/toast.service';
 
 export interface ParsedItem {
   name: string;
@@ -35,6 +36,9 @@ export class ImportChecklistDialogComponent {
   protected parseError = false;
   protected attempted = false;
   protected jsonError: string | null = null;
+  protected textFormatError: string | null = null;
+  protected loadedFileName = '';
+  protected isDragging = false;
 
   // Risultati parsed — aggiornati su ogni ngModelChange del textarea
   protected parsedItems: ParsedItem[] = [];
@@ -42,16 +46,31 @@ export class ImportChecklistDialogComponent {
   protected jsonPreviewCategories: ParsedCategory[] = [];
   protected jsonPreviewItems: ParsedItem[] = [];
 
-  constructor(public modal: NgbActiveModal) {}
+  constructor(public modal: NgbActiveModal, private toastService: ToastService) {}
 
   protected onRawTextChange(text: string): void {
     this.rawText = text;
     if (this.importFormat === 'text') {
-      this.parsedItems = this.parseText(text);
+      const t = text.trim();
+      if (t.startsWith('{') || t.startsWith('[')) {
+        this.textFormatError = 'Sembra un JSON. Seleziona il formato JSON.';
+        this.parsedItems = [];
+      } else {
+        this.textFormatError = null;
+        this.parsedItems = this.parseText(text);
+      }
     } else {
-      this.parsedJson = this.parseJson(text);
-      this.jsonPreviewCategories = this.parsedJson?.categories ?? [];
-      this.jsonPreviewItems = this.parsedJson?.items ?? [];
+      const t = text.trim();
+      if (t && !t.startsWith('{') && !t.startsWith('[')) {
+        this.jsonError = 'Formato non valido. Incolla il JSON esportato dall\'app.';
+        this.parsedJson = null;
+        this.jsonPreviewCategories = [];
+        this.jsonPreviewItems = [];
+      } else {
+        this.parsedJson = this.parseJson(text);
+        this.jsonPreviewCategories = this.parsedJson?.categories ?? [];
+        this.jsonPreviewItems = this.parsedJson?.items ?? [];
+      }
     }
   }
 
@@ -67,8 +86,12 @@ export class ImportChecklistDialogComponent {
 
   protected get isValid(): boolean {
     if (this.mode === 'new' && !this.listName.trim()) return false;
-    if (this.importFormat === 'text') return this.parsedItems.length > 0;
-    if (!this.parsedJson) return false;
+    if (!this.rawText.trim()) return false;
+    if (this.importFormat === 'text') {
+      if (this.textFormatError) return false;
+      return this.parsedItems.length > 0;
+    }
+    if (this.jsonError || !this.parsedJson) return false;
     return (this.parsedJson.items?.length ?? 0) > 0 || (this.parsedJson.categories?.length ?? 0) > 0;
   }
 
@@ -94,11 +117,69 @@ export class ImportChecklistDialogComponent {
     this.importFormat = fmt;
     this.rawText = '';
     this.jsonError = null;
+    this.textFormatError = null;
     this.attempted = false;
     this.parsedItems = [];
     this.parsedJson = null;
     this.jsonPreviewCategories = [];
     this.jsonPreviewItems = [];
+    this.loadedFileName = '';
+    this.isDragging = false;
+  }
+
+  protected onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    this.loadFile(file);
+    input.value = '';
+  }
+
+  protected onDragOver(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = true;
+  }
+
+  protected onDragLeave(): void {
+    this.isDragging = false;
+  }
+
+  protected onDrop(event: DragEvent): void {
+    event.preventDefault();
+    this.isDragging = false;
+    const file = event.dataTransfer?.files?.[0];
+    if (file) this.loadFile(file);
+  }
+
+  protected clearFile(): void {
+    this.loadedFileName = '';
+    this.rawText = '';
+    this.parsedItems = [];
+    this.parsedJson = null;
+    this.jsonPreviewCategories = [];
+    this.jsonPreviewItems = [];
+    this.jsonError = null;
+    this.textFormatError = null;
+    this.attempted = false;
+  }
+
+  private loadFile(file: File): void {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string ?? '';
+      const t = text.trim();
+      if (this.importFormat === 'text' && (t.startsWith('{') || t.startsWith('['))) {
+        this.toastService.error('Formato non corretto, carica un file .txt');
+        return;
+      }
+      if (this.importFormat === 'json' && t && !t.startsWith('{') && !t.startsWith('[')) {
+        this.toastService.error('Formato non corretto, carica un file .json');
+        return;
+      }
+      this.loadedFileName = file.name;
+      this.onRawTextChange(text);
+    };
+    reader.readAsText(file, 'utf-8');
   }
 
   // ── PARSERS ───────────────────────────────────────────────────

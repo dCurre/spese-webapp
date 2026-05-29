@@ -14,7 +14,7 @@
             <button type="button" class="type-btn" [class.active]="selectedFormat === 'text'" (click)="selectedFormat = 'text'">
                 <i class="fa fa-align-left"></i>
                 <span class="type-btn-label">Testo</span>
-                <span class="type-btn-desc">Copia negli appunti</span>
+                <span class="type-btn-desc">Scarica o copia</span>
             </button>
             <button type="button" class="type-btn" [class.active]="selectedFormat === 'json'" (click)="selectedFormat = 'json'">
                 <i class="fa fa-code"></i>
@@ -33,13 +33,12 @@
 </div>
 
 <div class="dialog-footer">
-    <button class="btn-cancel" type="button" (click)="modal.close()">Chiudi</button>
-    <button class="btn-secondary" type="button" (click)="copyText()" *ngIf="selectedFormat === 'json'">
+    <button class="btn-secondary" type="button" (click)="copyText()">
         <i class="fa" [ngClass]="textCopied ? 'fa-check' : 'fa-copy'"></i>
-        {{ textCopied ? 'Copiato!' : 'Copia JSON' }}
+        {{ textCopied ? 'Copiato!' : (selectedFormat === 'text' ? 'Copia testo' : 'Copia JSON') }}
     </button>
-    <button class="btn-confirm" type="button" (click)="selectedFormat === 'text' ? copyText() : downloadJson()">
-        <i class="fa" [ngClass]="selectedFormat === 'text' ? (textCopied ? 'fa-check' : 'fa-copy') : 'fa-download'"></i>
-        {{ selectedFormat === 'text' ? (textCopied ? 'Copiato!' : 'Copia testo') : 'Scarica JSON' }}
+    <button class="btn-confirm" type="button" (click)="selectedFormat === 'text' ? downloadText() : downloadJson()">
+        <i class="fa fa-download"></i>
+        {{ selectedFormat === 'text' ? 'Scarica TXT' : 'Scarica JSON' }}
     </button>
 </div>

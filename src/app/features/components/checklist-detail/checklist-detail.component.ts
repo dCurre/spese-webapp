@@ -441,9 +441,14 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected onNodeItemDelete(e: ItemDeletePayload): void {
     if (this.deletingId) return;
     this.deletingId = e.item.id;
+    const { arr, idx } = this.removeItemLocally(e.item.id);
     this.shoppingItemService.delete(e.item.id).subscribe({
-      next: () => { this.deletingId = null; this.reload(); },
-      error: () => { this.deletingId = null; }
+      next: () => { this.deletingId = null; },
+      error: () => {
+        this.deletingId = null;
+        if (arr && idx !== -1) arr.splice(idx, 0, e.item);
+        this.toastService.error('Errore durante l\'eliminazione');
+      }
     });
   }
 
@@ -457,9 +462,14 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected onNodeCategoryDelete(e: CategoryDeletePayload): void {
     if (this.deletingId) return;
     this.deletingId = e.cat.id;
+    const { arr, idx } = this.removeCategoryLocally(e.cat.id);
     this.shoppingCategoryService.delete(e.cat.id).subscribe({
-      next: () => { this.deletingId = null; this.reload(); },
-      error: () => { this.deletingId = null; }
+      next: () => { this.deletingId = null; },
+      error: () => {
+        this.deletingId = null;
+        if (arr && idx !== -1) arr.splice(idx, 0, e.cat);
+        this.toastService.error('Errore durante l\'eliminazione');
+      }
     });
   }
 
@@ -568,9 +578,17 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     event.stopPropagation();
     if (this.deletingId) return;
     this.deletingId = item.id;
+
+    // Optimistic: rimuove subito dalla lista locale
+    const { arr, idx } = this.removeItemLocally(item.id);
+
     this.shoppingItemService.delete(item.id).subscribe({
-      next: () => { this.deletingId = null; this.reload(); },
-      error: () => { this.deletingId = null; }
+      next: () => { this.deletingId = null; },
+      error: () => {
+        this.deletingId = null;
+        if (arr && idx !== -1) arr.splice(idx, 0, item); // rollback
+        this.toastService.error('Errore durante l\'eliminazione');
+      }
     });
   }
 
@@ -578,10 +596,50 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     event.stopPropagation();
     if (this.deletingId) return;
     this.deletingId = cat.id;
+
+    // Optimistic: rimuove subito dalla lista locale
+    const { arr, idx } = this.removeCategoryLocally(cat.id);
+
     this.shoppingCategoryService.delete(cat.id).subscribe({
-      next: () => { this.deletingId = null; this.reload(); },
-      error: () => { this.deletingId = null; }
+      next: () => { this.deletingId = null; },
+      error: () => {
+        this.deletingId = null;
+        if (arr && idx !== -1) arr.splice(idx, 0, cat); // rollback
+        this.toastService.error('Errore durante l\'eliminazione');
+      }
     });
+  }
+
+  private removeItemLocally(itemId: number): { arr: ShoppingItem[] | null, idx: number } {
+    const items = this.list?.items ?? [];
+    const idx = items.findIndex(i => i.id === itemId);
+    if (idx !== -1) { items.splice(idx, 1); return { arr: items, idx }; }
+    return this.removeItemFromCategories(this.list?.categories ?? [], itemId);
+  }
+
+  private removeItemFromCategories(cats: ShoppingCategory[], itemId: number): { arr: ShoppingItem[] | null, idx: number } {
+    for (const cat of cats) {
+      const arr = cat.items ?? [];
+      const idx = arr.findIndex(i => i.id === itemId);
+      if (idx !== -1) { arr.splice(idx, 1); return { arr, idx }; }
+      const found = this.removeItemFromCategories(cat.children ?? [], itemId);
+      if (found.arr) return found;
+    }
+    return { arr: null, idx: -1 };
+  }
+
+  private removeCategoryLocally(catId: number): { arr: ShoppingCategory[] | null, idx: number } {
+    return this.removeCategoryFromArray(this.list?.categories ?? [], catId);
+  }
+
+  private removeCategoryFromArray(cats: ShoppingCategory[], catId: number): { arr: ShoppingCategory[] | null, idx: number } {
+    const idx = cats.findIndex(c => c.id === catId);
+    if (idx !== -1) { cats.splice(idx, 1); return { arr: cats, idx }; }
+    for (const cat of cats) {
+      const found = this.removeCategoryFromArray(cat.children ?? [], catId);
+      if (found.arr) return found;
+    }
+    return { arr: null, idx: -1 };
   }
 
   // ── Edit inline item ───────────────────────────────────────────
