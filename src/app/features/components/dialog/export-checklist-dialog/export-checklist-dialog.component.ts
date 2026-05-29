@@ -14,6 +14,8 @@ export class ExportChecklistDialogComponent {
   protected selectedFormat: 'text' | 'json' = 'text';
   protected textCopied = false;
 
+  private readonly exportedAt = new Date().toISOString();
+
   constructor(public modal: NgbActiveModal, private toastService: ToastService) {}
 
   protected get previewText(): string {
@@ -28,6 +30,17 @@ export class ExportChecklistDialogComponent {
       );
       setTimeout(() => (this.textCopied = false), 2000);
     });
+  }
+
+  protected downloadText(): void {
+    const blob = new Blob([this.buildText()], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${this.sanitizeFilename(this.list.name)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.toastService.success('File TXT scaricato!');
   }
 
   protected downloadJson(): void {
@@ -94,7 +107,7 @@ export class ExportChecklistDialogComponent {
   private buildJson(): string {
     const data = {
       name: this.list.name,
-      exported_at: new Date().toISOString(),
+      exported_at: this.exportedAt,
       items: (this.list.items || []).map(i => ({
         name: i.name,
         quantity: i.quantity ?? null,

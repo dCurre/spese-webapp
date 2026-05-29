@@ -50,6 +50,113 @@
     background: var(--color-bg-input);
 }
 
+.upload-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 1.25rem 1rem;
+    border: 2px dashed var(--color-border);
+    border-radius: 10px;
+    background: var(--color-bg-input);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    text-align: center;
+    min-height: 90px;
+    user-select: none;
+}
+
+.upload-zone:hover,
+.upload-zone--dragging {
+    border-color: #00b37e;
+    background: rgba(0, 179, 126, 0.05);
+}
+
+.upload-zone--loaded {
+    border-style: solid;
+    border-color: #00b37e;
+    background: rgba(0, 179, 126, 0.05);
+}
+
+.upload-zone__icon {
+    font-size: 1.4rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.1rem;
+}
+
+.upload-zone__icon--loaded {
+    color: #00b37e;
+}
+
+.upload-zone__text {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+.upload-zone__text--loaded {
+    font-weight: 600;
+    color: #00b37e;
+}
+
+.upload-zone__link {
+    color: #00b37e;
+    text-decoration: underline;
+}
+
+.upload-zone__hint {
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+}
+
+.upload-zone__clear {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(0, 179, 126, 0.4);
+    background: transparent;
+    color: #00b37e;
+    font-size: 0.7rem;
+    cursor: pointer;
+    margin-top: 0.15rem;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.upload-zone__clear:hover {
+    background: rgba(0, 179, 126, 0.12);
+    border-color: #00b37e;
+}
+
+.upload-zone__text-desktop { display: inline; }
+.upload-zone__text-mobile  { display: none; }
+
+@media (hover: none) and (pointer: coarse) {
+    .upload-zone__text-desktop { display: none; }
+    .upload-zone__text-mobile  { display: inline; }
+}
+
+.import-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0.65rem 0 0.5rem;
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.import-divider::before,
+.import-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--color-border);
+}
+
 .field-textarea {
     width: 100%;
     box-sizing: border-box;

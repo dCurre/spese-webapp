@@ -40,17 +40,45 @@
         </span>
     </div>
 
+    <!-- Input file nascosto (unico per entrambi i formati) -->
+    <input type="file" #fileInput style="display:none"
+           [accept]="importFormat === 'text' ? '.txt' : '.json'"
+           (change)="onFileSelected($event)">
+
     <!-- ── TESTO ── -->
     <ng-container *ngIf="importFormat === 'text'">
         <div class="field-group">
-            <label class="field-label">Incolla il testo della lista</label>
+            <div class="upload-zone"
+                 [class.upload-zone--dragging]="isDragging"
+                 [class.upload-zone--loaded]="loadedFileName"
+                 (click)="fileInput.click()"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave()"
+                 (drop)="onDrop($event)">
+                <ng-container *ngIf="!loadedFileName">
+                    <i class="fa fa-file-upload upload-zone__icon"></i>
+                    <span class="upload-zone__text">
+                        <span class="upload-zone__text-desktop">Trascina il file qui o <span class="upload-zone__link">clicca per selezionare</span></span>
+                        <span class="upload-zone__text-mobile">Tocca per selezionare un file</span>
+                    </span>
+                    <span class="upload-zone__hint">.txt</span>
+                </ng-container>
+                <ng-container *ngIf="loadedFileName">
+                    <i class="fa fa-file-alt upload-zone__icon upload-zone__icon--loaded"></i>
+                    <span class="upload-zone__text upload-zone__text--loaded">{{ loadedFileName }}</span>
+                    <button class="upload-zone__clear" type="button" (click)="$event.stopPropagation(); clearFile()" title="Rimuovi file">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </ng-container>
+            </div>
+            <div class="import-divider"><span>oppure incolla</span></div>
             <textarea class="field-textarea"
                       [ngModel]="rawText"
                       (ngModelChange)="onRawTextChange($event)"
                       placeholder="[v] Pane&#10;[v] Latte&#10;[  ] Uova&#10;..."
-                      rows="8"
+                      rows="5"
                       [autofocus]="mode === 'add'"></textarea>
-            <span class="field-hint">Supportati: Samsung Notes (<code>[v]</code> / <code>[  ]</code>), export testo app (<code>✓</code> / <code>○</code>)</span>
+            <span class="field-hint">Samsung Notes (<code>[v]</code> / <code>[  ]</code>), export testo app (<code>✓</code> / <code>○</code>)</span>
         </div>
 
         <div class="preview-wrap" *ngIf="parsedItems.length > 0">
@@ -68,7 +96,8 @@
             </div>
         </div>
 
-        <span class="field-error" *ngIf="attempted && parsedItems.length === 0">
+        <span class="field-error" *ngIf="rawText.trim() && textFormatError">{{ textFormatError }}</span>
+        <span class="field-error" *ngIf="attempted && !textFormatError && parsedItems.length === 0">
             Nessun articolo riconosciuto. Controlla il formato del testo.
         </span>
     </ng-container>
@@ -76,16 +105,37 @@
     <!-- ── JSON ── -->
     <ng-container *ngIf="importFormat === 'json'">
         <div class="field-group">
-            <label class="field-label">Incolla il JSON esportato</label>
+            <div class="upload-zone"
+                 [class.upload-zone--dragging]="isDragging"
+                 [class.upload-zone--loaded]="loadedFileName"
+                 (click)="fileInput.click()"
+                 (dragover)="onDragOver($event)"
+                 (dragleave)="onDragLeave()"
+                 (drop)="onDrop($event)">
+                <ng-container *ngIf="!loadedFileName">
+                    <i class="fa fa-file-code upload-zone__icon"></i>
+                    <span class="upload-zone__text">
+                        <span class="upload-zone__text-desktop">Trascina il file qui o <span class="upload-zone__link">clicca per selezionare</span></span>
+                        <span class="upload-zone__text-mobile">Tocca per selezionare un file</span>
+                    </span>
+                    <span class="upload-zone__hint">.json</span>
+                </ng-container>
+                <ng-container *ngIf="loadedFileName">
+                    <i class="fa fa-file-code upload-zone__icon upload-zone__icon--loaded"></i>
+                    <span class="upload-zone__text upload-zone__text--loaded">{{ loadedFileName }}</span>
+                    <button class="upload-zone__clear" type="button" (click)="$event.stopPropagation(); clearFile()" title="Rimuovi file">
+                        <i class="fa fa-times"></i>
+                    </button>
+                </ng-container>
+            </div>
+            <div class="import-divider"><span>oppure incolla</span></div>
             <textarea class="field-textarea field-textarea-mono"
                       [ngModel]="rawText"
                       (ngModelChange)="onRawTextChange($event)"
                       placeholder='{ "name": "Spesa", "categories": [...] }'
-                      rows="8"></textarea>
+                      rows="5"></textarea>
             <span class="field-hint">Incolla il contenuto copiato dal tasto "Copia JSON" o dal file .json scaricato.</span>
         </div>
-
-        <span class="field-error" *ngIf="rawText.trim() && jsonError">{{ jsonError }}</span>
 
         <!-- Preview JSON valido -->
         <div class="preview-wrap" *ngIf="parsedJson && !jsonError">
@@ -110,9 +160,7 @@
             </div>
         </div>
 
-        <span class="field-error" *ngIf="attempted && !parsedJson">
-            Incolla un JSON valido esportato dall'app.
-        </span>
+        <span class="field-error" *ngIf="rawText.trim() && jsonError">{{ jsonError }}</span>
     </ng-container>
 
 </div>
@@ -120,7 +168,7 @@
 <div class="dialog-footer">
     <button class="btn-cancel" type="button" (click)="modal.close(null)">Annulla</button>
     <button class="btn-confirm" type="button" (click)="confirm()"
-            [disabled]="attempted && !isValid">
+            [disabled]="!isValid">
         <i class="fa fa-file-import"></i>
         {{ mode === 'new' ? 'Crea e importa' : 'Importa' }}
     </button>
