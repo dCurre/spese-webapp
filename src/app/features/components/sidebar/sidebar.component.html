@@ -39,6 +39,22 @@
     </div>
 </aside>
 
+<!-- Top bar mobile -->
+<header class="top-bar" *ngIf="authService.getStoredUser() | async as user">
+    <div class="top-bar-logo">
+        <i class="fa fa-money-bill-wave top-bar-logo-icon"></i>
+        <span class="top-bar-logo-text">{{ appName }}</span>
+        <a class="top-bar-about-icon" routerLink="/about" routerLinkActive="active" title="About">
+            <i class="fa fa-circle-info"></i>
+        </a>
+    </div>
+    <a *ngIf="user.role === 'admin' || user.role === 'superadmin'"
+       routerLink="/admin" routerLinkActive="active"
+       class="top-bar-admin-icon" title="Admin">
+        <i class="fa fa-shield-halved"></i>
+    </a>
+</header>
+
 <!-- Bottom nav mobile -->
 <nav class="bottom-nav">
     <a class="bottom-nav-item" routerLink="" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
@@ -52,13 +68,5 @@
     <a class="bottom-nav-item" routerLink="/profile" routerLinkActive="active">
         <i class="fa fa-user"></i>
         <span>Profilo</span>
-    </a>
-    <a class="bottom-nav-item" routerLink="/admin" routerLinkActive="active" *ngIf="(authService.getStoredUser() | async)?.role === 'admin' || (authService.getStoredUser() | async)?.role === 'superadmin'">
-        <i class="fa fa-shield-halved"></i>
-        <span>Admin</span>
-    </a>
-    <a class="bottom-nav-item" routerLink="/about" routerLinkActive="active">
-        <i class="fa fa-circle-info"></i>
-        <span>About</span>
     </a>
 </nav>
