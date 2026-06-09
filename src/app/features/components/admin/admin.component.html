@@ -95,6 +95,63 @@
             </div>
         </div>
 
+        <!-- Unità di misura -->
+        <div class="admin-card" [class.collapsed]="collapsed.units">
+            <div class="admin-card-header" (click)="collapsed.units = !collapsed.units">
+                <i class="fa fa-ruler"></i>
+                <h3>Unità di misura</h3>
+                <i class="fa fa-chevron-down collapse-icon" [class.rotated]="collapsed.units"></i>
+            </div>
+
+            <div class="admin-list">
+                <div class="admin-list-item" *ngFor="let u of measurementUnits">
+                    <ng-container *ngIf="editingUnitId !== u.id">
+                        <span class="item-name">
+                            {{ u.name }}
+                            <span class="badge-unit-symbol">{{ u.symbol }}</span>
+                            <span class="badge-unit-category">{{ u.category }}</span>
+                            <span class="badge-protected" *ngIf="u.protected">predefinito</span>
+                        </span>
+                        <div class="item-actions">
+                            <button class="action-btn edit" (click)="startEditUnit(u)" [disabled]="u.protected" title="Modifica">
+                                <i class="fa fa-pen"></i>
+                            </button>
+                            <button class="action-btn delete" (click)="deleteUnit(u)" [disabled]="u.protected" title="Elimina">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="editingUnitId === u.id">
+                        <input class="edit-input" [(ngModel)]="editingUnitName" placeholder="Nome" (keyup.escape)="cancelEditUnit()">
+                        <input class="edit-input edit-input-symbol" [(ngModel)]="editingUnitSymbol" placeholder="Sim." (keyup.escape)="cancelEditUnit()">
+                        <select class="edit-select-category" [(ngModel)]="editingUnitCategory">
+                            <option *ngFor="let c of unitCategories" [value]="c">{{ c }}</option>
+                        </select>
+                        <div class="item-actions">
+                            <button class="action-btn save" (click)="saveUnit(u)" title="Salva">
+                                <i class="fa fa-check"></i>
+                            </button>
+                            <button class="action-btn cancel" (click)="cancelEditUnit()" title="Annulla">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
+
+            <div class="add-row add-row-unit">
+                <input class="add-input" [(ngModel)]="newUnitName" placeholder="Nome (es. Centilitro)">
+                <input class="add-input add-input-symbol" [(ngModel)]="newUnitSymbol" placeholder="cl">
+                <select class="add-select-category" [(ngModel)]="newUnitCategory">
+                    <option value="" disabled>Categoria</option>
+                    <option *ngFor="let c of unitCategories" [value]="c">{{ c }}</option>
+                </select>
+                <button class="btn-add btn-add-icon" (click)="addUnit()" [disabled]="!canAddUnit">
+                    <i class="fa fa-plus"></i>
+                </button>
+            </div>
+        </div>
+
     </div>
 
     <!-- Gestione ruoli utenti -->

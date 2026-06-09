@@ -1,0 +1,61 @@
+<div class="modal-header">
+    <h5 class="modal-title">
+        <i class="fa fa-receipt"></i>
+        {{ isEdit ? 'Modifica acquisto' : 'Registra acquisto' }}
+    </h5>
+    <button class="modal-close-btn" (click)="modal.dismiss()">
+        <i class="fa fa-times"></i>
+    </button>
+</div>
+
+<div class="modal-body">
+
+    <div class="form-group">
+        <label class="form-label">Data <span class="required">*</span></label>
+        <input class="form-input" type="date" [(ngModel)]="purchasedAt" />
+    </div>
+
+    <div class="form-row">
+        <div class="form-group">
+            <label class="form-label">Prezzo pagato <span class="required">*</span></label>
+            <app-currency-input
+                [(value)]="price"
+                [disabled]="saving"
+                [invalid]="price !== null && price <= 0">
+            </app-currency-input>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Quantità ({{ defaultUnitSymbol }}) <span class="required">*</span></label>
+            <app-qty-stepper
+                [(value)]="quantity"
+                [step]="1"
+                [min]="1"
+                [disabled]="saving">
+            </app-qty-stepper>
+        </div>
+    </div>
+
+    <!-- Unit price preview -->
+    <div class="unit-price-preview" *ngIf="unitPrice !== null">
+        <i class="fa fa-tag"></i>
+        <span>Prezzo unitario: <strong>€ {{ unitPrice | number:'1.2-4' }} / {{ defaultUnitSymbol }}</strong></span>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Negozio</label>
+        <input class="form-input" type="text" placeholder="Es. Esselunga, Lidl..." [(ngModel)]="store" />
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Note</label>
+        <textarea class="form-textarea" rows="2" placeholder="Note opzionali..." [(ngModel)]="notes"></textarea>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn-cancel" (click)="modal.dismiss()">Annulla</button>
+    <button class="btn-save" (click)="save()" [disabled]="!canSave">
+        <i class="fa fa-check"></i>
+        {{ isEdit ? 'Salva modifiche' : 'Registra' }}
+    </button>
+</div>

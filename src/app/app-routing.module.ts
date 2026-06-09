@@ -24,6 +24,8 @@ import { JoinChecklistComponent } from './features/components/join-checklist/joi
 import { ProfileComponent } from './features/components/profile/profile.component';
 import { SignUpComponent } from './features/components/sign-up/sign-up.component';
 import { ExpensesListPersonalComponent } from './features/components/expenses-list-personal/expenses-list-personal.component';
+import { PriceHistoryComponent } from './features/components/price-history/price-history.component';
+import { PriceHistoryDetailComponent } from './features/components/price-history-detail/price-history-detail.component';
 const routes: Routes = [
   { path: 'join', component: JoinComponent, canActivate: [AuthGuard, JoinGuard] },
   { path: 'signin', component: SignInComponent, canActivate: [SignInGuard], data: { animation: 'signin' } },
@@ -35,6 +37,8 @@ const routes: Routes = [
   { path: 'checklist', component: ChecklistComponent, canActivate: [AuthGuard] },
   { path: 'checklist/join/:token', component: JoinChecklistComponent, canActivate: [AuthGuard] },
   { path: 'checklist/:id', component: ChecklistDetailComponent, canActivate: [AuthGuard] },
+  { path: 'price-history', component: PriceHistoryComponent, canActivate: [AuthGuard] },
+  { path: 'price-history/:id', component: PriceHistoryDetailComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'about', component: AboutComponent, canActivate: [AuthGuard] },
   { path: '', component: HomeComponent, canActivate: [AuthGuard]  },

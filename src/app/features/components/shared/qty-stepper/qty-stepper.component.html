@@ -1,0 +1,5 @@
+<div class="stepper" [class.stepper-sm]="size === 'sm'" [class.stepper-disabled]="disabled">
+    <button class="stepper-btn" (click)="decrement()" [disabled]="!canDecrement">−</button>
+    <span class="stepper-value">{{ displayValue }}</span>
+    <button class="stepper-btn" (click)="increment()" [disabled]="disabled">+</button>
+</div>

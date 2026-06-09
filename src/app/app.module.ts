@@ -60,6 +60,12 @@ import { UserAvatarComponent } from './features/components/shared/user-avatar/us
 import { LoadErrorComponent } from './features/components/shared/load-error/load-error.component';
 import { ImportChecklistDialogComponent } from './features/components/dialog/import-checklist-dialog/import-checklist-dialog.component';
 import { ExportChecklistDialogComponent } from './features/components/dialog/export-checklist-dialog/export-checklist-dialog.component';
+import { PriceHistoryComponent } from './features/components/price-history/price-history.component';
+import { PriceHistoryDetailComponent } from './features/components/price-history-detail/price-history-detail.component';
+import { NewProductDialogComponent } from './features/components/dialog/new-product-dialog/new-product-dialog.component';
+import { NewPurchaseDialogComponent } from './features/components/dialog/new-purchase-dialog/new-purchase-dialog.component';
+import { QtyStepperComponent } from './features/components/shared/qty-stepper/qty-stepper.component';
+import { CurrencyInputComponent } from './features/components/shared/currency-input/currency-input.component';
 
 @NgModule({
   declarations: [
@@ -102,6 +108,12 @@ import { ExportChecklistDialogComponent } from './features/components/dialog/exp
     LoadErrorComponent,
     ImportChecklistDialogComponent,
     ExportChecklistDialogComponent,
+    PriceHistoryComponent,
+    PriceHistoryDetailComponent,
+    NewProductDialogComponent,
+    NewPurchaseDialogComponent,
+    QtyStepperComponent,
+    CurrencyInputComponent,
   ],
   imports: [
     BrowserModule,

@@ -653,49 +653,7 @@
 .edit-category-select:focus { border-color: #00b37e; }
 .edit-category-select:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.qty-stepper {
-    display: flex;
-    align-items: center;
-    border: 1.5px solid var(--color-border);
-    border-radius: 7px;
-    overflow: hidden;
-    flex-shrink: 0;
-    transition: border-color 0.15s;
-}
-.qty-stepper:focus-within { border-color: #00b37e; box-shadow: 0 0 0 3px rgba(0,179,126,0.1); }
-.qty-stepper-disabled { opacity: 0.4; }
 
-.qty-btn {
-    width: 28px;
-    height: 32px;
-    border: none;
-    background: var(--color-bg-input);
-    color: var(--color-text-secondary);
-    font-size: 1rem;
-    line-height: 1;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.15s, color 0.15s;
-    flex-shrink: 0;
-}
-.qty-btn:hover:not(:disabled) { background: rgba(0,179,126,0.12); color: #00b37e; }
-.qty-btn:disabled { cursor: not-allowed; opacity: 0.4; }
-
-.qty-value {
-    min-width: 32px;
-    text-align: center;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    padding: 0 0.25rem;
-    background: var(--color-bg-card);
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
 
 
 /* ── BATCH CATEGORIES (tree style) ── */
@@ -1386,34 +1344,7 @@
 .btn-add-inline-label { font-size: 0.85rem; color: var(--color-text-muted); }
 .btn-add-inline:hover .btn-add-inline-label { color: #00b37e; }
 
-.qty-stepper {
-    display: flex; align-items: center;
-    border: 1.5px solid var(--color-border);
-    border-radius: 7px; overflow: hidden;
-    flex-shrink: 0;
-    transition: border-color 0.15s;
-}
-.qty-stepper:focus-within { border-color: #00b37e; }
-.qty-stepper-disabled { opacity: 0.4; }
 
-.qty-btn {
-    width: 26px; height: 30px;
-    border: none; background: var(--color-bg-input);
-    color: var(--color-text-secondary); font-size: 1rem;
-    cursor: pointer; display: flex; align-items: center; justify-content: center;
-    transition: background 0.15s, color 0.15s; flex-shrink: 0;
-}
-.qty-btn:hover:not(:disabled) { background: rgba(0,179,126,0.12); color: #00b37e; }
-.qty-btn:disabled { cursor: not-allowed; opacity: 0.4; }
-
-.qty-value {
-    min-width: 28px; text-align: center;
-    font-size: 0.82rem; font-weight: 600;
-    color: var(--color-text-primary);
-    background: var(--color-bg-card);
-    height: 30px; display: flex; align-items: center; justify-content: center;
-    padding: 0 0.2rem;
-}
 
 /* ── Header / body stile categoria (usato anche per "senza categoria") ── */
 .category-header {

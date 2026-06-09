@@ -1,0 +1,6 @@
+/* Styles handled by global .field-input-prefix / .field-prefix / .field-input classes in styles.css */
+:host { display: block; }
+
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }

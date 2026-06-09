@@ -1,0 +1,102 @@
+<!-- Header -->
+<div class="detail-header">
+    <button class="btn-back" (click)="goBack()" title="Torna alla lista">
+        <i class="fa fa-arrow-left"></i>
+    </button>
+    <div class="detail-title-wrap" *ngIf="product">
+        <h2 class="detail-title">{{ product.name }}</h2>
+        <span class="detail-brand" *ngIf="product.brand">{{ product.brand }}</span>
+    </div>
+    <div class="detail-header-actions" *ngIf="product">
+        <button class="btn-icon-action" (click)="openEditProduct()" title="Modifica prodotto">
+            <i class="fa fa-pen"></i>
+        </button>
+        <button class="btn-icon-action btn-icon-danger" (click)="deleteProduct()" title="Elimina prodotto">
+            <i class="fa fa-trash"></i>
+        </button>
+        <button class="btn-add-purchase" (click)="openNewPurchase()">
+            <i class="fa fa-plus"></i> Registra acquisto
+        </button>
+    </div>
+</div>
+
+<!-- Error -->
+<app-load-error *ngIf="hasLoaded && loadError" (retry)="retry()"></app-load-error>
+
+<div class="detail-scroll" *ngIf="!loadError">
+
+    <!-- Chart section -->
+    <div class="chart-section" *ngIf="product">
+        <div class="chart-header">
+            <span class="chart-title">
+                <i class="fa fa-chart-line"></i> Andamento prezzo
+                <span *ngIf="product.default_unit_symbol" class="chart-unit-label">€ / {{ product.default_unit_symbol }}</span>
+            </span>
+            <div class="granularity-toggle">
+                <button [class.active]="granularity === 'year'"  (click)="setGranularity('year')">Anno</button>
+                <button [class.active]="granularity === 'month'" (click)="setGranularity('month')">Mese</button>
+                <button [class.active]="granularity === 'day'"   (click)="setGranularity('day')">Giorno</button>
+            </div>
+        </div>
+
+        <div class="chart-wrap">
+            <div class="chart-loading" *ngIf="!chartHasLoaded">
+                <div class="skeleton-line" style="height:100%; border-radius:8px;"></div>
+            </div>
+            <canvas *ngIf="chartHasLoaded && chartData.labels!.length > 0"
+                baseChart
+                [data]="chartData"
+                [options]="chartOptions"
+                type="line">
+            </canvas>
+            <div class="chart-empty" *ngIf="chartHasLoaded && chartData.labels!.length === 0">
+                <i class="fa fa-chart-line"></i>
+                <span>Nessun dato disponibile per questo periodo.</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Purchases list -->
+    <div class="purchases-section">
+        <div class="purchases-header">
+            <span class="purchases-title">Acquisti registrati</span>
+            <span class="purchases-count" *ngIf="hasLoaded && purchases.length > 0">{{ purchases.length }}</span>
+        </div>
+
+        <!-- Skeleton -->
+        <ng-container *ngIf="!hasLoaded">
+            <div class="purchase-row skeleton-row" *ngFor="let i of [1,2,3]">
+                <div class="skeleton-line skeleton-line-medium"></div>
+            </div>
+        </ng-container>
+
+        <!-- Empty -->
+        <div class="purchases-empty" *ngIf="hasLoaded && purchases.length === 0">
+            <i class="fa fa-receipt"></i>
+            <span>Nessun acquisto registrato. Inizia aggiungendone uno!</span>
+        </div>
+
+        <!-- List -->
+        <div class="purchase-row" *ngFor="let p of purchases">
+            <div class="purchase-date">
+                <i class="fa fa-calendar-day"></i>
+                {{ p.purchased_at }}
+            </div>
+            <div class="purchase-price-block">
+                <span class="purchase-unit-price">€ {{ p.unit_price | number:'1.2-4' }} / {{ p.unit_symbol }}</span>
+                <span class="purchase-detail">{{ p.price | number:'1.2-2' }} € · {{ p.quantity }} {{ p.unit_symbol }}</span>
+            </div>
+            <div class="purchase-store" *ngIf="p.store">
+                <i class="fa fa-store"></i> {{ p.store }}
+            </div>
+            <div class="purchase-actions">
+                <button class="action-btn edit" (click)="openEditPurchase(p)" title="Modifica">
+                    <i class="fa fa-pen"></i>
+                </button>
+                <button class="action-btn delete" (click)="deletePurchase(p)" title="Elimina">
+                    <i class="fa fa-trash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,83 @@
+<div class="section-header">
+    <h2 class="section-title"><i class="fa fa-chart-line"></i> Storico Prezzi</h2>
+    <div class="section-actions">
+        <button class="btn-new-product" (click)="openNewProduct()">
+            <i class="fa fa-plus"></i> Nuovo prodotto
+        </button>
+    </div>
+</div>
+
+<div class="toolbar">
+    <div class="search-input-wrap">
+        <i class="fa fa-search search-icon"></i>
+        <input
+            class="search-input"
+            type="text"
+            placeholder="Cerca prodotto o brand..."
+            [(ngModel)]="searchTerm"
+        />
+        <button class="search-clear" *ngIf="searchTerm" (click)="searchTerm = ''">
+            <i class="fa fa-times"></i>
+        </button>
+    </div>
+</div>
+
+<div class="products-scroll">
+
+    <!-- Skeleton -->
+    <ng-container *ngIf="!hasLoaded">
+        <div class="products-grid">
+            <div class="product-card skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+                <div class="skeleton-avatar-lg"></div>
+                <div class="skeleton-info">
+                    <div class="skeleton-line skeleton-line-medium"></div>
+                    <div class="skeleton-line skeleton-line-short"></div>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+
+    <!-- Error -->
+    <app-load-error *ngIf="hasLoaded && loadError" (retry)="retry()"></app-load-error>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="hasLoaded && !loadError && filtered.length === 0 && !searchTerm">
+        <i class="fa fa-box-open empty-icon"></i>
+        <p class="empty-title">Nessun prodotto</p>
+        <p class="empty-sub">Aggiungi un prodotto per iniziare a tracciare i prezzi.</p>
+        <button class="btn-new-product" (click)="openNewProduct()">
+            <i class="fa fa-plus"></i> Nuovo prodotto
+        </button>
+    </div>
+
+    <!-- No results from search -->
+    <div class="empty-state" *ngIf="hasLoaded && !loadError && filtered.length === 0 && searchTerm">
+        <i class="fa fa-magnifying-glass empty-icon"></i>
+        <p class="empty-title">Nessun risultato</p>
+        <p class="empty-sub">Nessun prodotto corrisponde a "{{ searchTerm }}".</p>
+    </div>
+
+    <!-- Grid -->
+    <div class="products-grid" *ngIf="hasLoaded && !loadError && filtered.length > 0">
+        <div
+            class="product-card"
+            *ngFor="let p of filtered"
+            (click)="goToDetail(p)"
+        >
+            <div class="product-card-avatar">
+                <i class="fa fa-box"></i>
+            </div>
+            <div class="product-card-body">
+                <span class="product-name">{{ p.name }}</span>
+                <span class="product-brand" *ngIf="p.brand">{{ p.brand }}</span>
+            </div>
+            <div class="product-card-footer">
+                <span class="product-unit-badge" *ngIf="p.default_unit_symbol">
+                    {{ p.default_unit_symbol }}
+                </span>
+                <i class="fa fa-chevron-right product-card-arrow"></i>
+            </div>
+        </div>
+    </div>
+
+</div>

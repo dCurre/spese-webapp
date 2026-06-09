@@ -1,0 +1,62 @@
+:host { display: block; }
+
+.stepper {
+    display: flex;
+    align-items: center;
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    transition: border-color 0.15s;
+}
+.stepper:focus-within { border-color: #00b37e; }
+.stepper-disabled { opacity: 0.4; pointer-events: none; }
+
+.stepper-btn {
+    width: 36px;
+    height: 38px;
+    border: none;
+    background: var(--color-bg-input);
+    color: var(--color-text-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+}
+.stepper-btn:hover:not(:disabled) { background: rgba(0,179,126,0.12); color: #00b37e; }
+.stepper-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.stepper-value {
+    flex: 1;
+    min-width: 36px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    background: var(--color-bg-card);
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.25rem;
+}
+
+/* ── Small variant (checklist inline rows) ── */
+.stepper-sm {
+    width: auto;
+    border-radius: 7px;
+}
+.stepper-sm .stepper-btn {
+    width: 26px;
+    height: 30px;
+    font-size: 1rem;
+}
+.stepper-sm .stepper-value {
+    min-width: 28px;
+    height: 30px;
+    font-size: 0.82rem;
+}

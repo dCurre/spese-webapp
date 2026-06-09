@@ -17,6 +17,10 @@
             <i class="fa fa-list-check"></i>
             <span>Checklist spesa</span>
         </a>
+        <a class="sidebar-item" routerLink="/price-history" routerLinkActive="active">
+            <i class="fa fa-chart-line"></i>
+            <span>Storico Prezzi</span>
+        </a>
         <ng-container *ngIf="authService.getStoredUser() | async as user">
             <a class="sidebar-item sidebar-item-admin" routerLink="/admin" routerLinkActive="active" *ngIf="user.role === 'admin' || user.role === 'superadmin'">
                 <i class="fa fa-shield-halved"></i>
@@ -64,6 +68,10 @@
     <a class="bottom-nav-item" routerLink="/checklist" routerLinkActive="active">
         <i class="fa fa-list-check"></i>
         <span>Checklist</span>
+    </a>
+    <a class="bottom-nav-item" routerLink="/price-history" routerLinkActive="active">
+        <i class="fa fa-chart-line"></i>
+        <span>Prezzi</span>
     </a>
     <a class="bottom-nav-item" routerLink="/profile" routerLinkActive="active">
         <i class="fa fa-user"></i>

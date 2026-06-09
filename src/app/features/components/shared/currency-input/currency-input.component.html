@@ -1,0 +1,17 @@
+<div class="field-input-prefix">
+    <span class="field-prefix">{{ currency }}</span>
+    <input
+        type="number"
+        class="field-input with-prefix"
+        [class.is-invalid]="invalid"
+        [class.is-valid]="valid"
+        [placeholder]="placeholder"
+        [value]="value != null ? value : ''"
+        [disabled]="disabled"
+        step="0.01"
+        min="0"
+        onfocus="this.select();"
+        (input)="onInput($event)"
+        (blur)="blurred.emit()"
+    />
+</div>

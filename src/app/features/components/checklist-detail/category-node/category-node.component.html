@@ -135,12 +135,13 @@
                 <input #addItemInput class="batch-input batch-input-name" type="text" [ngModel]="newCategoryItemName"
                        (ngModelChange)="addItemNameChange.emit($event)"
                        (keydown)="onAddItemKeydown($event, cat)" [disabled]="savingItem">
-                <div class="qty-stepper" [class.qty-stepper-disabled]="savingItem">
-                    <button class="qty-btn" (click)="addItemQtyChange.emit(newCategoryItemQty > 1 ? newCategoryItemQty - 1 : 1)"
-                            [disabled]="savingItem || newCategoryItemQty <= 1">−</button>
-                    <span class="qty-value">{{newCategoryItemQty}}</span>
-                    <button class="qty-btn" (click)="addItemQtyChange.emit(newCategoryItemQty + 1)" [disabled]="savingItem">+</button>
-                </div>
+                <app-qty-stepper
+                    size="sm"
+                    [value]="newCategoryItemQty"
+                    (valueChange)="addItemQtyChange.emit($event ?? 1)"
+                    [min]="1"
+                    [disabled]="savingItem">
+                </app-qty-stepper>
                 <button class="btn-edit-save" (click)="addItemSave.emit({ cat: cat, name: newCategoryItemName, quantity: newCategoryItemQty })"
                         [disabled]="!newCategoryItemName.trim() || savingItem">
                     <i class="fa" [ngClass]="savingItem ? 'fa-spinner fa-spin' : 'fa-check'"></i>
@@ -178,13 +179,14 @@
                                 <option [ngValue]="null">Senza categoria</option>
                                 <option *ngFor="let c of allCategories" [ngValue]="c.id">{{c.label}}</option>
                             </select>
-                            <div class="qty-stepper" [class.qty-stepper-disabled]="savingEditId === item.id">
-                                <button class="qty-btn" (click)="itemEditQtyChange.emit(editingItemQty && editingItemQty > 1 ? editingItemQty - 1 : null)"
-                                        [disabled]="savingEditId === item.id || !editingItemQty">−</button>
-                                <span class="qty-value">{{editingItemQty || '—'}}</span>
-                                <button class="qty-btn" (click)="itemEditQtyChange.emit((editingItemQty || 0) + 1)"
-                                        [disabled]="savingEditId === item.id">+</button>
-                            </div>
+                            <app-qty-stepper
+                                size="sm"
+                                [value]="editingItemQty"
+                                (valueChange)="itemEditQtyChange.emit($event)"
+                                [min]="1"
+                                [allowNull]="true"
+                                [disabled]="savingEditId === item.id">
+                            </app-qty-stepper>
                             <button class="btn-edit-save" (click)="itemSave.emit({ item: item, name: editingItemName, quantity: editingItemQty, categoryId: editingItemCategoryId })"
                                     [disabled]="!editingItemName.trim() || savingEditId === item.id">
                                 <i class="fa" [ngClass]="savingEditId === item.id ? 'fa-spinner fa-spin' : 'fa-check'"></i>

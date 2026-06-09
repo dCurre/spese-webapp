@@ -306,6 +306,78 @@
     box-shadow: 0 0 0 3px rgba(0,179,126,0.1);
 }
 
+/* ── Unità di misura ── */
+.badge-unit-symbol {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.1rem 0.45rem;
+    border-radius: 5px;
+    background: rgba(0,179,126,0.1);
+    color: #00875a;
+    border: 1px solid rgba(0,179,126,0.25);
+}
+
+.badge-unit-category {
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 0.1rem 0.45rem;
+    border-radius: 5px;
+    background: var(--color-bg-input);
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+}
+
+.add-row-unit {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.add-input-symbol {
+    flex: 0 0 64px;
+    min-width: 0;
+}
+
+.add-select-category {
+    flex: 1;
+    min-width: 100px;
+    padding: 0.5rem 0.75rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.15s;
+    background: var(--color-bg-card);
+    color: var(--color-text-primary);
+    cursor: pointer;
+}
+.add-select-category:focus {
+    border-color: #00b37e;
+    box-shadow: 0 0 0 3px rgba(0,179,126,0.1);
+}
+
+.edit-input-symbol {
+    flex: 0 0 70px;
+}
+
+.edit-select-category {
+    flex: 1;
+    padding: 0.3rem 0.5rem;
+    border: 1.5px solid #00b37e;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0,179,126,0.1);
+    background: var(--color-bg-card);
+    color: var(--color-text-primary);
+    cursor: pointer;
+    min-width: 80px;
+}
+
+.btn-add-icon {
+    flex-shrink: 0;
+    padding: 0.5rem 0.75rem;
+}
+
 @media (max-width: 768px) {
     .admin-page { padding: 1rem; }
     .admin-grid { grid-template-columns: 1fr; }

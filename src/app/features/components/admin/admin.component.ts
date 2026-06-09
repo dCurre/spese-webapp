@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserRole, UserRoleService } from 'src/app/core/services/postgres/user-role/user-role.service';
 import { ExpenseType, ExpenseTypeService } from 'src/app/core/services/postgres/expense-type/expense-type.service';
+import { MeasurementUnit, MeasurementUnitService } from 'src/app/core/services/postgres/measurement-unit/measurement-unit.service';
 import { User } from 'src/app/core/services/postgres/user/user';
 import { UserService } from 'src/app/core/services/postgres/user/user.service';
 import { AuthService } from 'src/app/core/services/auth/auth.service';
@@ -16,15 +17,19 @@ export class AdminComponent implements OnInit {
 
   roles: UserRole[] = [];
   expenseTypes: ExpenseType[] = [];
+  measurementUnits: MeasurementUnit[] = [];
   users: User[] = [];
   loggedUser: User | null = null;
 
   newRoleName = '';
   newExpenseTypeName = '';
+  newUnitName = '';
+  newUnitSymbol = '';
+  newUnitCategory = '';
 
   copiedUserId: number | null = null;
 
-  collapsed = { roles: false, types: false, users: false };
+  collapsed = { roles: false, types: false, units: false, users: false };
 
   editingRoleId: number | null = null;
   editingRoleName = '';
@@ -32,9 +37,17 @@ export class AdminComponent implements OnInit {
   editingTypeId: number | null = null;
   editingTypeName = '';
 
+  editingUnitId: number | null = null;
+  editingUnitName = '';
+  editingUnitSymbol = '';
+  editingUnitCategory = '';
+
+  readonly unitCategories = ['peso', 'volume', 'numero', 'lunghezza', 'energia'];
+
   constructor(
     private userRoleService: UserRoleService,
     private expenseTypeService: ExpenseTypeService,
+    private measurementUnitService: MeasurementUnitService,
     private userService: UserService,
     private authService: AuthService,
     private toastService: ToastService,
@@ -45,6 +58,7 @@ export class AdminComponent implements OnInit {
     this.authService.getStoredUser().subscribe(u => this.loggedUser = u);
     this.loadRoles();
     this.loadTypes();
+    this.loadUnits();
     this.loadUsers();
   }
 
@@ -89,6 +103,46 @@ export class AdminComponent implements OnInit {
 
   deleteRole(role: UserRole) {
     this.userRoleService.delete(role.id).subscribe({ next: () => this.loadRoles() });
+  }
+
+  // ── Unità di misura ──
+  loadUnits() {
+    this.measurementUnitService.getAll().subscribe({ next: (res) => this.measurementUnits = res.measurement_units });
+  }
+
+  get canAddUnit(): boolean {
+    return this.newUnitName.trim().length > 0 && this.newUnitSymbol.trim().length > 0 && this.newUnitCategory.length > 0;
+  }
+
+  addUnit() {
+    if (!this.canAddUnit) return;
+    this.measurementUnitService.create({
+      name: this.newUnitName.trim(),
+      symbol: this.newUnitSymbol.trim(),
+      category: this.newUnitCategory,
+    }).subscribe({ next: () => { this.newUnitName = ''; this.newUnitSymbol = ''; this.newUnitCategory = ''; this.loadUnits(); } });
+  }
+
+  startEditUnit(u: MeasurementUnit) {
+    this.editingUnitId = u.id;
+    this.editingUnitName = u.name;
+    this.editingUnitSymbol = u.symbol;
+    this.editingUnitCategory = u.category;
+  }
+
+  saveUnit(u: MeasurementUnit) {
+    const name = this.editingUnitName.trim();
+    const symbol = this.editingUnitSymbol.trim();
+    if (!name || !symbol) return;
+    this.measurementUnitService.update(u.id, { name, symbol, category: this.editingUnitCategory }).subscribe({
+      next: () => { this.editingUnitId = null; this.loadUnits(); },
+    });
+  }
+
+  cancelEditUnit() { this.editingUnitId = null; }
+
+  deleteUnit(u: MeasurementUnit) {
+    this.measurementUnitService.delete(u.id).subscribe({ next: () => this.loadUnits() });
   }
 
   // ── Tipologie spesa ──

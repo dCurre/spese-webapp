@@ -271,13 +271,14 @@
                                 <option [ngValue]="null">Senza categoria</option>
                                 <option *ngFor="let fc of flatBatchCategories" [ngValue]="fc.tempId ?? fc.id">{{fc.label}}</option>
                             </select>
-                            <div class="qty-stepper" [class.qty-stepper-disabled]="item.toDelete">
-                                <button class="qty-btn" (click)="item.quantity = item.quantity && item.quantity > 1 ? item.quantity - 1 : null"
-                                        [disabled]="item.toDelete || !item.quantity || item.quantity <= 1">−</button>
-                                <span class="qty-value">{{item.quantity || '—'}}</span>
-                                <button class="qty-btn" (click)="item.quantity = (item.quantity || 0) + 1"
-                                        [disabled]="item.toDelete">+</button>
-                            </div>
+                            <app-qty-stepper
+                                size="sm"
+                                [value]="item.quantity"
+                                (valueChange)="item.quantity = $event"
+                                [min]="1"
+                                [allowNull]="true"
+                                [disabled]="item.toDelete">
+                            </app-qty-stepper>
                             <button class="batch-tree-action-btn batch-tree-revert-btn"
                                     *ngIf="isBatchItemModified(item)"
                                     (click)="revertBatchItem(item)" title="Annulla modifiche">
@@ -336,13 +337,14 @@
                             <option [ngValue]="null">Senza categoria</option>
                             <option *ngFor="let fc of flatBatchCategories" [ngValue]="fc.tempId ?? fc.id">{{fc.label}}</option>
                         </select>
-                        <div class="qty-stepper" [class.qty-stepper-disabled]="item.toDelete">
-                            <button class="qty-btn" (click)="item.quantity = item.quantity && item.quantity > 1 ? item.quantity - 1 : null"
-                                    [disabled]="item.toDelete || !item.quantity || item.quantity <= 1">−</button>
-                            <span class="qty-value">{{item.quantity || '—'}}</span>
-                            <button class="qty-btn" (click)="item.quantity = (item.quantity || 0) + 1"
-                                    [disabled]="item.toDelete">+</button>
-                        </div>
+                        <app-qty-stepper
+                            size="sm"
+                            [value]="item.quantity"
+                            (valueChange)="item.quantity = $event"
+                            [min]="1"
+                            [allowNull]="true"
+                            [disabled]="item.toDelete">
+                        </app-qty-stepper>
                         <button class="batch-tree-action-btn batch-tree-revert-btn"
                                 *ngIf="isBatchItemModified(item)"
                                 (click)="revertBatchItem(item)" title="Annulla modifiche">
