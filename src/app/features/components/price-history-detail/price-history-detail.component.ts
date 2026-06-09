@@ -204,7 +204,9 @@ export class PriceHistoryDetailComponent implements OnInit {
     modal.result
       .then((updated) => {
         if (!updated) return;
-        this.product = { ...this.product!, ...updated };
+        this.productService.getById(this.product!.id).subscribe((p) => {
+          this.product = p;
+        });
       })
       .catch(() => {});
   }
