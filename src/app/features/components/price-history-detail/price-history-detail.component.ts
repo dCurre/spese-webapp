@@ -37,18 +37,21 @@ export class PriceHistoryDetailComponent implements OnInit {
     },
     scales: {
       x: {
-        grid: { color: 'rgba(0,0,0,0.05)' },
-        ticks: { font: { size: 11 } },
+        grid: { color: 'rgba(255,255,255,0.04)' },
+        ticks: { font: { size: 11 }, color: 'rgba(255,255,255,0.45)' },
       },
       y: {
-        grid: { color: 'rgba(0,0,0,0.05)' },
+        grid: { color: 'rgba(255,255,255,0.04)' },
         ticks: {
           font: { size: 11 },
+          color: 'rgba(255,255,255,0.45)',
           callback: (v) => `€ ${Number(v).toFixed(2)}`,
         },
       },
     },
   };
+
+  protected readonly dotColors = ['#00b37e', '#6366f1', '#f59e0b', '#06b6d4', '#a78bfa', '#fb923c'];
 
   private loggedUserId: number | null = null;
 
@@ -67,6 +70,57 @@ export class PriceHistoryDetailComponent implements OnInit {
     });
     const id = Number(this.route.snapshot.paramMap.get('id'));
     this.loadProduct(id);
+  }
+
+  protected get stats() {
+    if (!this.purchases.length) return null;
+    const sorted = [...this.purchases].sort((a, b) =>
+      b.purchased_at.localeCompare(a.purchased_at),
+    );
+    const latest = sorted[0];
+    const previous = sorted[1];
+    const currentUnitPrice = latest.unit_price ?? null;
+    const priceChangePercent =
+      currentUnitPrice != null && previous?.unit_price != null
+        ? ((currentUnitPrice - previous.unit_price) / previous.unit_price) * 100
+        : null;
+    const priceChangePrevLabel = previous
+      ? new Date(previous.purchased_at + 'T00:00:00').toLocaleDateString('it-IT', { month: 'short' })
+      : '';
+
+    const totalSpent = this.purchases.reduce((s, p) => s + p.price, 0);
+    const totalQty = this.purchases.reduce((s, p) => s + p.quantity, 0);
+    const avgQty = totalQty / this.purchases.length;
+    const unitSymbol = latest.unit_symbol ?? this.product?.default_unit_symbol ?? '';
+
+    const lastDate = new Date(latest.purchased_at + 'T00:00:00');
+    const daysSince = Math.floor((Date.now() - lastDate.getTime()) / 86400000);
+    const lastDateStr = lastDate.toLocaleDateString('it-IT', {
+      day: 'numeric', month: 'short', year: 'numeric',
+    });
+
+    return {
+      currentUnitPrice,
+      unitSymbol,
+      priceChangePercent,
+      priceChangePrevLabel,
+      totalSpent,
+      totalQty,
+      avgQty,
+      lastDateStr,
+      daysSince,
+      count: this.purchases.length,
+    };
+  }
+
+  protected dotColor(i: number): string {
+    return this.dotColors[i % this.dotColors.length];
+  }
+
+  protected formatDate(s: string): string {
+    return new Date(s + 'T00:00:00').toLocaleDateString('it-IT', {
+      day: 'numeric', month: 'long', year: 'numeric',
+    });
   }
 
   private loadProduct(id: number): void {

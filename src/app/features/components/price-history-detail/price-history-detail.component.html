@@ -20,82 +20,102 @@
     </div>
 </div>
 
-<!-- Error -->
 <app-load-error *ngIf="hasLoaded && loadError" (retry)="retry()"></app-load-error>
 
 <div class="detail-scroll" *ngIf="!loadError">
 
-    <!-- Chart section -->
-    <div class="chart-section" *ngIf="product">
-        <div class="chart-header">
-            <span class="chart-title">
-                <i class="fa fa-chart-line"></i> Andamento prezzo
-                <span *ngIf="product.default_unit_symbol" class="chart-unit-label">€ / {{ product.default_unit_symbol }}</span>
-            </span>
-            <div class="granularity-toggle">
-                <button [class.active]="granularity === 'year'"  (click)="setGranularity('year')">Anno</button>
-                <button [class.active]="granularity === 'month'" (click)="setGranularity('month')">Mese</button>
-                <button [class.active]="granularity === 'day'"   (click)="setGranularity('day')">Giorno</button>
+    <!-- Top: stats + chart affiancati -->
+    <div class="detail-top" *ngIf="product">
+
+        <div class="stats-col" *ngIf="hasLoaded && stats">
+            <div class="stat-card">
+                <div class="stat-label"><i class="fa fa-tag"></i> Prezzo attuale</div>
+                <div class="stat-value">
+                    €{{ stats.currentUnitPrice | number:'1.2-4' }}<span class="stat-unit">/{{ stats.unitSymbol }}</span>
+                </div>
+                <div class="stat-badge"
+                     [class.badge-down]="stats.priceChangePercent! < 0"
+                     [class.badge-up]="stats.priceChangePercent! > 0"
+                     *ngIf="stats.priceChangePercent !== null">
+                    <i class="fa" [ngClass]="stats.priceChangePercent < 0 ? 'fa-arrow-trend-down' : 'fa-arrow-trend-up'"></i>
+                    {{ stats.priceChangePercent | number:'1.0-1' }}% da {{ stats.priceChangePrevLabel }}
+                </div>
+                <div class="stat-sub" *ngIf="stats.priceChangePercent === null">Primo acquisto</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label"><i class="fa fa-calendar-check"></i> Ultimo acquisto</div>
+                <div class="stat-value stat-value-date">{{ stats.lastDateStr }}</div>
+                <div class="stat-sub">{{ stats.daysSince === 0 ? 'Oggi' : stats.daysSince + ' giorni fa' }}</div>
             </div>
         </div>
 
-        <div class="chart-wrap">
-            <div class="chart-loading" *ngIf="!chartHasLoaded">
-                <div class="skeleton-line" style="height:100%; border-radius:8px;"></div>
+        <!-- Chart -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <span class="chart-title">
+                    <i class="fa fa-chart-line"></i> Andamento prezzo
+                    <span *ngIf="product.default_unit_symbol" class="chart-unit-label">€ / {{ product.default_unit_symbol }}</span>
+                </span>
+                <div class="granularity-toggle">
+                    <button [class.active]="granularity === 'year'"  (click)="setGranularity('year')">Anno</button>
+                    <button [class.active]="granularity === 'month'" (click)="setGranularity('month')">Mese</button>
+                    <button [class.active]="granularity === 'day'"   (click)="setGranularity('day')">Giorno</button>
+                </div>
             </div>
-            <canvas *ngIf="chartHasLoaded && chartData.labels!.length > 0"
-                baseChart
-                [data]="chartData"
-                [options]="chartOptions"
-                type="line">
-            </canvas>
-            <div class="chart-empty" *ngIf="chartHasLoaded && chartData.labels!.length === 0">
-                <i class="fa fa-chart-line"></i>
-                <span>Nessun dato disponibile per questo periodo.</span>
+            <div class="chart-wrap">
+                <div class="chart-loading" *ngIf="!chartHasLoaded">
+                    <div class="skeleton-line" style="height:100%; border-radius:8px;"></div>
+                </div>
+                <canvas *ngIf="chartHasLoaded && chartData.labels!.length > 0"
+                    baseChart
+                    [data]="chartData"
+                    [options]="chartOptions"
+                    type="line">
+                </canvas>
+                <div class="chart-empty" *ngIf="chartHasLoaded && chartData.labels!.length === 0">
+                    <i class="fa fa-chart-line"></i>
+                    <span>Nessun dato disponibile.</span>
+                </div>
             </div>
         </div>
+
     </div>
 
-    <!-- Purchases list -->
-    <div class="purchases-section">
+    <!-- Purchases: piena larghezza -->
+    <div class="purchases-section" *ngIf="product">
         <div class="purchases-header">
             <span class="purchases-title">Acquisti registrati</span>
             <span class="purchases-count" *ngIf="hasLoaded && purchases.length > 0">{{ purchases.length }}</span>
         </div>
 
-        <!-- Skeleton -->
         <ng-container *ngIf="!hasLoaded">
             <div class="purchase-row skeleton-row" *ngFor="let i of [1,2,3]">
                 <div class="skeleton-line skeleton-line-medium"></div>
             </div>
         </ng-container>
 
-        <!-- Empty -->
         <div class="purchases-empty" *ngIf="hasLoaded && purchases.length === 0">
             <i class="fa fa-receipt"></i>
-            <span>Nessun acquisto registrato. Inizia aggiungendone uno!</span>
+            <span>Nessun acquisto registrato.</span>
         </div>
 
-        <!-- List -->
         <div class="purchase-row" *ngFor="let p of purchases">
-            <div class="purchase-date">
-                <i class="fa fa-calendar-day"></i>
-                {{ p.purchased_at }}
+            <div class="purchase-main">
+                <span class="purchase-date"><i class="fa fa-calendar-day"></i> {{ formatDate(p.purchased_at) }}</span>
+                <span class="purchase-primary">€{{ p.price | number:'1.2-2' }} · {{ p.quantity }} {{ p.unit_symbol }}</span>
+                <span class="purchase-secondary">€{{ p.unit_price | number:'1.2-4' }} / {{ p.unit_symbol }}</span>
             </div>
-            <div class="purchase-price-block">
-                <span class="purchase-unit-price">€ {{ p.unit_price | number:'1.2-4' }} / {{ p.unit_symbol }}</span>
-                <span class="purchase-detail">{{ p.price | number:'1.2-2' }} € · {{ p.quantity }} {{ p.unit_symbol }}</span>
-            </div>
-            <div class="purchase-store" *ngIf="p.store">
-                <i class="fa fa-store"></i> {{ p.store }}
-            </div>
-            <div class="purchase-actions">
-                <button class="action-btn edit" (click)="openEditPurchase(p)" title="Modifica">
-                    <i class="fa fa-pen"></i>
-                </button>
-                <button class="action-btn delete" (click)="deletePurchase(p)" title="Elimina">
-                    <i class="fa fa-trash"></i>
-                </button>
+            <span class="purchase-store" *ngIf="p.store"><i class="fa fa-store"></i> {{ p.store }}</span>
+            <div class="purchase-right">
+                <div class="purchase-actions">
+                    <button class="action-btn edit" (click)="openEditPurchase(p)" title="Modifica">
+                        <i class="fa fa-pen"></i>
+                    </button>
+                    <button class="action-btn delete" (click)="deletePurchase(p)" title="Elimina">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
