@@ -267,14 +267,21 @@
 .purchases-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.875rem 1.1rem;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
     border-bottom: 1px solid var(--color-border);
 }
 
+.purchases-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 .purchases-title {
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.9rem;
+    font-weight: 700;
     color: var(--color-text-primary);
 }
 
@@ -284,13 +291,56 @@
     background: #00b37e;
     color: white;
     border-radius: 999px;
-    padding: 0.1rem 0.45rem;
-    min-width: 18px;
+    padding: 0.1rem 0.5rem;
+    min-width: 20px;
     text-align: center;
 }
 
+.btn-table-action {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border: 1.5px solid var(--color-border);
+    border-radius: 7px;
+    background: var(--color-bg-card);
+    color: var(--color-text-secondary);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+}
+.btn-table-action:hover { border-color: #00b37e; color: #00b37e; }
+
+.purchases-columns {
+    display: grid;
+    grid-template-columns: 170px 80px 90px 140px 1fr 56px;
+    gap: 0.5rem;
+    padding: 0.45rem 1.25rem;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-bg-input);
+}
+.purchases-columns span {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+}
+
+.purchases-month-label {
+    padding: 0.4rem 1.25rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-border);
+}
+
 .purchases-empty {
-    padding: 2rem 1.1rem;
+    padding: 2rem 1.25rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -303,68 +353,68 @@
 
 /* Purchase rows */
 .purchase-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: 170px 80px 90px 140px 1fr 56px;
+    gap: 0.5rem;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.7rem 1.1rem;
-    border-bottom: 1px solid var(--color-border);
+    padding: 0.65rem 1.25rem;
+    border-bottom: 1px solid var(--color-bg-input);
     transition: background 0.12s;
-    cursor: default;
 }
 .purchase-row:last-child { border-bottom: none; }
 .purchase-row:hover { background: var(--color-bg-input); }
 .purchase-row:hover .purchase-actions { opacity: 1; }
 
-
-.purchase-main {
-    flex: 1;
+.purchase-date-cell {
     display: flex;
-    flex-direction: column;
-    gap: 0.12rem;
-    min-width: 0;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
 }
 
-.purchase-primary {
-    font-size: 0.95rem;
+.purchase-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.purchase-total {
+    font-size: 0.9rem;
     font-weight: 700;
     color: var(--color-text-primary);
 }
 
-.purchase-secondary {
-    font-size: 0.72rem;
-    color: var(--color-text-muted);
+.purchase-qty {
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
 }
 
-.purchase-right {
+.purchase-unit-col {
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
+}
+
+.purchase-store-note {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
     display: flex;
     align-items: center;
-    flex-shrink: 0;
-}
-
-
-.purchase-date {
-    font-size: 0.72rem;
-    color: var(--color-text-muted);
+    gap: 0.3rem;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
 }
-.purchase-date i { font-size: 0.65rem; opacity: 0.6; }
+.purchase-store-note i { font-size: 0.7rem; opacity: 0.7; flex-shrink: 0; }
 
-.purchase-store {
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    flex-shrink: 0;
-}
-.purchase-store i { font-size: 0.65rem; opacity: 0.6; }
+.empty-dash { opacity: 0.4; }
 
 .purchase-actions {
     display: flex;
     gap: 0.25rem;
+    justify-content: flex-end;
     opacity: 0;
     transition: opacity 0.15s;
 }
@@ -405,6 +455,18 @@
     .detail-top { grid-template-columns: 1fr; }
     .stats-col { flex-direction: row; height: auto; }
     .purchase-actions { opacity: 1; }
+    .purchases-columns { display: none; }
+    .purchase-row {
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        row-gap: 0.15rem;
+    }
+    .purchase-date-cell { grid-column: 1; grid-row: 1; }
+    .purchase-total     { grid-column: 2; grid-row: 1; }
+    .purchase-qty       { grid-column: 1; grid-row: 2; font-size: 0.76rem; }
+    .purchase-unit-col  { display: none; }
+    .purchase-store-note { display: none; }
+    .purchase-actions   { grid-column: 2; grid-row: 2; justify-content: flex-end; }
 }
 @media (max-width: 600px) {
     .detail-header { flex-wrap: wrap; padding: 14px 16px; }

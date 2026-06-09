@@ -84,39 +84,68 @@
 
     <!-- Purchases: piena larghezza -->
     <div class="purchases-section" *ngIf="product">
+
         <div class="purchases-header">
-            <span class="purchases-title">Acquisti registrati</span>
-            <span class="purchases-count" *ngIf="hasLoaded && purchases.length > 0">{{ purchases.length }}</span>
+            <div class="purchases-header-left">
+                <span class="purchases-title">Acquisti registrati</span>
+                <span class="purchases-count" *ngIf="hasLoaded && purchases.length > 0">{{ purchases.length }}</span>
+            </div>
+            <button class="btn-table-action" (click)="toggleSort()" *ngIf="purchases.length > 1">
+                <i class="fa" [ngClass]="sortDesc ? 'fa-arrow-down-wide-short' : 'fa-arrow-up-wide-short'"></i> Data
+            </button>
         </div>
 
+        <!-- Column headers -->
+        <div class="purchases-columns" *ngIf="hasLoaded && purchases.length > 0">
+            <span>Data</span>
+            <span>Totale</span>
+            <span>Quantità</span>
+            <span>Prezzo unitario</span>
+            <span>Negozio / Nota</span>
+            <span></span>
+        </div>
+
+        <!-- Skeleton -->
         <ng-container *ngIf="!hasLoaded">
             <div class="purchase-row skeleton-row" *ngFor="let i of [1,2,3]">
                 <div class="skeleton-line skeleton-line-medium"></div>
             </div>
         </ng-container>
 
+        <!-- Empty -->
         <div class="purchases-empty" *ngIf="hasLoaded && purchases.length === 0">
             <i class="fa fa-receipt"></i>
             <span>Nessun acquisto registrato.</span>
         </div>
 
-        <div class="purchase-row" *ngFor="let p of purchases">
-            <div class="purchase-main">
-                <span class="purchase-date"><i class="fa fa-calendar-day"></i> {{ formatDate(p.purchased_at) }}</span>
-                <span class="purchase-primary">€{{ p.price | number:'1.2-2' }} · {{ p.quantity }} {{ p.unit_symbol }}</span>
-                <span class="purchase-secondary">€{{ p.unit_price | number:'1.2-4' }} / {{ p.unit_symbol }}</span>
-            </div>
-            <span class="purchase-store" *ngIf="p.store"><i class="fa fa-store"></i> {{ p.store }}</span>
-            <div class="purchase-right">
+        <!-- Grouped rows -->
+        <ng-container *ngFor="let group of groupedPurchases">
+            <div class="purchases-month-label">{{ group.month }}</div>
+            <div class="purchase-row" *ngFor="let p of group.items">
+                <div class="purchase-date-cell">
+                    <span class="purchase-dot" [style.background]="dotColor(purchaseFlatIndex(p))"></span>
+                    <span>{{ formatDate(p.purchased_at) }}</span>
+                </div>
+                <span class="purchase-total">€{{ p.price | number:'1.2-2' }}</span>
+                <span class="purchase-qty">{{ p.quantity }} {{ p.unit_symbol }}</span>
+                <span class="purchase-unit-col">€{{ p.unit_price | number:'1.2-4' }} / {{ p.unit_symbol }}</span>
+                <span class="purchase-store-note">
+                    <ng-container *ngIf="p.store; else noteOrEmpty">
+                        <i class="fa fa-store"></i> {{ p.store }}
+                    </ng-container>
+                    <ng-template #noteOrEmpty>
+                        <ng-container *ngIf="p.notes; else dash">
+                            <i class="fa fa-tag"></i> {{ p.notes }}
+                        </ng-container>
+                        <ng-template #dash><span class="empty-dash">—</span></ng-template>
+                    </ng-template>
+                </span>
                 <div class="purchase-actions">
-                    <button class="action-btn edit" (click)="openEditPurchase(p)" title="Modifica">
-                        <i class="fa fa-pen"></i>
-                    </button>
-                    <button class="action-btn delete" (click)="deletePurchase(p)" title="Elimina">
-                        <i class="fa fa-trash"></i>
-                    </button>
+                    <button class="action-btn edit" (click)="openEditPurchase(p)" title="Modifica"><i class="fa fa-pen"></i></button>
+                    <button class="action-btn delete" (click)="deletePurchase(p)" title="Elimina"><i class="fa fa-trash"></i></button>
                 </div>
             </div>
-        </div>
+        </ng-container>
+
     </div>
 </div>

@@ -52,6 +52,7 @@ export class PriceHistoryDetailComponent implements OnInit {
   };
 
   protected readonly dotColors = ['#00b37e', '#6366f1', '#f59e0b', '#06b6d4', '#a78bfa', '#fb923c'];
+  protected sortDesc = true;
 
   private loggedUserId: number | null = null;
 
@@ -115,6 +116,35 @@ export class PriceHistoryDetailComponent implements OnInit {
 
   protected dotColor(i: number): string {
     return this.dotColors[i % this.dotColors.length];
+  }
+
+  protected toggleSort(): void {
+    this.sortDesc = !this.sortDesc;
+  }
+
+  protected get sortedPurchases(): Purchase[] {
+    return [...this.purchases].sort((a, b) =>
+      this.sortDesc
+        ? b.purchased_at.localeCompare(a.purchased_at)
+        : a.purchased_at.localeCompare(b.purchased_at),
+    );
+  }
+
+  protected get groupedPurchases(): { month: string; items: Purchase[] }[] {
+    const groups: { month: string; items: Purchase[] }[] = [];
+    for (const p of this.sortedPurchases) {
+      const month = new Date(p.purchased_at + 'T00:00:00')
+        .toLocaleDateString('it-IT', { month: 'long', year: 'numeric' })
+        .toUpperCase();
+      const existing = groups.find((g) => g.month === month);
+      if (existing) existing.items.push(p);
+      else groups.push({ month, items: [p] });
+    }
+    return groups;
+  }
+
+  protected purchaseFlatIndex(p: Purchase): number {
+    return this.sortedPurchases.findIndex((x) => x.id === p.id);
   }
 
   protected formatDate(s: string): string {
