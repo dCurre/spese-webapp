@@ -43,7 +43,21 @@
 
     <div class="form-group">
         <label class="form-label">Negozio</label>
-        <input class="form-input" type="text" placeholder="Es. Esselunga, Lidl..." [(ngModel)]="store" />
+        <div class="store-wrap">
+            <input class="form-input" type="text"
+                [value]="store"
+                (input)="onStoreInput($event)"
+                (blur)="onStoreBlur()"
+                placeholder="Es. Esselunga, Lidl..."
+                autocomplete="off" />
+            <div class="store-dropdown" *ngIf="showStoreSuggestions">
+                <button class="store-suggestion" *ngFor="let s of storeSuggestions"
+                    (mousedown)="selectStore(s)">
+                    <span class="suggestion-name">{{ s.short }}</span>
+                    <span class="suggestion-detail">{{ s.detail }}</span>
+                </button>
+            </div>
+        </div>
     </div>
 
     <div class="form-group">

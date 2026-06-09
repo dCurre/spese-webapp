@@ -89,6 +89,58 @@
 
 .form-textarea { resize: vertical; min-height: 56px; }
 
+.store-wrap {
+    position: relative;
+}
+
+.store-wrap .form-input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.store-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: var(--color-bg-card);
+    border: 1.5px solid var(--color-border);
+    border-radius: 8px;
+    overflow: hidden;
+    z-index: 1000;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+}
+
+.store-suggestion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    width: 100%;
+    padding: 0.6rem 0.875rem;
+    border: none;
+    border-bottom: 1px solid var(--color-border);
+    background: transparent;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.12s;
+}
+.store-suggestion:last-child { border-bottom: none; }
+.store-suggestion:hover { background: var(--color-bg-input); }
+
+.suggestion-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+.suggestion-detail {
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 
 .unit-price-preview {
     display: flex;
