@@ -29,24 +29,28 @@
 
         <div class="stats-col" *ngIf="hasLoaded && stats">
             <div class="stat-card">
-                <div class="stat-label"><i class="fa fa-tag"></i> Prezzo attuale</div>
+                <div class="stat-label"><i class="fa fa-medal"></i> Minimo storico</div>
                 <div class="stat-value">
-                    €{{ stats.currentUnitPrice | number:'1.2-4' }}<span class="stat-unit">/{{ stats.unitSymbol }}</span>
+                    €{{ stats.allTimeLowPrice | number:'1.2-4' }}<span class="stat-unit">/{{ stats.unitSymbol }}</span>
                 </div>
-                <div class="stat-badge"
-                     [class.badge-down]="stats.priceChangePercent! < 0"
-                     [class.badge-up]="stats.priceChangePercent! > 0"
-                     *ngIf="stats.priceChangePercent !== null">
-                    <i class="fa" [ngClass]="stats.priceChangePercent < 0 ? 'fa-arrow-trend-down' : 'fa-arrow-trend-up'"></i>
-                    {{ stats.priceChangePercent | number:'1.0-1' }}% da {{ stats.priceChangePrevLabel }}
+                <div class="stat-sub">
+                    {{ stats.allTimeLowDateStr }}<ng-container *ngIf="stats.allTimeLowStore"> · {{ stats.allTimeLowStore }}</ng-container>
                 </div>
-                <div class="stat-sub" *ngIf="stats.priceChangePercent === null">Primo acquisto</div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-label"><i class="fa fa-calendar-check"></i> Ultimo acquisto</div>
-                <div class="stat-value stat-value-date">{{ stats.lastDateStr }}</div>
-                <div class="stat-sub">{{ stats.daysSince === 0 ? 'Oggi' : stats.daysSince + ' giorni fa' }}</div>
+                <div class="stat-label"><i class="fa fa-tag"></i> Ultimo prezzo</div>
+                <div class="stat-value">
+                    €{{ stats.currentUnitPrice | number:'1.2-4' }}<span class="stat-unit">/{{ stats.unitSymbol }}</span>
+                </div>
+                <div class="stat-sub">{{ stats.lastDateStr }}</div>
+                <div class="stat-badge badge-up" *ngIf="stats.priceChangePercent !== null">
+                    <i class="fa fa-arrow-trend-up"></i>
+                    +{{ stats.priceChangePercent | number:'1.0-1' }}% sul minimo
+                </div>
+                <div class="stat-badge badge-down" *ngIf="stats.isAllTimeLow">
+                    <i class="fa fa-medal"></i> Minimo storico
+                </div>
             </div>
         </div>
 

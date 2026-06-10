@@ -8,6 +8,7 @@ import { Granularity, Purchase, PurchaseService } from 'src/app/core/services/po
 import { NewProductDialogComponent } from '../dialog/new-product-dialog/new-product-dialog.component';
 import { NewPurchaseDialogComponent } from '../dialog/new-purchase-dialog/new-purchase-dialog.component';
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
 
 @Component({
   selector: 'app-price-history-detail',
@@ -31,7 +32,7 @@ export class PriceHistoryDetailComponent implements OnInit {
       legend: { display: false },
       tooltip: {
         callbacks: {
-          label: (ctx) => `€ ${ctx.parsed.y.toFixed(4)} / ${this.product?.default_unit_symbol ?? 'u.'}`,
+          label: (ctx) => `€ ${ctx.parsed.y.toFixed(2)} / ${this.product?.default_unit_symbol ?? 'u.'}`,
         },
       },
     },
@@ -81,35 +82,43 @@ export class PriceHistoryDetailComponent implements OnInit {
     const latest = sorted[0];
     const previous = sorted[1];
     const currentUnitPrice = latest.unit_price ?? null;
-    const priceChangePercent =
-      currentUnitPrice != null && previous?.unit_price != null
-        ? ((currentUnitPrice - previous.unit_price) / previous.unit_price) * 100
-        : null;
-    const priceChangePrevLabel = previous
-      ? new Date(previous.purchased_at + 'T00:00:00').toLocaleDateString('it-IT', { month: 'short' })
-      : '';
 
     const totalSpent = this.purchases.reduce((s, p) => s + p.price, 0);
     const totalQty = this.purchases.reduce((s, p) => s + p.quantity, 0);
     const avgQty = totalQty / this.purchases.length;
     const unitSymbol = latest.unit_symbol ?? this.product?.default_unit_symbol ?? '';
 
-    const lastDate = new Date(latest.purchased_at + 'T00:00:00');
-    const daysSince = Math.floor((Date.now() - lastDate.getTime()) / 86400000);
-    const lastDateStr = lastDate.toLocaleDateString('it-IT', {
+    const lastDateStr = new Date(latest.purchased_at + 'T00:00:00').toLocaleDateString('it-IT', {
       day: 'numeric', month: 'short', year: 'numeric',
     });
+
+    const allTimeLowPurchase = [...this.purchases].reduce((min, p) =>
+      p.unit_price < min.unit_price ? p : min,
+    );
+    const allTimeLowPrice = allTimeLowPurchase.unit_price;
+    const allTimeLowDateStr = new Date(allTimeLowPurchase.purchased_at + 'T00:00:00').toLocaleDateString('it-IT', {
+      day: 'numeric', month: 'short', year: 'numeric',
+    });
+    const allTimeLowStore = allTimeLowPurchase.store ?? null;
+
+    const priceChangePercent =
+      currentUnitPrice != null && this.purchases.length > 1 && currentUnitPrice !== allTimeLowPrice
+        ? ((currentUnitPrice - allTimeLowPrice) / allTimeLowPrice) * 100
+        : null;
+    const isAllTimeLow = this.purchases.length > 1 && currentUnitPrice === allTimeLowPrice;
 
     return {
       currentUnitPrice,
       unitSymbol,
       priceChangePercent,
-      priceChangePrevLabel,
+      isAllTimeLow,
       totalSpent,
       totalQty,
       avgQty,
       lastDateStr,
-      daysSince,
+      allTimeLowPrice,
+      allTimeLowDateStr,
+      allTimeLowStore,
       count: this.purchases.length,
     };
   }
@@ -185,12 +194,21 @@ export class PriceHistoryDetailComponent implements OnInit {
     this.chartHasLoaded = false;
     this.purchaseService.getPriceHistory(id, this.granularity).subscribe({
       next: (res) => {
+        const values = res.data.map((d) => d.avg_unit_price);
+        const yMin = values.length ? Math.min(...values) * 0.95 : 0;
+        this.chartOptions = {
+          ...this.chartOptions,
+          scales: {
+            x: (this.chartOptions.scales as any)?.['x'],
+            y: { ...(this.chartOptions.scales as any)?.['y'], min: yMin },
+          },
+        };
         this.chartData = {
           labels: res.data.map((d) => d.period),
           datasets: [
             {
               label: `€ / ${res.unit_symbol ?? 'u.'}`,
-              data: res.data.map((d) => d.avg_unit_price),
+              data: values,
               borderColor: '#00b37e',
               backgroundColor: 'rgba(0,179,126,0.08)',
               pointBackgroundColor: '#00b37e',
@@ -275,8 +293,10 @@ export class PriceHistoryDetailComponent implements OnInit {
 
   protected deletePurchase(purchase: Purchase): void {
     const modal = this.modalService.open(DialogComponent, { centered: true });
-    modal.componentInstance.title = 'Elimina acquisto';
-    modal.componentInstance.message = `Eliminare l'acquisto del ${purchase.purchased_at}?`;
+    modal.componentInstance.dialogFields = new ConfirmDialogFields(
+      'Elimina acquisto',
+      `Eliminare l'acquisto del ${this.formatDate(purchase.purchased_at)}?`,
+    );
     modal.result
       .then((confirmed) => {
         if (!confirmed) return;
@@ -293,8 +313,10 @@ export class PriceHistoryDetailComponent implements OnInit {
   protected deleteProduct(): void {
     if (!this.product) return;
     const modal = this.modalService.open(DialogComponent, { centered: true });
-    modal.componentInstance.title = 'Elimina prodotto';
-    modal.componentInstance.message = `Eliminare "${this.product.name}" e tutto il suo storico?`;
+    modal.componentInstance.dialogFields = new ConfirmDialogFields(
+      'Elimina prodotto',
+      `Eliminare "${this.product.name}" e tutto il suo storico?`,
+    );
     modal.result
       .then((confirmed) => {
         if (!confirmed) return;

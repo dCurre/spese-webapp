@@ -178,6 +178,8 @@
     border: 1px solid var(--color-border);
     border-radius: 12px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .chart-header {
@@ -230,7 +232,8 @@
 .granularity-toggle button:not(.active):hover { background: var(--color-bg-input); color: var(--color-text-primary); }
 
 .chart-wrap {
-    height: 220px;
+    flex: 1;
+    min-height: 180px;
     padding: 1rem 1.1rem;
     position: relative;
 }
