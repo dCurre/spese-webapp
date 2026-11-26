@@ -11,5 +11,5 @@ export const environment = {
   },
   apiUrl: 'https://spese-ms.onrender.com/api/',
   pgApiUrl: 'https://spese-ms.onrender.com',
-  appVersion: '1.0.12',
+  appVersion: '1.0.13',
 };
