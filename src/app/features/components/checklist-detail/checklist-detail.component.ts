@@ -12,7 +12,7 @@ import { ImportChecklistDialogComponent, ImportChecklistResult, ParsedCategory }
 import { ExportChecklistDialogComponent } from '../dialog/export-checklist-dialog/export-checklist-dialog.component';
 import { User } from 'src/app/core/services/postgres/user/user';
 import { ToastService } from 'src/app/core/services/toast/toast.service';
-import { RealtimeService } from 'src/app/core/services/realtime/realtime.service';
+import { autoRefresh } from 'src/app/shared/utils/auto-refresh';
 
 export interface BatchItem {
   id: number | null;
@@ -122,7 +122,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   protected deletingList = false;
 
   private listId!: number;
-  private realtimeSub: Subscription | null = null;
+  private refreshSub: Subscription | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -133,7 +133,6 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
     private shoppingCategoryService: ShoppingCategoryService,
     private modalService: NgbModal,
     private toastService: ToastService,
-    private realtimeService: RealtimeService,
   ) {}
 
   ngAfterViewChecked(): void {
@@ -155,7 +154,7 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
   }
 
   ngOnDestroy(): void {
-    this.realtimeSub?.unsubscribe();
+    this.refreshSub?.unsubscribe();
   }
 
   private loadList(): void {
@@ -164,33 +163,17 @@ export class ChecklistDetailComponent implements OnInit, OnDestroy, AfterViewChe
         this.list = list;
         this.hasLoaded = true;
         this.loadError = false;
-        if (list.list_type === 'shared') this.subscribeRealtime();
+        if (list.list_type === 'shared') this.startAutoRefresh();
       },
       error: () => { this.hasLoaded = true; this.loadError = true; }
     });
   }
 
-  private subscribeRealtime(): void {
-    if (this.realtimeSub) return;
-    const items$ = this.realtimeService.watch('shopping_items', 'spese');
-    const cats$ = this.realtimeService.watch('shopping_categories', 'spese');
-    const participants$ = this.realtimeService.watch('shopping_list_participants', 'spese');
-    this.realtimeSub = new Subscription();
-    this.realtimeSub.add(items$.subscribe((payload: any) => {
-      if (payload?.new?.shopping_list_id === this.listId || payload?.old?.shopping_list_id === this.listId) {
-        this.reload();
-      }
-    }));
-    this.realtimeSub.add(cats$.subscribe((payload: any) => {
-      if (payload?.new?.shopping_list_id === this.listId || payload?.old?.shopping_list_id === this.listId) {
-        this.reload();
-      }
-    }));
-    this.realtimeSub.add(participants$.subscribe((payload: any) => {
-      if (payload?.new?.shopping_list_id === this.listId || payload?.old?.shopping_list_id === this.listId) {
-        this.reload();
-      }
-    }));
+  private startAutoRefresh(): void {
+    if (this.refreshSub) return;
+    this.refreshSub = autoRefresh().subscribe(() => {
+      if (!this.batchMode) this.reload();
+    });
   }
 
 

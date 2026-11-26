@@ -6,14 +6,12 @@ import { forkJoin } from 'rxjs';
 import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expense-dialog.component';
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
-import { ShareDialogComponent } from '../dialog/share-dialog/share-dialog.component';
 import { Expense } from 'src/app/core/services/postgres/expense/expense';
 import { ExpenseService } from 'src/app/core/services/postgres/expense/expense.service';
 import { ExpensesList } from 'src/app/core/services/postgres/expenses-list/expenses-list';
 import { ExpensesListService } from 'src/app/core/services/postgres/expenses-list/expenses-list.service';
 import { ExpensesListParticipantService } from 'src/app/core/services/postgres/expenses-list/expenses-list-participant.service';
 import { UserService } from 'src/app/core/services/postgres/user/user.service';
-import { environment } from 'src/environments/environment';
 import DateUtils from 'src/app/shared/utils/date-utils';
 import MathUtils from 'src/app/shared/utils/math-utils';
 import ListUtils from 'src/app/shared/utils/list-utils';
@@ -137,11 +135,4 @@ export class ExpensesListPersonalComponent implements OnInit {
   }
 
 
-
-  shareLink() {
-    const link = `${environment.pgApiUrl.replace('localhost:5000', location.host)}/join?list=${this.listID}`;
-    const modal = this.modalService.open(ShareDialogComponent, { centered: true });
-    modal.componentInstance.shareLink = link;
-    modal.result.then(() => {}).catch(() => {});
-  }
 }

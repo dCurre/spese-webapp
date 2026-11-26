@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { Subscription, forkJoin } from 'rxjs';
-import { RealtimeService } from 'src/app/core/services/realtime/realtime.service';
+import { autoRefresh } from 'src/app/shared/utils/auto-refresh';
 import { NewExpenseDialogComponent } from '../dialog/new-expense-dialog/new-expense-dialog.component';
 import { DialogComponent } from '../dialog/confirm-dialog/confirm-dialog.component';
 import { ConfirmDialogFields } from '../dialog/confirm-dialog/confirm-dialog-fields';
@@ -44,7 +44,7 @@ export class ExpenseListDetailsComponent implements OnInit, OnDestroy {
   protected balanceTotals: { name: string; amount: number }[] = [];
   protected balanceOpen = window.innerWidth > 768;
   protected drawerOpen = false;
-  private realtimeSub: Subscription | null = null;
+  private refreshSub: Subscription | null = null;
 
   readonly expenseTypeIcon = expenseTypeIcon;
   readonly expenseTypeAccent = expenseTypeAccent;
@@ -64,32 +64,19 @@ export class ExpenseListDetailsComponent implements OnInit, OnDestroy {
     private modalService: NgbModal,
     private route: ActivatedRoute,
     public router: Router,
-    private realtimeService: RealtimeService,
   ) { }
 
   ngOnInit(): void {
     this.listID = Number(this.route.snapshot.paramMap.get('id'));
     this.loadData(this.listID);
-    this.subscribeRealtime();
+    this.refreshSub = autoRefresh().subscribe(() => {
+      if (this.expensesList?.list_type === 'shared') this.loadData(this.listID);
+    });
   }
 
   ngOnDestroy() {
     this.modalService.dismissAll();
-    this.realtimeSub?.unsubscribe();
-  }
-
-  private subscribeRealtime(): void {
-    this.realtimeSub = new Subscription();
-    this.realtimeSub.add(this.realtimeService.watch('expenses', 'spese')
-      .subscribe((payload: any) => {
-        const row = payload?.new ?? payload?.old;
-        if (row?.expense_list_id === this.listID) this.reloadExpenses();
-      }));
-    this.realtimeSub.add(this.realtimeService.watch('expenses_list_participants', 'spese')
-      .subscribe((payload: any) => {
-        const row = payload?.new ?? payload?.old;
-        if (row?.expenses_list_id === this.listID) this.loadData(this.listID);
-      }));
+    this.refreshSub?.unsubscribe();
   }
 
   private loadData(id: number) {
@@ -163,10 +150,14 @@ export class ExpenseListDetailsComponent implements OnInit, OnDestroy {
 
 
   shareLink() {
-    const link = `${window.location.origin}/join?list=${this.listID}`;
-    const modalShare = this.modalService.open(ShareDialogComponent, { centered: true });
-    modalShare.componentInstance.shareLink = link;
-    modalShare.result.then(() => {}).catch(() => {});
+    this.pgExpensesListService.createInviteToken(this.listID).subscribe({
+      next: ({ invite_token }) => {
+        const modalShare = this.modalService.open(ShareDialogComponent, { centered: true });
+        modalShare.componentInstance.shareLink = `${window.location.origin}/join?token=${invite_token}`;
+        modalShare.result.then(() => {}).catch(() => {});
+      },
+      error: (e) => console.error('ExpenseListDetailsComponent.shareLink: ', e)
+    });
   }
 
   addGuest() {

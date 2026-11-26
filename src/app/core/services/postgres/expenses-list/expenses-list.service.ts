@@ -5,6 +5,13 @@ import { environment } from 'src/environments/environment';
 import { ExpensesList } from './expenses-list';
 import { SaldoDetails } from 'src/app/features/components/saldo-details/list-details-dialog-fields';
 
+export interface ExpensesListInvite {
+  id: number;
+  name: string;
+  participants_count: number;
+  is_member: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -39,6 +46,18 @@ export class ExpensesListService {
       current_owner_id: currentOwnerId,
       new_owner_id: newOwnerId,
     });
+  }
+
+  createInviteToken(listId: number): Observable<{ invite_token: string }> {
+    return this.http.post<{ invite_token: string }>(`${this.baseUrl}/${listId}/invite-token`, {});
+  }
+
+  previewInvite(token: string): Observable<ExpensesListInvite> {
+    return this.http.get<ExpensesListInvite>(`${this.baseUrl}/invite/${encodeURIComponent(token)}`);
+  }
+
+  joinByInvite(token: string): Observable<{ id: number }> {
+    return this.http.post<{ id: number }>(`${this.baseUrl}/join/${encodeURIComponent(token)}`, {});
   }
 
   getBalance(listId: number): Observable<{ balance: SaldoDetails[]; totals: { name: string; amount: number }[] }> {

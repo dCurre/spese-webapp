@@ -1,22 +1,17 @@
 <div class="join-page">
-    <div class="join-card" *ngIf="expensesList">
+    <div class="join-card" *ngIf="invite">
         <div class="join-icon">
             <i class="fa fa-users"></i>
         </div>
         <h2 class="join-title">Unisciti alla lista</h2>
-        <p class="join-list-name">{{ expensesList.name }}</p>
+        <p class="join-list-name">{{ invite.name }}</p>
         <p class="join-participants">
             <i class="fa fa-user"></i>
-            {{ expensesList.participants?.length ?? 0 }} / {{ maxUsers }} partecipanti
+            {{ invite.participants_count }} partecipanti
         </p>
-        <button class="join-btn"
-            [disabled]="(expensesList.participants?.length ?? 0) >= maxUsers"
-            (click)="addUserToList(listID)">
+        <button class="join-btn" (click)="join()">
             <i class="fa fa-right-to-bracket"></i> Partecipa
         </button>
-        <p class="join-full" *ngIf="(expensesList.participants?.length ?? 0) >= maxUsers">
-            La lista ha raggiunto il numero massimo di partecipanti.
-        </p>
     </div>
-    <app-spinner *ngIf="!expensesList"></app-spinner>
+    <app-spinner *ngIf="!invite"></app-spinner>
 </div>

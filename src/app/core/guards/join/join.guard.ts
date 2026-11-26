@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
-import { Observable } from 'rxjs';
-import { AuthService } from '../../services/auth/auth.service';
+import { CanActivate, ActivatedRouteSnapshot, Router, UrlTree } from '@angular/router';
+import { Observable, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { ExpensesListService } from '../../services/postgres/expenses-list/expenses-list.service';
 
+/** Richiede un link di invito valido; chi è già nella lista ci va direttamente. */
 @Injectable({
     providedIn: 'root'
 })
@@ -11,42 +12,16 @@ export class JoinGuard implements CanActivate {
     constructor(
         private router: Router,
         private pgExpensesListService: ExpensesListService,
-        private authService: AuthService,
     ) { }
 
-    canActivate(
-        route: ActivatedRouteSnapshot,
-        state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
+    canActivate(route: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
+        const denied = this.router.createUrlTree(['/accessdenied']);
+        const token = route.queryParams['token'];
+        if (!token) return of(denied);
 
-        return new Promise(async (resolve) => {
-            const listID = Number(state.url.split("list=")[1]);
-
-            if (!listID) {
-                console.error("Join Guard: url non valido");
-                this.router.navigate(['/accessdenied']);
-                return resolve(false);
-            }
-
-            const pgUser = await this.authService.getUser();
-            if (!pgUser) {
-                this.router.navigate(['']);
-                return resolve(false);
-            }
-
-            this.pgExpensesListService.getById(listID).subscribe({
-                next: (expensesList) => {
-                    const isOwner = expensesList.user_id === pgUser.id;
-                    const isParticipant = expensesList.participants?.some(p => p.user_id === pgUser.id) ?? false;
-                    if (isOwner || isParticipant) {
-                        return resolve(this.router.createUrlTree(['/list', expensesList.id]));
-                    }
-                    resolve(true);
-                },
-                error: () => {
-                    console.error('Join Guard: list not found');
-                    resolve(this.router.createUrlTree(['/accessdenied']));
-                }
-            });
-        });
+        return this.pgExpensesListService.previewInvite(token).pipe(
+            map(invite => invite.is_member ? this.router.createUrlTree(['/list', invite.id]) : true),
+            catchError(() => of(denied)),
+        );
     }
 }
