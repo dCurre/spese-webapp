@@ -28,6 +28,7 @@ import { DialogComponent } from './features/components/dialog/confirm-dialog/con
 import { ToastComponent } from './features/components/toast/toast.component';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ErrorInterceptor } from './core/interceptors/error.interceptor';
+import { AuthInterceptor } from './core/interceptors/auth.interceptor';
 
 // Firebase
 import { AngularFireModule } from '@angular/fire/compat';
@@ -133,6 +134,7 @@ import { CurrencyInputComponent } from './features/components/shared/currency-in
   providers: [
     AuthService,
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })
